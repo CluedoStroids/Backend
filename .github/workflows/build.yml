@@ -35,10 +35,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=AAU-SE2_WebSocketDemo-Server
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@v4.0.0 # Ex: v4.0.0, See the latest version at https://github.com/marketplace/actions/sonarcloud-scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONARSCAN_TOKEN }}
-        with:
-          args:
-            -Dsonar.organization=cluedostroids
+    
