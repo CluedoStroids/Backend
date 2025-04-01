@@ -31,6 +31,7 @@ class WebSocketBrokerIntegrationTest {
     /**
      * Queue of messages from the server.
      */
+
     BlockingQueue<String> messages = new LinkedBlockingDeque<>();
 
     @Test
