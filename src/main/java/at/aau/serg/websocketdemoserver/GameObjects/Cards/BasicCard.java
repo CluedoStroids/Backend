@@ -8,6 +8,7 @@ import java.util.UUID;
 @Getter
 public class BasicCard extends GameObject {
 
+    //Variables
     private final String cardName;
     private final UUID cardID;
     private final String cardValue;
