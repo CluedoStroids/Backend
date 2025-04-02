@@ -17,6 +17,7 @@ public class GameManager
     private ArrayList<BasicCard> rooms = new ArrayList<>();
     private ArrayList<BasicCard> weapons = new ArrayList<>();
     private  ArrayList<BasicCard> character = new ArrayList<>();
+    private Random rn = new Random();
 
     private SecretFile secretFile;
 
@@ -53,7 +54,6 @@ public class GameManager
     public void generateFile(){
         cards.clear();
         //pick room
-        Random rn = new Random();
         int room = rn.nextInt(rooms.size());
         //pick char
         int chara = rn.nextInt(character.size());
@@ -80,7 +80,7 @@ public class GameManager
     }
 //Dice
     public int randomDice(){
-        Random rn = new Random();
+
         return rn.nextInt(12)+1;
     }
 
