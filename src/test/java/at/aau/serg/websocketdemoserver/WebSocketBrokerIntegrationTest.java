@@ -25,7 +25,7 @@ class WebSocketBrokerIntegrationTest {
     @LocalServerPort
     private int port;
 
-    private final String WEBSOCKET_URI = "ws://localhost:%d/websocket-example-broker";
+    private final String WEBSOCKET_URI = "ws://localhost:%d/cluedo";
     private final String WEBSOCKET_TOPIC = "/topic/hello-response";
 
     /**
