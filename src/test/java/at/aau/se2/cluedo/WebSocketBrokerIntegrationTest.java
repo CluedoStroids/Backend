@@ -1,6 +1,6 @@
-package at.aau.serg.websocketdemoserver;
+package at.aau.se2.cluedo;
 
-import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
+import at.aau.se2.cluedo.websocket.StompFrameHandlerClientImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;

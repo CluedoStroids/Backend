@@ -1,4 +1,4 @@
-package at.aau.serg.websocketdemoserver.websocket;
+package at.aau.se2.cluedo.websocket;
 
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;

@@ -1,4 +1,5 @@
-package at.aau.serg.websocketdemoserver.websocket.broker;
+package at.aau.se2.cluedo.config;
+
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -8,18 +9,19 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
+        // Broadcasting messages to subscribers
         config.enableSimpleBroker("/topic");
+        // Messages getting sent to the app
         config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/websocket-example-broker")
-                .setAllowedOrigins("*");
+        // WebSocket endpoint
+        registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS();
     }
 }
-

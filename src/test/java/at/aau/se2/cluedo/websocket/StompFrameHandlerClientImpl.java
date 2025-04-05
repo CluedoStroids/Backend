@@ -1,4 +1,4 @@
-package at.aau.serg.websocketdemoserver.websocket;
+package at.aau.se2.cluedo.websocket;
 
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
