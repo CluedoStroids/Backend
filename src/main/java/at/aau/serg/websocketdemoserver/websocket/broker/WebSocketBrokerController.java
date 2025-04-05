@@ -14,21 +14,20 @@ public class WebSocketBrokerController {
     @SendTo("/topic/login-response")
     public String handleLogin(String username) {
         // TODO handle login here
-        return "";
+        return "login-response";
     }
 
     @MessageMapping("/disconnect")
     @SendTo("/topic/disconnect-response")
     public String handleDisconnect(String username) {
         // TODO handle disconnect here
-        return "";
+        return "disconnect-response";
     }
 
-
     //sample methods for exchange of String-messages or StompMessages / Json Objects
-    @MessageMapping("/hello")
-    @SendTo("/topic/hello-response")
-    public String handleHello(String text) {
+    @MessageMapping("/message")
+    @SendTo("/topic/message-response")
+    public String handleMessage(String text) {
         // TODO handle the messages here
         return "echo from broker: "+text;
     }
