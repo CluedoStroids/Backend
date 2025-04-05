@@ -15,6 +15,7 @@ public class WebSocketBrokerController {
         // TODO handle the messages here
         return "echo from broker: "+text;
     }
+
     @MessageMapping("/object")
     @SendTo("/topic/rcv-object")
     public StompMessage handleObject(StompMessage msg) {
