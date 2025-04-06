@@ -1,6 +1,8 @@
 package at.aau.serg.websocketdemoserver;
 
 import at.aau.serg.websocketdemoserver.websocket.StompFrameHandlerClientImpl;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +19,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -25,22 +28,46 @@ class WebSocketBrokerIntegrationTest {
     @LocalServerPort
     private int port;
 
-    private final String WEBSOCKET_URI = "ws://localhost:%d/websocket-example-broker";
-    private final String WEBSOCKET_TOPIC = "/topic/hello-response";
+    private final String WEBSOCKET_URI = "ws://localhost:%d/cluedo";
+    private final String WEBSOCKET_TOPIC = "/topic/";
 
-    /**
-     * Queue of messages from the server.
-     */
+    private StompSession session;
 
-    BlockingQueue<String> messages = new LinkedBlockingDeque<>();
+    @BeforeEach
+    void setUp() {
+        try {
+            session = initStompSession();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Test
-    public void testWebSocketMessageBroker() throws Exception {
-        StompSession session = initStompSession();
+    public void testWebSocketLogin() throws InterruptedException {
+        BlockingQueue<String> logins = new LinkedBlockingDeque<>();
+        session.subscribe(WEBSOCKET_TOPIC+"login-response", new StompFrameHandlerClientImpl(logins));
+        String username = "User";
+        session.send("/app/login",username);
+        assertEquals("login-response",logins.poll(3, TimeUnit.SECONDS));
+    }
 
+    @Test
+    public void testWebSocketDisconnect() throws InterruptedException {
+        BlockingQueue<String> disconnects = new LinkedBlockingDeque<>();
+        session.subscribe(WEBSOCKET_TOPIC+"disconnect-response", new StompFrameHandlerClientImpl(disconnects));
+        String username = "User";
+        session.send("/app/disconnect",username);
+        assertEquals("disconnect-response",disconnects.poll(3, TimeUnit.SECONDS));
+    }
+
+
+    @Test
+    public void testWebSocketMessageBroker() throws InterruptedException {
+        BlockingQueue<String> messages = new LinkedBlockingDeque<>();
+        session.subscribe(WEBSOCKET_TOPIC+"message-response", new StompFrameHandlerClientImpl(messages));
         // send a message to the server
         String message = "Test message";
-        session.send("/app/hello", message);
+        session.send("/app/message", message);
 
         var expectedResponse = "echo from broker: " + message;
         assertThat(messages.poll(1, TimeUnit.SECONDS)).isEqualTo(expectedResponse);
@@ -59,10 +86,6 @@ class WebSocketBrokerIntegrationTest {
                         })
                 // wait 1 sec for the client to be connected
                 .get(1, TimeUnit.SECONDS);
-
-        // subscribes to the topic defined in WebSocketBrokerController
-        // and adds received messages to WebSocketBrokerIntegrationTest#messages
-        session.subscribe(WEBSOCKET_TOPIC, new StompFrameHandlerClientImpl(messages));
 
         return session;
     }

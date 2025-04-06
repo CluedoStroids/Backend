@@ -4,24 +4,29 @@ import at.aau.serg.websocketdemoserver.GameObjects.Cards.BasicCard;
 import at.aau.serg.websocketdemoserver.GameObjects.GameObject;
 import at.aau.serg.websocketdemoserver.GameObjects.Player;
 import at.aau.serg.websocketdemoserver.GameObjects.SecretFile;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class GameManager
-{   //List that save the Player stats and that save the cards
+@Getter
+@Setter
+public class GameManager {
+    //List that save the Player stats and that save the cards
     private ArrayList<Player> playerList = new ArrayList<>();
     private int currentPlayer=0;
     private ArrayList<BasicCard> cards = new ArrayList<>();
     private ArrayList<BasicCard> rooms = new ArrayList<>();
     private ArrayList<BasicCard> weapons = new ArrayList<>();
-    private  ArrayList<BasicCard> character = new ArrayList<>();
+    private ArrayList<BasicCard> character = new ArrayList<>();
     private Random rn = new Random();
 
     private SecretFile secretFile;
 
-// Add a Player to the List
+    // Add a Player to the List
     public void addPlayer(Player p){
         playerList.add(p);
     }
@@ -41,48 +46,52 @@ public class GameManager
         }
     }
 
-// Top of the Round so restarting at 0
+    // Top of the Round so restarting at 0
     public void topOfTheRound(){
         currentPlayer = 0;
     }
-// Init the Game
+    // Init the Game
     public void InitilizeGame(){
             //Call GameBoard
             generateFile();
     }
-//Generate the secret File.
+
+    //Generate the secret File.
     public void generateFile(){
         cards.clear();
         //pick room
-        int room = rn.nextInt(rooms.size());
+        int room = rn.nextInt(rooms.size()-1);
         //pick char
-        int chara = rn.nextInt(character.size());
+        int chara = rn.nextInt(character.size()-1);
         // pick weapon
-        int weapon = rn.nextInt(weapons.size());
+        int weapon = rn.nextInt(weapons.size()-1);
 
-        secretFile = new SecretFile(rooms.remove(room),weapons.remove(weapon),character.remove(chara));
+        secretFile = new SecretFile(rooms.get(room),weapons.get(weapon),character.get(chara));
+        rooms.remove(room);
+        weapons.remove(weapon);
+        weapons.remove(chara);
         cards.addAll(rooms);
         cards.addAll(weapons);
         cards.addAll(character);
     }
-//Solve the case
+
+    //Solve the case
     public boolean solveFile(SecretFile file){
         if (secretFile.equals(file)){
             return true;
         }
         return false;
     }
+
     //get a Card
-
-
     public GameObject getACard(){
         return new BasicCard("Knife", UUID.randomUUID(),"It's a Knife","Weapon");
     }
-//Dice
+
+    //Dice
     public int randomDice(){
 
         return rn.nextInt(12)+1;
     }
-
 
 }
