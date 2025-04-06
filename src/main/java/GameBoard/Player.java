@@ -1,6 +1,7 @@
 package GameBoard;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.List;
 
 public class Player extends GameObject{
@@ -13,8 +14,16 @@ public class Player extends GameObject{
     private boolean isActive = true;
     private boolean hasWon = false;
 
+      public UUID getPlayerID() {
+        return playerID;
+    }
+
+    // Player UUID for Unique identification
+    private UUID playerID;
+
     public Player(String name, String character, int startX, int startY) {
         this.name = name;
+        this.playerID = UUID.random();
         this.character = character;
         this.x = startX;
         this.y = startY;
