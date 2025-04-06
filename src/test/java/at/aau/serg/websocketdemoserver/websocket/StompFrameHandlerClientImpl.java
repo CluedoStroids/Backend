@@ -6,6 +6,9 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 import java.lang.reflect.Type;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * temp implementation of a stomp-client. Messages are stored in a Queue and handled one after another.
+ */
 public class StompFrameHandlerClientImpl implements StompFrameHandler {
     private BlockingQueue<String> messagesQueue;
 
