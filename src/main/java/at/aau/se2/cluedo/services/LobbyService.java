@@ -14,6 +14,7 @@ public class LobbyService {
         String lobbyId = UUID.randomUUID().toString();
         Lobby lobby = new Lobby(lobbyId, host);
         lobbies.put(lobbyId, lobby);
+        System.out.println("Created lobby: " + lobbyId);
         return lobbyId;
     }
 
@@ -24,6 +25,7 @@ public class LobbyService {
         }
         if (!lobby.getParticipants().contains(user)) {
             lobby.getParticipants().add(user);
+            System.out.println("User: " + user + " joined lobby " + lobbyId);
         }
     }
 

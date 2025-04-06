@@ -17,7 +17,6 @@ public class Lobby {
         this.participants.add(host);
     }
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
