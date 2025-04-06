@@ -41,10 +41,7 @@ public class GameManager
         }
     }
 
-// Top of the Round so restarting at 0
-    public void topOfTheRound(){
-        currentPlayer = 0;
-    }
+
 // Init the Game
     public void InitilizeGame(){
             //Call GameBoard

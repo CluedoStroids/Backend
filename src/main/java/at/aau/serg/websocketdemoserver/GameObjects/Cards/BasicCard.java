@@ -22,4 +22,8 @@ public class BasicCard extends GameObject {
         this.type = type;
     }
 
+    public boolean equals(BasicCard card){
+        return (cardName == card.cardName);
+    }
+
 }

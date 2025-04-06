@@ -1,15 +1,18 @@
 package GameBoard;
 
+import at.aau.serg.websocketdemoserver.GameObjects.Cards.BasicCard;
+import at.aau.serg.websocketdemoserver.GameObjects.GameObject;
+
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.List;
 
-public class Player extends GameObject{
+public class Player extends GameObject {
     private final String name;
     private final String character;
     private int x;
     private int y;
-    private final List<String> cards;
+    private final List<BasicCard> cards;
     private boolean isCurrentPlayer;
     private boolean isActive = true;
     private boolean hasWon = false;
@@ -23,7 +26,7 @@ public class Player extends GameObject{
 
     public Player(String name, String character, int startX, int startY) {
         this.name = name;
-        this.playerID = UUID.random();
+        this.playerID = UUID.randomUUID();
         this.character = character;
         this.x = startX;
         this.y = startY;
@@ -35,7 +38,7 @@ public class Player extends GameObject{
         this.y = y;
     }
 
-    public void addCard(String card) {
+    public void addCard(BasicCard card) {
         cards.add(card);
     }
 
@@ -48,7 +51,7 @@ public class Player extends GameObject{
     public String getCharacter() { return character; }
     public int getX() { return x; }
     public int getY() { return y; }
-    public List<String> getCards() { return new ArrayList<>(cards); }
+    public List<BasicCard> getCards() { return new ArrayList<>(cards); }
     public boolean isCurrentPlayer() { return isCurrentPlayer; }
     public void setCurrentPlayer(boolean isCurrentPlayer) { this.isCurrentPlayer = isCurrentPlayer; }
     public boolean isActive() { return isActive; }

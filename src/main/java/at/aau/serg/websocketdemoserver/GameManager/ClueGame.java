@@ -1,4 +1,12 @@
-package GameBoard;
+package at.aau.serg.websocketdemoserver.GameManager;
+
+import GameBoard.ClueGameBoard;
+import GameBoard.GameBoardCell;
+import GameBoard.Player;
+import GameBoard.Room;
+import at.aau.serg.websocketdemoserver.GameObjects.Cards.BasicCard;
+import at.aau.serg.websocketdemoserver.GameObjects.GameObject;
+import at.aau.serg.websocketdemoserver.GameObjects.SecretFile;
 
 import java.util.*;
 
@@ -6,29 +14,19 @@ public class ClueGame {
     private final ClueGameBoard gameBoard;
     private final List<Player> players;
     private int currentPlayerIndex;
-    private final List<String> possibleSuspects;
-    private final List<String> possibleWeapons;
-    private final List<String> possibleRooms;
-    private final Map<String, String> solution;
     private final Scanner scanner;
+    private Random rn = new Random();
+    private SecretFile secretFile;
+    private ArrayList<BasicCard> cards = new ArrayList<>();
+    private ArrayList<BasicCard> rooms = new ArrayList<>();
+    private ArrayList<BasicCard> weapons = new ArrayList<>();
+    private  ArrayList<BasicCard> character = new ArrayList<>();
 
     public ClueGame() {
         this.gameBoard = new ClueGameBoard();
         this.players = initializePlayers();
         this.scanner = new Scanner(System.in);
 
-        this.possibleSuspects = new ArrayList<>(Arrays.asList(
-                "Miss Scarlet", "Colonel Mustard", "Mrs. White",
-                "Mr. Green", "Mrs. Peacock", "Professor Plum"));
-
-        this.possibleWeapons = new ArrayList<>(Arrays.asList(
-                "Dagger", "Revolver", "Rope", "Lead Pipe", "Wrench", "Candlestick"));
-
-        this.possibleRooms = new ArrayList<>(Arrays.asList(
-                "Hall", "Lounge", "Dining Room", "Kitchen",
-                "Ballroom", "Conservatory", "Library", "Study", "Billiard Room"));
-
-        this.solution = determineSolution();
         distributeCards();
 
         this.currentPlayerIndex = 0;
@@ -45,35 +43,42 @@ public class ClueGame {
                 new Player("Professor Plum", "Purple", 23, 19)
         );
     }
+    //Generate the secret File.
+    public void generateFile(){
+        cards.clear();
+        //pick room
+        int room = rn.nextInt(rooms.size());
+        //pick char
+        int chara = rn.nextInt(character.size());
+        // pick weapon
+        int weapon = rn.nextInt(weapons.size());
 
-    private Map<String, String> determineSolution() {
-        Map<String, String> solution = new HashMap<>();
-        Collections.shuffle(possibleSuspects);
-        Collections.shuffle(possibleWeapons);
-        Collections.shuffle(possibleRooms);
-
-        solution.put("Suspect", possibleSuspects.get(0));
-        solution.put("Weapon", possibleWeapons.get(0));
-        solution.put("Room", possibleRooms.get(0));
-
-        return solution;
+        secretFile = new SecretFile(rooms.remove(room),weapons.remove(weapon),character.remove(chara));
+        cards.addAll(rooms);
+        cards.addAll(weapons);
+        cards.addAll(character);
+    }
+    // Top of the Round so restarting at 0
+    public void topOfTheRound(){
+        currentPlayerIndex = 0;
     }
 
+
     private void distributeCards() {
-        List<String> allCards = new ArrayList<>();
-        allCards.addAll(possibleSuspects);
-        allCards.addAll(possibleWeapons);
-        allCards.addAll(possibleRooms);
+        List<BasicCard> allCards = new ArrayList<>();
+        allCards.addAll(rooms);
+        allCards.addAll(weapons);
+        allCards.addAll(character);
 
         // Remove solution cards
-        allCards.remove(solution.get("Suspect"));
-        allCards.remove(solution.get("Weapon"));
-        allCards.remove(solution.get("Room"));
+        allCards.remove(secretFile.character());
+        allCards.remove(secretFile.weapon());
+        allCards.remove(secretFile.room());
         Collections.shuffle(allCards);
 
         // Distribute cards evenly
         int playerIndex = 0;
-        for (String card : allCards) {
+        for (BasicCard card : allCards) {
             players.get(playerIndex).addCard(card);
             playerIndex = (playerIndex + 1) % players.size();
         }
@@ -127,19 +132,25 @@ public class ClueGame {
 
         int choice = scanner.nextInt();
         scanner.nextLine();
+        Collections.shuffle(rooms);
+        BasicCard room = rooms.get(0);
+        Collections.shuffle(weapons);
+        BasicCard weapon = weapons.get(0);
+        Collections.shuffle(rooms);
+        BasicCard chara = character.get(0);
 
         switch (choice) {
             case 1 -> makeSuggestion(player);
-            case 2 -> makeAccusation(player);
+            case 2 -> makeAccusation(player,room,weapon,chara);
         }
     }
 
     private void makeSuggestion(Player player) {
         System.out.println("\nMake a suggestion:");
-        System.out.println("Which suspect? " + possibleSuspects);
+        System.out.println("Which suspect? " + rooms.toString());
         String suspect = scanner.nextLine();
 
-        System.out.println("Which weapon? " + possibleWeapons);
+        System.out.println("Which weapon? " + weapons.toString());
         String weapon = scanner.nextLine();
 
         System.out.println("Which room? (current room: " +
@@ -149,7 +160,7 @@ public class ClueGame {
         // Gather evidence
         for (Player p : this.players) {
             if (p != player) {
-                for (String card : p.getCards()) {
+                for (BasicCard card : p.getCards()) {
                     if (card.equals(suspect) || card.equals(weapon) || card.equals(room)) {
                         System.out.println(p.getName() + " shows you: " + card);
                         return;
@@ -160,20 +171,11 @@ public class ClueGame {
         System.out.println("No one could disprove your suggestion!");
     }
 
-    private void makeAccusation(Player player) {
+    private void makeAccusation(Player player, BasicCard room, BasicCard weapon, BasicCard character) {
         System.out.println("\nMake an accusation:");
-        System.out.println("Which suspect? " + possibleSuspects);
-        String suspect = scanner.nextLine();
 
-        System.out.println("Which weapon? " + possibleWeapons);
-        String weapon = scanner.nextLine();
 
-        System.out.println("Which room? " + possibleRooms);
-        String room = scanner.nextLine();
-
-        if (suspect.equals(solution.get("Suspect")) &&
-                weapon.equals(solution.get("Weapon")) &&
-                room.equals(solution.get("Room"))) {
+        if (secretFile.room().equals(room) && secretFile.character().equals(character) && secretFile.weapon().equals(weapon)) {
             System.out.println("Correct! " + player.getName() + " has solved the crime!");
             player.setHasWon(true);
         } else {
@@ -234,13 +236,28 @@ public class ClueGame {
         return false;
     }
 
+
+    public void nextTurn(){
+        currentPlayerIndex+=1;
+        if(currentPlayerIndex >=players.size()){
+            topOfTheRound();
+        }
+    }
+    public void InitilizeGame(){
+        //Call GameBoard
+        generateFile();
+        initializePlayers();
+    }
     private void nextPlayer() {
         players.get(currentPlayerIndex).setCurrentPlayer(false);
-
+/*
         do {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         } while (!players.get(currentPlayerIndex).isActive());
-
+*/
+        currentPlayerIndex++;
+        if(currentPlayerIndex>=players.size())
+            topOfTheRound();
         players.get(currentPlayerIndex).setCurrentPlayer(true);
     }
 
