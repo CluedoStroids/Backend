@@ -3,7 +3,7 @@ package GameBoard;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player {
+public class Player extends GameObject{
     private final String name;
     private final String character;
     private int x;
