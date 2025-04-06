@@ -29,6 +29,17 @@ public class LobbyService {
         }
     }
 
+    public void leaveLobby(String lobbyId, String user) {
+        Lobby lobby = lobbies.get(lobbyId);
+        if (lobby == null) {
+            throw new RuntimeException("Lobby not found");
+        }
+        if (!lobby.getParticipants().contains(user)) {
+            lobby.getParticipants().remove(user);
+            System.out.println("User: " + user + " left lobby " + lobbyId);
+        }
+    }
+
     public Lobby getLobby(String lobbyId) {
         Lobby lobby = lobbies.get(lobbyId);
         if (lobby == null) {

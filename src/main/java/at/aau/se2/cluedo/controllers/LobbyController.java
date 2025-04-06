@@ -26,6 +26,12 @@ public class LobbyController {
         lobbyService.joinLobby(lobbyId, request.getUsername());
         return lobbyService.getLobby(lobbyId);
     }
+    @MessageMapping("/leaveLobby/{lobbyId}")
+    @SendTo("/topic/lobby/{lobbyId}")
+    public Lobby leaveLobby(@DestinationVariable String lobbyId, LeaveLobbyRequest request) {
+        lobbyService.leaveLobby(lobbyId, request.getUsername());
+        return lobbyService.getLobby(lobbyId);
+    }
 
     static class CreateLobbyRequest {
         private String username;
@@ -40,6 +46,18 @@ public class LobbyController {
     }
 
     static class JoinLobbyRequest {
+        private String username;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+    }
+
+    static class LeaveLobbyRequest {
         private String username;
 
         public String getUsername() {
