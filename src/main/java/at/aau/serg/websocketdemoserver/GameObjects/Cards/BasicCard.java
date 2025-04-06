@@ -11,7 +11,7 @@ public class BasicCard extends GameObject {
     //Variables
     private final String cardName;
     private final UUID cardID;
-    private final String cardValue;
+    private final String cardValue; //IDK yet
     private final String type;
 
 

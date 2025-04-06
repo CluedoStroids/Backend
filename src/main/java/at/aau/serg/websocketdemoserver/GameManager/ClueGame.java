@@ -26,11 +26,10 @@ public class ClueGame {
 
     public ClueGame() {
         this.gameBoard = new ClueGameBoard();
+
         this.players = initializePlayers();
         this.scanner = new Scanner(System.in);
-
-        distributeCards();
-
+        initilizeGame();
         this.currentPlayerIndex = 0;
         players.get(0).setCurrentPlayer(true);
     }
@@ -49,13 +48,11 @@ public class ClueGame {
     public void generateFile(){
         cards.clear();
         //pick room
-        int room = rn.nextInt(rooms.size());
-        //pick char
-        int chara = rn.nextInt(character.size());
-        // pick weapon
-        int weapon = rn.nextInt(weapons.size());
+        Collections.shuffle(rooms);
+        Collections.shuffle(character);
+        Collections.shuffle(weapons);
 
-        secretFile = new SecretFile(rooms.remove(room),weapons.remove(weapon),character.remove(chara));
+        secretFile = new SecretFile(rooms.remove(0),weapons.remove(0),character.remove(0));
         cards.addAll(rooms);
         cards.addAll(weapons);
         cards.addAll(character);
@@ -245,10 +242,19 @@ public class ClueGame {
             topOfTheRound();
         }
     }
-    public void InitilizeGame(){
+    private void generateCards(){
+        rooms.add(new BasicCard("Livingroom",UUID.randomUUID(),"Its a room","Room"));
+        rooms.add(new BasicCard("Garage",UUID.randomUUID(),"Its a room","Room"));
+        weapons.add(new BasicCard("Knife",UUID.randomUUID(),"Its a Knife","Weapon"));
+        weapons.add(new BasicCard("Rope",UUID.randomUUID(),"Its a Knife","Weapon"));
+        character.add(new BasicCard("Portz",UUID.randomUUID(),"Its Portz","Character"));
+        character.add(new BasicCard("Mrs. White",UUID.randomUUID(),"Its Mrs White","Character"));
+    }
+    public void initilizeGame(){
         //Call GameBoard
+        generateCards();
         generateFile();
-        initializePlayers();
+        distributeCards();
     }
     private void nextPlayer() {
         players.get(currentPlayerIndex).setCurrentPlayer(false);

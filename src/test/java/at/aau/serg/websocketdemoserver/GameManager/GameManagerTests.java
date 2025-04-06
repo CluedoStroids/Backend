@@ -18,6 +18,7 @@ public class GameManagerTests {
     @BeforeEach
     void setUp() {
         gameManager = new ClueGame();
+        gameManager.initilizeGame();
 
         ArrayList<BasicCard> rooms = new ArrayList<>();
             rooms.add(new BasicCard("Kitchen", UUID.randomUUID(), "Kitchen", "Room"));
@@ -47,15 +48,19 @@ public class GameManagerTests {
     @Test
     void testNextTurnAndTopOfRound() {
         gameManager.nextTurn();
-        assertEquals("Colonel Mustard", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()));
+        assertEquals("Colonel Mustard", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).getName());
 
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
         gameManager.nextTurn(); // Should wrap around to 0
-        assertEquals("Mrs. White", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()));
+        assertEquals("Colonel Mustard", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).getName());
     }
 
     @Test
     void testInitializeGameGeneratesSecretFile() {
-        gameManager.InitilizeGame();
         SecretFile secret = gameManager.getSecretFile();
         assertNotNull(secret);
         assertNotNull(secret.room());
@@ -65,7 +70,6 @@ public class GameManagerTests {
 
     @Test
     void testSolveFileCorrectly() {
-        gameManager.InitilizeGame();
         SecretFile correct = gameManager.getSecretFile();
 
         gameManager.makeAccusation(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()),correct);
@@ -74,7 +78,7 @@ public class GameManagerTests {
 
     @Test
     void testSolveFileIncorrectly() {
-        gameManager.InitilizeGame();
+
         SecretFile wrong = new SecretFile(
                 new BasicCard("FakeRoom", UUID.randomUUID(), "desc", "Room"),
                 new BasicCard("FakeWeapon", UUID.randomUUID(), "desc", "Weapon"),
