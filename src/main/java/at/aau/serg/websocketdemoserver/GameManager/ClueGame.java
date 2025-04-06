@@ -2,14 +2,16 @@ package at.aau.serg.websocketdemoserver.GameManager;
 
 import GameBoard.ClueGameBoard;
 import GameBoard.GameBoardCell;
-import GameBoard.Player;
-import GameBoard.Room;
+import at.aau.serg.websocketdemoserver.GameObjects.Player;
 import at.aau.serg.websocketdemoserver.GameObjects.Cards.BasicCard;
-import at.aau.serg.websocketdemoserver.GameObjects.GameObject;
 import at.aau.serg.websocketdemoserver.GameObjects.SecretFile;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
+@Getter
+@Setter
 public class ClueGame {
     private final ClueGameBoard gameBoard;
     private final List<Player> players;
@@ -141,11 +143,11 @@ public class ClueGame {
 
         switch (choice) {
             case 1 -> makeSuggestion(player);
-            case 2 -> makeAccusation(player,room,weapon,chara);
+            case 2 -> makeAccusation(player,new SecretFile(room,weapon,chara));
         }
     }
 
-    private void makeSuggestion(Player player) {
+    public void makeSuggestion(Player player) {
         System.out.println("\nMake a suggestion:");
         System.out.println("Which suspect? " + rooms.toString());
         String suspect = scanner.nextLine();
@@ -171,11 +173,11 @@ public class ClueGame {
         System.out.println("No one could disprove your suggestion!");
     }
 
-    private void makeAccusation(Player player, BasicCard room, BasicCard weapon, BasicCard character) {
+    public void makeAccusation(Player player, SecretFile acusation) {
         System.out.println("\nMake an accusation:");
 
 
-        if (secretFile.room().equals(room) && secretFile.character().equals(character) && secretFile.weapon().equals(weapon)) {
+        if (secretFile.room().equals(acusation.room()) && secretFile.character().equals(acusation.character()) && secretFile.weapon().equals(acusation.weapon())) {
             System.out.println("Correct! " + player.getName() + " has solved the crime!");
             player.setHasWon(true);
         } else {
@@ -214,7 +216,7 @@ public class ClueGame {
         }
     }
 
-    private int rollDice() {
+    public int rollDice() {
         return (int)(Math.random() * 6) + 1;
     }
 

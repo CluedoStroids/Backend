@@ -1,5 +1,7 @@
 package GameBoard;
 
+import at.aau.serg.websocketdemoserver.GameObjects.Player;
+
 import java.util.ArrayList;
 import java.util.List;
 

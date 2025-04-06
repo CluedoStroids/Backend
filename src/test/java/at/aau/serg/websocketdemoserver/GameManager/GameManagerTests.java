@@ -5,21 +5,19 @@ import at.aau.serg.websocketdemoserver.GameObjects.Player;
 import at.aau.serg.websocketdemoserver.GameObjects.SecretFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameManagerTests {
 
-    private GameManager gameManager;
+    private ClueGame gameManager;
 
     @BeforeEach
     void setUp() {
-        gameManager = new GameManager();
+        gameManager = new ClueGame();
 
         ArrayList<BasicCard> rooms = new ArrayList<>();
             rooms.add(new BasicCard("Kitchen", UUID.randomUUID(), "Kitchen", "Room"));
@@ -41,24 +39,18 @@ public class GameManagerTests {
     }
 
     @Test
-    void testAddAndGetPlayer() {
-        Player player = new Player();
-        gameManager.addPlayer(player);
-        assertEquals(player, gameManager.getPlayer(0));
+    void testAddAndGetPlayers() {
+        Player player = new Player("Markus","Green",2,5);
+        assertEquals(6, gameManager.getPlayers().size());
     }
 
     @Test
     void testNextTurnAndTopOfRound() {
-        Player player1 = new Player();
-        Player player2 = new Player();
-        gameManager.addPlayer(player1);
-        gameManager.addPlayer(player2);
-
         gameManager.nextTurn();
-        assertEquals(player2, gameManager.getCurrentPlayer());
+        assertEquals("Colonel Mustard", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()));
 
         gameManager.nextTurn(); // Should wrap around to 0
-        assertEquals(player1, gameManager.getCurrentPlayer());
+        assertEquals("Mrs. White", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()));
     }
 
     @Test
@@ -76,7 +68,8 @@ public class GameManagerTests {
         gameManager.InitilizeGame();
         SecretFile correct = gameManager.getSecretFile();
 
-        assertTrue(gameManager.solveFile(correct));
+        gameManager.makeAccusation(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()),correct);
+        assertTrue(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).hasWon());
     }
 
     @Test
@@ -86,23 +79,24 @@ public class GameManagerTests {
                 new BasicCard("FakeRoom", UUID.randomUUID(), "desc", "Room"),
                 new BasicCard("FakeWeapon", UUID.randomUUID(), "desc", "Weapon"),
                 new BasicCard("FakeChar", UUID.randomUUID(), "desc", "Character")
-        );
+        );gameManager.makeAccusation(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()),wrong);
 
-        assertFalse(gameManager.solveFile(wrong));
+        assertFalse(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).isActive());
+
     }
 
 
     @Test
     void testGetACardReturnsBasicCard() {
-        assertNotNull(gameManager.getACard());
-        assertTrue(gameManager.getACard() instanceof BasicCard);
+        assertNotNull(gameManager.getCards().get(0));
+        assertTrue(gameManager.getCards().get(0) instanceof BasicCard);
     }
 
     @Test
     void testRandomDiceRollRange() {
         for (int i = 0; i < 100; i++) {
-            int result = gameManager.randomDice();
-            assertTrue(result >= 1 && result <= 12);
+            int result = gameManager.rollDice();
+            assertTrue(result >= 1 && result <= 6);
         }
     }
 }

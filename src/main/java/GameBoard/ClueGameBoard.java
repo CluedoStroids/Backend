@@ -1,5 +1,7 @@
 package GameBoard;
 
+import at.aau.serg.websocketdemoserver.GameObjects.Player;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
