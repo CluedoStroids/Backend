@@ -51,7 +51,7 @@ public class ClueGameBoard {
 
         // 3. Set central block as walls (5x5 in center)
         for (int x = WIDTH/2 - 2; x <= WIDTH/2 + 2; x++) {
-            for (int y = HEIGHT/2 - 2; y <= HEIGHT/2 + 2; y++) {
+            for (int y = HEIGHT/2 - 2; y <= HEIGHT/2+2 + 2; y++) {
                 grid[x][y].setCellType(GameBoardCell.CellType.WALL);
             }
         }
@@ -60,15 +60,15 @@ public class ClueGameBoard {
     private void createRooms() {
         // Definition of all 9 rooms as array with [Name, x, y, width, height]
         String[][] roomDefinitions = {
-                {"Hall", "18", "20", "5", "4"},       // Bottom center
-                {"Lounge", "1", "10", "4", "5"},     // Left center
-                {"Dining Room", "10", "20", "5", "4"},// Bottom right
-                {"Kitchen", "1", "1", "5", "4"},     // Top left
-                {"Ballroom", "20", "10", "4", "5"},  // Right center
-                {"Conservatory", "10", "1", "5", "4"},// Top center
-                {"Library", "1", "20", "4", "5"},    // Bottom left
-                {"Study", "20", "1", "4", "5"},      // Top right
-                {"Billiard Room", "20", "20", "4", "5"} // Bottom right
+                {"Kitchen", "0", "1", "6", "6"},
+                {"Ballroom", "8", "1", "8", "7"},
+                {"Conservatory", "18", "1", "6", "5"},
+                {"Dining Room", "0", "9", "8", "7"},
+                {"Billiard Room", "18", "8", "7", "5"},
+                {"Library", "17", "14", "8", "5"},
+                {"Lounge", "0", "19", "7", "6"},
+                {"Hall", "9", "18", "6", "7"},
+                {"Study", "17", "21", "8", "4"},
         };
 
         // Create rooms
@@ -81,15 +81,24 @@ public class ClueGameBoard {
         }
 
         // Position doors
-        setDoor(20, 18);  // Hall
-        setDoor(5, 12);   // Lounge
-        setDoor(12, 20);  // Dining Room
-        setDoor(5, 5);    // Kitchen
-        setDoor(20, 12);  // Ballroom
-        setDoor(12, 5);   // Conservatory
-        setDoor(5, 22);   // Library
-        setDoor(20, 5);   // Study
-        setDoor(20, 22);  // Billiard Room
+        setDoor(4, 6);
+        setDoor(8, 5);
+        setDoor(9, 7);
+        setDoor(14, 7);
+        setDoor(15, 5);
+        setDoor(18, 5);
+        setDoor(7, 12);
+        setDoor(6, 15);
+        setDoor(18, 9);
+        setDoor(23, 12);
+        setDoor(21, 14);
+
+        setDoor(18, 16);
+        setDoor(5, 19);
+        setDoor(11, 18);
+        setDoor(12, 18);
+        setDoor(14, 20);
+        setDoor(17, 21);
     }
 
     private void createRoom(String name, int startX, int startY, int width, int height) {
@@ -124,12 +133,10 @@ public class ClueGameBoard {
         }
 
         // Mark secret passage cells
-        grid[5][5].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);    // Kitchen
-        grid[22][12].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);  // Ballroom
-        grid[5][22].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);   // Library
-        grid[12][5].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);   // Conservatory
-        grid[22][5].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);   // Study
-        grid[20][20].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);  // Hall
+        grid[5][1].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);    // Kitchen
+        grid[23][5].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);   // Conservatory
+        grid[0][19].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);   // Lounge
+        grid[24][21].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);   // Study
     }
 
     public GameBoardCell getCell(int x, int y) {
@@ -193,14 +200,26 @@ public class ClueGameBoard {
     public void displayGameBoard(List<Player> players) {
         System.out.println("\n=== CLUE GAME BOARD ===");
 
+
+        System.out.print("  ");
+        for (int i = 0; i < WIDTH; i++) {
+                System.out.print(i % 10 + " ");
+
+        }
+        System.out.println();
+
         for (int y = 0; y < HEIGHT; y++) {
+            System.out.print(y % 10 + " ");
+
             for (int x = 0; x < WIDTH; x++) {
+
                 GameBoardCell cell = grid[x][y];
                 char symbol = getSymbol(cell);
                 String color = getColor(cell, players, x, y);
 
                 System.out.print(color + symbol + RESET + " ");
             }
+
             System.out.println();
         }
 
