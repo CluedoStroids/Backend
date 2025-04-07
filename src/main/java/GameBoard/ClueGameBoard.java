@@ -147,6 +147,7 @@ public class ClueGameBoard {
 
     public boolean movePlayer(Player player, int newX, int newY) {
         GameBoardCell targetCell = getCell(newX, newY);
+
         if (targetCell == null || !targetCell.isAccessible() ) {
             return false;
         }

@@ -184,23 +184,27 @@ public class ClueGame {
     }
 
     private boolean performMovement(Player player) {
+
+
+
         System.out.print("Direction (W/A/S/D) or X to cancel: ");
         String input = scanner.nextLine().toUpperCase();
 
-        if (input.equals("X")) {
+        if (input.equalsIgnoreCase("X")) {
             return false;
         }
 
         int newX = player.getX();
         int newY = player.getY();
 
-        switch (input) {
+        switch (input.toUpperCase()) {
             case "W" -> newY--;
             case "S" -> newY++;
             case "A" -> newX--;
             case "D" -> newX++;
             default -> {
                 System.out.println("Invalid input!");
+                performMovement(player);
                 return true;
             }
         }
@@ -258,11 +262,11 @@ public class ClueGame {
     }
     private void nextPlayer() {
         players.get(currentPlayerIndex).setCurrentPlayer(false);
-/*
+
         do {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         } while (!players.get(currentPlayerIndex).isActive());
-*/
+
         currentPlayerIndex++;
         if(currentPlayerIndex>=players.size())
             topOfTheRound();
