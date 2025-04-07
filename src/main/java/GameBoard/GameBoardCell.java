@@ -1,7 +1,7 @@
 package GameBoard;
 
 public class GameBoardCell {
-    public enum CellType { HALLWAY, ROOM, WALL, START, SECRET_PASSAGE, DOOR }
+    public enum CellType { HALLWAY, ROOM, WALL, SECRET_PASSAGE, DOOR }
 
     private final int x;
     private final int y;

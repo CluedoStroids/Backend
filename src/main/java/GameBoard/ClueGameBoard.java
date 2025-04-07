@@ -122,9 +122,8 @@ public class ClueGameBoard {
     private void initializeSecretPassages() {
         // Secret passages as array with [Room1, Room2]
         String[][] secretPassageDefinitions = {
-                {"Kitchen", "Ballroom"},
-                {"Library", "Conservatory"},
-                {"Study", "Hall"}
+                {"Kitchen", "Study"},
+                {"Lounge", "Conservatory"}
         };
 
         for (String[] passage : secretPassageDefinitions) {
@@ -148,7 +147,7 @@ public class ClueGameBoard {
 
     public boolean movePlayer(Player player, int newX, int newY) {
         GameBoardCell targetCell = getCell(newX, newY);
-        if (targetCell == null || !targetCell.isAccessible()) {
+        if (targetCell == null || !targetCell.isAccessible() ) {
             return false;
         }
 
@@ -227,15 +226,18 @@ public class ClueGameBoard {
     }
 
     private char getSymbol(GameBoardCell cell) {
-        return switch (cell.getCellType()) {
-            case HALLWAY -> '.';
-            case ROOM -> 'R';
-            case WALL -> '|';
-            case START -> 'S';
-            case SECRET_PASSAGE -> 'G';
-            case DOOR -> 'D';
-            default -> '?';
+        char retChar;
+        switch (cell.getCellType()) {
+            case HALLWAY -> retChar ='.';
+            case ROOM ->  retChar=cell.getRoom().getName().charAt(0);
+            case WALL -> retChar ='|';
+            case SECRET_PASSAGE -> retChar ='G';
+            case DOOR -> retChar ='D';
+            default -> retChar ='?';
+
         };
+
+        return retChar;
     }
 
     private String getColor(GameBoardCell cell, List<Player> players, int x, int y) {

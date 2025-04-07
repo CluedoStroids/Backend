@@ -45,8 +45,8 @@ public class Main {
                 new Player("Colonel Mustard", "Yellow", 0, 17),
                 new Player("Mrs. White", "White", 9, 0),
                 new Player("Mr. Green", "Green", 14, 0),
-                new Player("Mrs. Peacock", "Blue", 23, 6),
-                new Player("Professor Plum", "Purple", 23, 19)
+                new Player("Mrs. Peacock", "Blue", 24, 6),
+                new Player("Professor Plum", "Purple", 24, 19)
         );
     }
 }
