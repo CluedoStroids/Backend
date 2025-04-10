@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ClueGameBoard {
+public class gameBoard {
     private static final int WIDTH = 25;
     private static final int HEIGHT = 25;
     private final GameBoardCell[][] grid;
@@ -22,7 +22,7 @@ public class ClueGameBoard {
     public static final String PURPLE = "\u001B[35m";
     public static final String RESET = "\u001B[0m";
 
-    public ClueGameBoard() {
+    public gameBoard() {
         this.grid = new GameBoardCell[WIDTH][HEIGHT];
         this.rooms = new HashMap<>();
         this.secretPassages = new HashMap<>();
@@ -93,12 +93,28 @@ public class ClueGameBoard {
         setDoor(23, 12);
         setDoor(21, 14);
 
-        setDoor(18, 16);
+        setDoor(17, 16);
         setDoor(5, 19);
         setDoor(11, 18);
         setDoor(12, 18);
         setDoor(14, 20);
         setDoor(17, 21);
+
+
+        setHallway(9, 1);
+        setHallway(8, 1);
+
+        setHallway(14, 1);
+        setHallway(15, 1);
+
+        setHallway(6, 9);
+        setHallway(7, 9);
+
+        setHallway(17, 14);
+        setHallway(17, 18);
+
+
+
     }
 
     private void createRoom(String name, int startX, int startY, int width, int height) {
@@ -117,6 +133,9 @@ public class ClueGameBoard {
 
     private void setDoor(int x, int y) {
         grid[x][y].setCellType(GameBoardCell.CellType.DOOR);
+    }
+    private void setHallway(int x, int y) {
+        grid[x][y].setCellType(GameBoardCell.CellType.HALLWAY);
     }
 
     private void initializeSecretPassages() {

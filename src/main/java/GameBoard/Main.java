@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         // Initialization
-        ClueGameBoard gameBoard = new ClueGameBoard();
+        gameBoard gameBoard = new gameBoard();
         List<Player> players = createPlayers();
         Scanner scanner = new Scanner(System.in);
 

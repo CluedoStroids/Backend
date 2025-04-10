@@ -1,6 +1,6 @@
 package at.aau.serg.websocketdemoserver.GameManager;
 
-import GameBoard.ClueGameBoard;
+import GameBoard.gameBoard;
 import GameBoard.GameBoardCell;
 import at.aau.serg.websocketdemoserver.GameObjects.Player;
 import at.aau.serg.websocketdemoserver.GameObjects.Cards.BasicCard;
@@ -13,7 +13,7 @@ import java.util.*;
 @Getter
 @Setter
 public class ClueGame {
-    private final ClueGameBoard gameBoard;
+    private final gameBoard gameBoard;
     private final List<Player> players;
     private int currentPlayerIndex;
     private final Scanner scanner;
@@ -25,7 +25,7 @@ public class ClueGame {
     private  ArrayList<BasicCard> character = new ArrayList<>();
 
     public ClueGame() {
-        this.gameBoard = new ClueGameBoard();
+        this.gameBoard = new gameBoard();
 
         this.players = initializePlayers();
         this.scanner = new Scanner(System.in);
