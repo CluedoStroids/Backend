@@ -11,7 +11,7 @@ public class BasicCard extends GameObject {
     //Variables
     private final String cardName;
     private final UUID cardID;
-    private final String cardValue;
+    private final String cardValue; //IDK yet
     private final String type;
 
 
@@ -20,6 +20,10 @@ public class BasicCard extends GameObject {
         this.cardID = cardID;
         this.cardValue = cardValue;
         this.type = type;
+    }
+
+    public boolean equals(BasicCard card){
+        return (cardName == card.cardName);
     }
 
 }
