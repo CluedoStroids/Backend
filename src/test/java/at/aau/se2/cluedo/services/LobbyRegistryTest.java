@@ -1,6 +1,6 @@
 package at.aau.se2.cluedo.services;
 
-import at.aau.se2.cluedo.models.Lobby;
+import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

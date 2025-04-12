@@ -1,6 +1,6 @@
 package at.aau.se2.cluedo.dto;
 
-import at.aau.se2.cluedo.models.Lobby;
+import at.aau.se2.cluedo.models.lobby.Lobby;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.models;
 
+import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

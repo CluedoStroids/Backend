@@ -4,7 +4,7 @@ import at.aau.se2.cluedo.dto.CreateLobbyRequest;
 import at.aau.se2.cluedo.dto.JoinLobbyRequest;
 import at.aau.se2.cluedo.dto.LeaveLobbyRequest;
 import at.aau.se2.cluedo.dto.LobbyResponse;
-import at.aau.se2.cluedo.models.Lobby;
+import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.services.LobbyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

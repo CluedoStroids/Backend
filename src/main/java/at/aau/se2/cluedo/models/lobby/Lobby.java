@@ -1,4 +1,4 @@
-package at.aau.se2.cluedo.models;
+package at.aau.se2.cluedo.models.lobby;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
