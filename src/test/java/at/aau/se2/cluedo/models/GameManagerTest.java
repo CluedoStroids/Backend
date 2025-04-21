@@ -18,7 +18,7 @@ public class GameManagerTest {
 
     @BeforeEach
     void setUp() {
-        gameManager = new CluedoGame();
+        gameManager = new CluedoGame("6");
         gameManager.initilizeGame();
 
         ArrayList<BasicCard> rooms = new ArrayList<>();

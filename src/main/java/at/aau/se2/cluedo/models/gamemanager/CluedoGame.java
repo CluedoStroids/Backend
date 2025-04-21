@@ -25,10 +25,11 @@ public class CluedoGame {
     private ArrayList<BasicCard> weapons = new ArrayList<>();
     private ArrayList<BasicCard> character = new ArrayList<>();
 
-    public CluedoGame() {
+    public CluedoGame(String count) {
         this.gameBoard = new GameBoard();
 
-        this.players = initializePlayers();
+
+        this.players = initializePlayers(Integer.parseInt(count));
         this.scanner = new Scanner(System.in);
         initilizeGame();
         this.currentPlayerIndex = 0;
@@ -36,10 +37,10 @@ public class CluedoGame {
     }
 
     public static void main(String[] args) {
-        new CluedoGame().startGame();
+        new CluedoGame(args[0]).startGame();
     }
 
-    private List<Player> initializePlayers() {
+    private List<Player> initializePlayers(int count) {
         return Arrays.asList(
                 new Player("Miss Scarlet", "Red", 7, 24),
                 new Player("Colonel Mustard", "Yellow", 0, 17),
@@ -47,7 +48,7 @@ public class CluedoGame {
                 new Player("Mr. Green", "Green", 14, 0),
                 new Player("Mrs. Peacock", "Blue", 24, 6),
                 new Player("Professor Plum", "Purple", 24, 19)
-        );
+        ).subList(0,count);
     }
 
     //Generate the secret File.
@@ -90,7 +91,7 @@ public class CluedoGame {
     }
 
     public void startGame() {
-        System.out.println("Welcome to Clue!");
+        System.out.println("Welcome to Cluedo!");
 
         while (true) {
             Player currentPlayer = players.get(currentPlayerIndex);
@@ -131,6 +132,7 @@ public class CluedoGame {
         System.out.println("1. Make a suggestion");
         System.out.println("2. Make an accusation");
         System.out.println("3. Do nothing");
+        System.out.println("Please input the number of your choice:");
 
 
         int choice = 0;
@@ -138,7 +140,7 @@ public class CluedoGame {
             try {
 
 
-                choice = scanner.nextInt();
+                choice = getConsoleInputNextInt();
                 scanner.nextLine();
 
 
@@ -204,6 +206,7 @@ public class CluedoGame {
         if(diceRoll == 0){
             return 0;
         }
+
         System.out.print("Direction (W/A/S/D) or X to cancel: ");
         String inputLine = getConsoleInputNextLine().toUpperCase();
 
@@ -311,5 +314,9 @@ public class CluedoGame {
     private String getConsoleInputNextLine(){
 
         return scanner.nextLine();
+    }
+    private int getConsoleInputNextInt(){
+
+        return scanner.nextInt();
     }
 }

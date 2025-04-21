@@ -191,6 +191,8 @@ public class GameBoard {
             return false;
         }
 
+
+
         if(targetCell.getCellType() == CellType.DOOR){
 
             GameBoardCell targetCellUp = getCell(newX, newY+1);
@@ -198,40 +200,40 @@ public class GameBoard {
             GameBoardCell targetCellLeft = getCell(newX-1, newY);
             GameBoardCell targetCellRight = getCell(newX+1, newY);
 
-                if(currCell.getX()-targetCell.getX() == 0){
-                    if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
-                        newX += 1;
-                    }
-                    else if(currCell.getCellType() != targetCellLeft.getCellType() && targetCellLeft.getCellType() != CellType.DOOR ){
-                        newX -= 1;
-                    }
-                    else if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
-                        newY += 1;
-                    }
-                    else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
-                        newY -= 1;
-                    }
-                }else{
-                    if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
-                        newY += 1;
-                    }
-                    else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
-                        newY -= 1;
-                    }
-                    else if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
-                        newX += 1;
-                    }
-                    else if(currCell.getCellType() != targetCellLeft.getCellType() && targetCellLeft.getCellType() != CellType.DOOR ){
-                        newX -= 1;
-                    }
+            if(currCell.getX()-targetCell.getX() == 0){
+                if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
+                    newX += 1;
                 }
+                else if(currCell.getCellType() != targetCellLeft.getCellType() && targetCellLeft.getCellType() != CellType.DOOR ){
+                    newX -= 1;
+                }
+                else if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
+                    newY += 1;
+                }
+                else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
+                    newY -= 1;
+                }
+            }else{
+                if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
+                    newY += 1;
+                }
+                else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
+                    newY -= 1;
+                }
+                else if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
+                    newX += 1;
+                }
+                else if(currCell.getCellType() != targetCellLeft.getCellType() && targetCellLeft.getCellType() != CellType.DOOR ){
+                    newX -= 1;
+                }
+            }
 
         }
 
         if(targetCell.getCellType() == CellType.SECRET_PASSAGE){
-             if(!useSecretPassage(player)){
-                 return false;
-             }
+            if(!useSecretPassage(player)){
+                return false;
+            }
         }
 
 
@@ -304,7 +306,7 @@ public class GameBoard {
             System.out.println();
         }
 
-        displayLegend();
+        displayLegend(players.size());
     }
 
     private char getSymbol(GameBoardCell cell) {
@@ -340,14 +342,24 @@ public class GameBoard {
         return "";
     }
 
-    private void displayLegend() {
+    private void displayLegend(int size) {
         System.out.println("\nLEGEND:");
-        System.out.println(RED + "S" + RESET + " Miss Scarlet (Red)");
-        System.out.println(YELLOW + "O" + RESET + " Colonel Mustard (Yellow)");
-        System.out.println(WHITE + "W" + RESET + " Mrs. White (White)");
-        System.out.println(GREEN + "G" + RESET + " Mr. Green (Green)");
-        System.out.println(BLUE + "P" + RESET + " Mrs. Peacock (Blue)");
-        System.out.println(PURPLE + "M" + RESET + " Professor Plum (Purple)");
+        for (int i = 0; i < size; i++) {
+            switch (i) {
+                case 0->System.out.println(RED + "S" + RESET + " Miss Scarlet (Red)");
+                case 1->System.out.println(YELLOW + "O" + RESET + " Colonel Mustard (Yellow)");
+
+                case 2->System.out.println(WHITE + "W" + RESET + " Mrs. White (White)");
+
+                case 3->System.out.println(GREEN + "G" + RESET + " Mr. Green (Green)");
+
+                case 4->System.out.println(BLUE + "P" + RESET + " Mrs. Peacock (Blue)");
+
+                case 5->System.out.println(PURPLE + "M" + RESET + " Professor Plum (Purple)");
+
+            }
+        }
+
         System.out.println("R - Room  · - Hallway  █ - Wall  D - Door  G - Secret Passage");
     }
 }

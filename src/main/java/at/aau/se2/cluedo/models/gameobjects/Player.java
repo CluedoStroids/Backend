@@ -44,7 +44,6 @@ public class Player extends GameObject {
         return cards.contains(card);
     }
 
-    // Getters and Setters
     public String getName() {
         return name;
     }
