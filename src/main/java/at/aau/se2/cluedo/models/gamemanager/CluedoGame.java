@@ -112,11 +112,8 @@ public class CluedoGame {
         int diceRoll = rollDice();
         System.out.println("You rolled a " + diceRoll + "!");
 
-        for (int i = 0; i < diceRoll; i++) {
-            if (!performMovement(player)) {
-                break;
-            }
-        }
+
+        performMovement(player, diceRoll);
 
         // Room actions
         if (inRoom(player)) {
@@ -135,8 +132,20 @@ public class CluedoGame {
         System.out.println("2. Make an accusation");
         System.out.println("3. Do nothing");
 
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+
+        int choice = 0;
+        do{
+            try {
+
+
+                choice = scanner.nextInt();
+                scanner.nextLine();
+
+
+            } catch (Exception ignored) {
+            }
+        }while (choice == 0);
+
         Collections.shuffle(rooms);
         BasicCard room = rooms.get(0);
         Collections.shuffle(weapons);
@@ -189,40 +198,58 @@ public class CluedoGame {
         }
     }
 
-    private boolean performMovement(Player player) {
+    private int performMovement(Player player, int diceRoll) {
 
 
+        if(diceRoll == 0){
+            return 0;
+        }
         System.out.print("Direction (W/A/S/D) or X to cancel: ");
-        String input = getConsoleInputNextLine().toUpperCase();
+        String inputLine = getConsoleInputNextLine().toUpperCase();
 
+        String[] inputArr = inputLine.split(" ");
 
-        if (input.equalsIgnoreCase("X")) {
-            return false;
+        System.out.println(Arrays.toString(inputArr));
+
+        if(inputArr.length > diceRoll){
+            System.out.println("Invalid move!");
+            return performMovement(player, diceRoll);
         }
 
-        int newX = player.getX();
-        int newY = player.getY();
+        for (String input: inputArr) {
+            System.out.println(input);
 
-        switch (input.toUpperCase()) {
-            case "W" -> newY--;
-            case "S" -> newY++;
-            case "A" -> newX--;
-            case "D" -> newX++;
-            default -> {
-                System.out.println("Invalid input!");
-                performMovement(player);
-                return true;
+            if (input.equalsIgnoreCase("X")) {
+                return 0;
+            }
+
+            int newX = player.getX();
+            int newY = player.getY();
+
+            switch (input.toUpperCase()) {
+                case "W" -> newY--;
+                case "S" -> newY++;
+                case "A" -> newX--;
+                case "D" -> newX++;
+                default -> {
+                    System.out.println("Invalid input!");
+                    return performMovement(player, diceRoll);
+                }
+            }
+
+            if (gameBoard.movePlayer(player, newX, newY)) {
+                if(input != inputArr[inputArr.length-1]){
+                    diceRoll--;
+                    continue;
+                }
+                return performMovement(player, diceRoll - 1);
+            } else {
+                System.out.println("Invalid move!");
+                return performMovement(player, diceRoll);
             }
         }
-
-
-        if (gameBoard.movePlayer(player, newX, newY)) {
-            return true;
-        } else {
-            System.out.println("Invalid move!");
-            performMovement(player);
-            return true;
-        }
+        System.out.println("Invalid move!");
+        return performMovement(player, diceRoll);
     }
 
     public int rollDice() {
@@ -277,7 +304,6 @@ public class CluedoGame {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         } while (!players.get(currentPlayerIndex).isActive());
 
-        currentPlayerIndex++;
         if (currentPlayerIndex >= players.size())
             topOfTheRound();
         players.get(currentPlayerIndex).setCurrentPlayer(true);
