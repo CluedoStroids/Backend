@@ -1,6 +1,7 @@
 package at.aau.se2.cluedo.models.gamemanager;
 
 import at.aau.se2.cluedo.models.cards.BasicCard;
+import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gameobjects.Player;
@@ -44,8 +45,8 @@ public class CluedoGame {
                 new Player("Colonel Mustard", "Yellow", 0, 17),
                 new Player("Mrs. White", "White", 9, 0),
                 new Player("Mr. Green", "Green", 14, 0),
-                new Player("Mrs. Peacock", "Blue", 23, 6),
-                new Player("Professor Plum", "Purple", 23, 19)
+                new Player("Mrs. Peacock", "Blue", 24, 6),
+                new Player("Professor Plum", "Purple", 24, 19)
         );
     }
 
@@ -125,7 +126,7 @@ public class CluedoGame {
 
     private boolean inRoom(Player player) {
         GameBoardCell cell = gameBoard.getCell(player.getX(), player.getY());
-        return cell != null && cell.getCellType() == GameBoardCell.CellType.ROOM;
+        return cell != null && cell.getCellType() == CellType.ROOM;
     }
 
     private void roomActions(Player player) {
@@ -152,14 +153,14 @@ public class CluedoGame {
     public void makeSuggestion(Player player) {
         System.out.println("\nMake a suggestion:");
         System.out.println("Which suspect? " + rooms.toString());
-        String suspect = scanner.nextLine();
+        String suspect = getConsoleInputNextLine();
 
         System.out.println("Which weapon? " + weapons.toString());
-        String weapon = scanner.nextLine();
+        String weapon = getConsoleInputNextLine();
 
-        System.out.println("Which room? (current room: " +
-                gameBoard.getCell(player.getX(), player.getY()).getRoom().getName() + ")");
-        String room = scanner.nextLine();
+        System.out.println("current room: " +
+                gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
+        String room = gameBoard.getCell(player.getX(), player.getY()).getRoom().getName();
 
         // Gather evidence
         for (Player p : this.players) {
@@ -192,7 +193,8 @@ public class CluedoGame {
 
 
         System.out.print("Direction (W/A/S/D) or X to cancel: ");
-        String input = scanner.nextLine().toUpperCase();
+        String input = getConsoleInputNextLine().toUpperCase();
+
 
         if (input.equalsIgnoreCase("X")) {
             return false;
@@ -213,10 +215,12 @@ public class CluedoGame {
             }
         }
 
+
         if (gameBoard.movePlayer(player, newX, newY)) {
             return true;
         } else {
             System.out.println("Invalid move!");
+            performMovement(player);
             return true;
         }
     }
@@ -277,5 +281,9 @@ public class CluedoGame {
         if (currentPlayerIndex >= players.size())
             topOfTheRound();
         players.get(currentPlayerIndex).setCurrentPlayer(true);
+    }
+    private String getConsoleInputNextLine(){
+
+        return scanner.nextLine();
     }
 }

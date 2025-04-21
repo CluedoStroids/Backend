@@ -12,7 +12,13 @@ public class GameBoardCell {
     }
 
     public boolean isAccessible() {
-        return cellType != CellType.WALL;
+        boolean check = false;
+
+        if(cellType != CellType.WALL)
+            check = true;
+
+
+        return check;
     }
 
     public int getX() {
@@ -38,6 +44,4 @@ public class GameBoardCell {
     public void setRoom(Room room) {
         this.room = room;
     }
-
-    public enum CellType {HALLWAY, ROOM, WALL, SECRET_PASSAGE, DOOR}
 }

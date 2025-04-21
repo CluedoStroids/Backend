@@ -9,12 +9,12 @@ import java.util.Map;
 
 public class GameBoard {
     // ANSI color codes
-    public static final String RED = "\u001B[31m";
-    public static final String YELLOW = "\u001B[33m";
-    public static final String WHITE = "\u001B[37m";
-    public static final String GREEN = "\u001B[32m";
-    public static final String BLUE = "\u001B[34m";
-    public static final String PURPLE = "\u001B[35m";
+    public static final String RED = "\u001B[41m";
+    public static final String YELLOW = "\u001B[43m";
+    public static final String WHITE = "\u001B[47m";
+    public static final String GREEN = "\u001B[42m";
+    public static final String BLUE = "\u001B[44m";
+    public static final String PURPLE = "\u001B[45m";
     public static final String RESET = "\u001B[0m";
     private static final int WIDTH = 25;
     private static final int HEIGHT = 25;
@@ -35,24 +35,24 @@ public class GameBoard {
         // 1. Initialize everything as hallways
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
-                grid[x][y] = new GameBoardCell(x, y, GameBoardCell.CellType.HALLWAY);
+                grid[x][y] = new GameBoardCell(x, y, CellType.HALLWAY);
             }
         }
 
         // 2. Set outer border as walls
         for (int x = 0; x < WIDTH; x++) {
-            grid[x][0].setCellType(GameBoardCell.CellType.WALL);
-            grid[x][HEIGHT - 1].setCellType(GameBoardCell.CellType.WALL);
+            grid[x][0].setCellType(CellType.WALL);
+            grid[x][HEIGHT - 1].setCellType(CellType.WALL);
         }
         for (int y = 0; y < HEIGHT; y++) {
-            grid[0][y].setCellType(GameBoardCell.CellType.WALL);
-            grid[WIDTH - 1][y].setCellType(GameBoardCell.CellType.WALL);
+            grid[0][y].setCellType(CellType.WALL);
+            grid[WIDTH - 1][y].setCellType(CellType.WALL);
         }
 
         // 3. Set central block as walls (5x5 in center)
         for (int x = WIDTH / 2 - 2; x <= WIDTH / 2 + 2; x++) {
             for (int y = HEIGHT / 2 - 2; y <= HEIGHT / 2 + 2 + 2; y++) {
-                grid[x][y].setCellType(GameBoardCell.CellType.WALL);
+                grid[x][y].setCellType(CellType.WALL);
             }
         }
     }
@@ -113,6 +113,21 @@ public class GameBoard {
         setHallway(17, 14);
         setHallway(17, 18);
 
+        setHallway(7, 24);
+        setHallway(0, 17);
+
+
+        setHallway(9, 0);
+        setHallway(14, 0);
+
+
+        setHallway(24, 6);
+        setHallway(24, 19);
+
+
+
+
+
 
     }
 
@@ -123,7 +138,7 @@ public class GameBoard {
         for (int x = startX; x < startX + width; x++) {
             for (int y = startY; y < startY + height; y++) {
                 if (x < WIDTH && y < HEIGHT) {
-                    grid[x][y].setCellType(GameBoardCell.CellType.ROOM);
+                    grid[x][y].setCellType(CellType.ROOM);
                     grid[x][y].setRoom(room);
                 }
             }
@@ -131,11 +146,11 @@ public class GameBoard {
     }
 
     private void setDoor(int x, int y) {
-        grid[x][y].setCellType(GameBoardCell.CellType.DOOR);
+        grid[x][y].setCellType(CellType.DOOR);
     }
 
     private void setHallway(int x, int y) {
-        grid[x][y].setCellType(GameBoardCell.CellType.HALLWAY);
+        grid[x][y].setCellType(CellType.HALLWAY);
     }
 
     private void initializeSecretPassages() {
@@ -151,10 +166,10 @@ public class GameBoard {
         }
 
         // Mark secret passage cells
-        grid[5][1].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);    // Kitchen
-        grid[23][5].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);   // Conservatory
-        grid[0][19].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);   // Lounge
-        grid[24][21].setCellType(GameBoardCell.CellType.SECRET_PASSAGE);   // Study
+        grid[5][1].setCellType(CellType.SECRET_PASSAGE);    // Kitchen
+        grid[23][5].setCellType(CellType.SECRET_PASSAGE);   // Conservatory
+        grid[0][19].setCellType(CellType.SECRET_PASSAGE);   // Lounge
+        grid[24][21].setCellType(CellType.SECRET_PASSAGE);   // Study
     }
 
     public GameBoardCell getCell(int x, int y) {
@@ -166,23 +181,69 @@ public class GameBoard {
 
     public boolean movePlayer(Player player, int newX, int newY) {
         GameBoardCell targetCell = getCell(newX, newY);
+        GameBoardCell currCell = getCell(player.getX(), player.getY());
 
         if (targetCell == null || !targetCell.isAccessible()) {
             return false;
         }
 
-        // Clear current position
-        GameBoardCell currentCell = getCell(player.getX(), player.getY());
+        if(targetCell.getCellType() != currCell.getCellType() && targetCell.getCellType() != CellType.DOOR && currCell.getCellType() != CellType.DOOR){
+            return false;
+        }
+
+        if(targetCell.getCellType() == CellType.DOOR){
+
+            GameBoardCell targetCellUp = getCell(newX, newY+1);
+            GameBoardCell targetCellDown = getCell(newX, newY-1);
+            GameBoardCell targetCellLeft = getCell(newX-1, newY);
+            GameBoardCell targetCellRight = getCell(newX+1, newY);
+
+                if(currCell.getX()-targetCell.getX() == 0){
+                    if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
+                        newX += 1;
+                    }
+                    else if(currCell.getCellType() != targetCellLeft.getCellType() && targetCellLeft.getCellType() != CellType.DOOR ){
+                        newX -= 1;
+                    }
+                    else if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
+                        newY += 1;
+                    }
+                    else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
+                        newY -= 1;
+                    }
+                }else{
+                    if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
+                        newY += 1;
+                    }
+                    else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
+                        newY -= 1;
+                    }
+                    else if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
+                        newX += 1;
+                    }
+                    else if(currCell.getCellType() != targetCellLeft.getCellType() && targetCellLeft.getCellType() != CellType.DOOR ){
+                        newX -= 1;
+                    }
+                }
+
+        }
+
+        if(targetCell.getCellType() == CellType.SECRET_PASSAGE){
+             if(!useSecretPassage(player)){
+                 return false;
+             }
+        }
+
 
         // Set new position
         player.move(newX, newY);
 
         // Room logic
-        if (currentCell.getCellType() == GameBoardCell.CellType.ROOM) {
-            currentCell.getRoom().playerLeavesRoom(player);
+        if (currCell.getCellType() == CellType.ROOM) {
+            currCell.getRoom().playerLeavesRoom(player);
         }
 
-        if (targetCell.getCellType() == GameBoardCell.CellType.ROOM) {
+        if (targetCell.getCellType() == CellType.ROOM) {
             targetCell.getRoom().playerEntersRoom(player);
         }
 
@@ -190,8 +251,9 @@ public class GameBoard {
     }
 
     public boolean useSecretPassage(Player player) {
+
         GameBoardCell currentCell = getCell(player.getX(), player.getY());
-        if (currentCell.getCellType() != GameBoardCell.CellType.SECRET_PASSAGE) {
+        if (currentCell.getCellType() != CellType.SECRET_PASSAGE) {
             return false;
         }
 
@@ -206,7 +268,7 @@ public class GameBoard {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 GameBoardCell cell = grid[x][y];
-                if (cell.getCellType() == GameBoardCell.CellType.SECRET_PASSAGE &&
+                if (cell.getCellType() == CellType.SECRET_PASSAGE &&
                         cell.getRoom() == targetRoom) {
                     movePlayer(player, x, y);
                     return true;
