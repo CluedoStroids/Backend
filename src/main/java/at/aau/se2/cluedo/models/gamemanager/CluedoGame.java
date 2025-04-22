@@ -134,19 +134,18 @@ public class CluedoGame {
         System.out.println("3. Do nothing");
         System.out.println("Please input the number of your choice:");
 
-
         int choice = 0;
-        do{
+        do {
+
+
             try {
+                choice = Integer.parseInt(getConsoleInputNextLine());
+            }catch (Exception e){
+                System.out.println("Invalid input. Try again.");
 
-
-                choice = getConsoleInputNextInt();
-                scanner.nextLine();
-
-
-            } catch (Exception ignored) {
             }
-        }while (choice == 0);
+        }
+        while (choice == 0);
 
         Collections.shuffle(rooms);
         BasicCard room = rooms.get(0);
@@ -158,6 +157,14 @@ public class CluedoGame {
         switch (choice) {
             case 1 -> makeSuggestion(player);
             case 2 -> makeAccusation(player, new SecretFile(room, weapon, chara));
+            case 3 -> {
+                return;
+            }
+            default -> {
+                System.out.println("Invalid input. Try again.");
+                roomActions(player);
+            }
+
         }
     }
 
@@ -315,8 +322,5 @@ public class CluedoGame {
 
         return scanner.nextLine();
     }
-    private int getConsoleInputNextInt(){
 
-        return scanner.nextInt();
-    }
 }

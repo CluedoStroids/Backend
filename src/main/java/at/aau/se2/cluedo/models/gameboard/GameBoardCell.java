@@ -44,4 +44,6 @@ public class GameBoardCell {
     public void setRoom(Room room) {
         this.room = room;
     }
+
+
 }

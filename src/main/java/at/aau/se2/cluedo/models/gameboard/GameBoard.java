@@ -3,6 +3,7 @@ package at.aau.se2.cluedo.models.gameboard;
 
 import at.aau.se2.cluedo.models.gameobjects.Player;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +102,10 @@ public class GameBoard {
         setDoor(17, 21);
 
 
+        //Test Door
+        setDoor(6, 24);
+
+
         setHallway(9, 1);
         setHallway(8, 1);
 
@@ -168,7 +173,9 @@ public class GameBoard {
         // Mark secret passage cells
         grid[5][1].setCellType(CellType.SECRET_PASSAGE);    // Kitchen
         grid[23][5].setCellType(CellType.SECRET_PASSAGE);   // Conservatory
-        grid[0][19].setCellType(CellType.SECRET_PASSAGE);   // Lounge
+        //grid[0][19].setCellType(CellType.SECRET_PASSAGE);   // Lounge
+
+        grid[4][24].setCellType(CellType.SECRET_PASSAGE);   // for Test cases
         grid[24][21].setCellType(CellType.SECRET_PASSAGE);   // Study
     }
 
@@ -187,20 +194,19 @@ public class GameBoard {
             return false;
         }
 
-        if(targetCell.getCellType() != currCell.getCellType() && targetCell.getCellType() != CellType.DOOR && currCell.getCellType() != CellType.DOOR){
+
+        if(targetCell.getCellType() != currCell.getCellType() && targetCell.getCellType() != CellType.DOOR && currCell.getCellType() != CellType.DOOR && targetCell.getCellType() != CellType.SECRET_PASSAGE && currCell.getCellType() != CellType.SECRET_PASSAGE){
             return false;
         }
 
-
-
         if(targetCell.getCellType() == CellType.DOOR){
 
-            GameBoardCell targetCellUp = getCell(newX, newY+1);
-            GameBoardCell targetCellDown = getCell(newX, newY-1);
-            GameBoardCell targetCellLeft = getCell(newX-1, newY);
-            GameBoardCell targetCellRight = getCell(newX+1, newY);
+            GameBoardCell targetCellUp = getCell(newX, Math.max(0,newY+1));
+            GameBoardCell targetCellDown = getCell(newX, Math.max(0,newY-1));
+            GameBoardCell targetCellLeft = getCell(Math.max(0,newX-1), newY);
+            GameBoardCell targetCellRight = getCell(Math.max(0,newX+1), newY);
 
-            if(currCell.getX()-targetCell.getX() == 0){
+            if(currCell.getX()-targetCell.getX() != 0){
                 if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
                     newX += 1;
                 }
@@ -208,17 +214,17 @@ public class GameBoard {
                     newX -= 1;
                 }
                 else if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
-                    newY += 1;
+                    newY -= 1;
                 }
                 else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
-                    newY -= 1;
+                    newY += 1;
                 }
             }else{
                 if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
-                    newY += 1;
+                    newY -= 1;
                 }
                 else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
-                    newY -= 1;
+                    newY += 1;
                 }
                 else if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
                     newX += 1;
@@ -230,15 +236,16 @@ public class GameBoard {
 
         }
 
+
+
+        // Set new position
+        player.move(newX, newY);
+
         if(targetCell.getCellType() == CellType.SECRET_PASSAGE){
             if(!useSecretPassage(player)){
                 return false;
             }
         }
-
-
-        // Set new position
-        player.move(newX, newY);
 
         // Room logic
         if (currCell.getCellType() == CellType.ROOM) {
@@ -270,9 +277,22 @@ public class GameBoard {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 GameBoardCell cell = grid[x][y];
-                if (cell.getCellType() == CellType.SECRET_PASSAGE &&
-                        cell.getRoom() == targetRoom) {
-                    movePlayer(player, x, y);
+                if (cell.getCellType() == CellType.SECRET_PASSAGE &&  cell.getRoom() == targetRoom) {
+
+                        GameBoardCell targetCellUp = getCell(x,Math.max(0,y+1));
+                        GameBoardCell targetCellDown = getCell(x, Math.max(0,y-1));
+                        GameBoardCell targetCellLeft = getCell(Math.max(0,x-1), y);
+                        GameBoardCell targetCellRight = getCell(Math.max(0,x+1), y);
+
+                        if(targetCellUp != null && targetCellUp.isAccessible() && cell.getRoom() == currentRoom)
+                            player.move(targetCellUp.getX(),targetCellUp.getY());
+                        else if(targetCellDown != null &&targetCellDown.isAccessible()&& cell.getRoom() == currentRoom)
+                            player.move(targetCellDown.getX(),targetCellDown.getY());
+                        else if(targetCellLeft != null && targetCellLeft.isAccessible()&& cell.getRoom() == currentRoom)
+                            player.move(targetCellLeft.getX(),targetCellLeft.getY());
+                        else if(targetCellRight != null && targetCellRight.isAccessible()&& cell.getRoom() == currentRoom)
+                            player.move(targetCellRight.getX(),targetCellRight.getY());
+
                     return true;
                 }
             }
