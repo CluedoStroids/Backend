@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.services;
 
+import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ public class LobbyRegistry {
     private final Map<String, Lobby> lobbies = new HashMap<>();
 
 
-    public Lobby createLobby(String host) {
+    public Lobby createLobby(Player host) {
         String lobbyId = UUID.randomUUID().toString();
         Lobby lobby = new Lobby(lobbyId, host);
         lobbies.put(lobbyId, lobby);

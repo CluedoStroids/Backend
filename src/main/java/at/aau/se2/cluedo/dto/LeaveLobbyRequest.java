@@ -1,16 +1,17 @@
 package at.aau.se2.cluedo.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class LeaveLobbyRequest {
 
-    @NotBlank(message = "Username cannot be empty")
-    private String username;
+    @NotNull(message = "Player ID cannot be null")
+    private UUID playerId;
 }
