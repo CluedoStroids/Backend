@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.services;
 
+import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,59 +14,62 @@ class LobbyServiceTest {
 
     @Mock
     private LobbyRegistry lobbyRegistry;
-    
+
     private LobbyService lobbyService;
-    private final String HOST_USERNAME = "testHost";
-    private final String PLAYER_USERNAME = "testPlayer";
+    private Player hostPlayer;
+    private Player joinPlayer;
     private final String TEST_LOBBY_ID = "test-lobby-id";
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         lobbyService = new LobbyService(lobbyRegistry);
+        hostPlayer = new Player("testHost", "Red", 0, 0);
+        joinPlayer = new Player("testPlayer", "Blue", 0, 0);
     }
 
     @Test
     void createLobby_ShouldCreateNewLobbyWithHost() {
-        Lobby mockLobby = new Lobby(TEST_LOBBY_ID, HOST_USERNAME);
-        when(lobbyRegistry.createLobby(HOST_USERNAME)).thenReturn(mockLobby);
-        String lobbyId = lobbyService.createLobby(HOST_USERNAME);
+        Lobby mockLobby = new Lobby(TEST_LOBBY_ID, hostPlayer);
+        when(lobbyRegistry.createLobby(hostPlayer)).thenReturn(mockLobby);
+        String lobbyId = lobbyService.createLobby(hostPlayer);
 
         assertEquals(TEST_LOBBY_ID, lobbyId);
-        verify(lobbyRegistry).createLobby(HOST_USERNAME);
+        verify(lobbyRegistry).createLobby(hostPlayer);
     }
 
     @Test
-    void joinLobby_ShouldAddUserToLobby() {
-        Lobby mockLobby = new Lobby(TEST_LOBBY_ID, HOST_USERNAME);
+    void joinLobby_ShouldAddPlayerToLobby() {
+        Lobby mockLobby = new Lobby(TEST_LOBBY_ID, hostPlayer);
         when(lobbyRegistry.getLobby(TEST_LOBBY_ID)).thenReturn(mockLobby);
-        lobbyService.joinLobby(TEST_LOBBY_ID, PLAYER_USERNAME);
+        lobbyService.joinLobby(TEST_LOBBY_ID, joinPlayer);
 
-        assertTrue(mockLobby.getParticipants().contains(PLAYER_USERNAME));
+        assertTrue(mockLobby.getPlayers().contains(joinPlayer));
         verify(lobbyRegistry).getLobby(TEST_LOBBY_ID);
     }
 
 
     @Test
-    void leaveLobby_ShouldRemoveUserFromLobby() {
-        Lobby mockLobby = new Lobby(TEST_LOBBY_ID, HOST_USERNAME);
-        mockLobby.addParticipant(PLAYER_USERNAME);
+    void leaveLobby_ShouldRemovePlayerFromLobby() {
+        Lobby mockLobby = new Lobby(TEST_LOBBY_ID, hostPlayer);
+        mockLobby.addPlayer(joinPlayer);
         when(lobbyRegistry.getLobby(TEST_LOBBY_ID)).thenReturn(mockLobby);
-        lobbyService.leaveLobby(TEST_LOBBY_ID, PLAYER_USERNAME);
+        lobbyService.leaveLobby(TEST_LOBBY_ID, joinPlayer);
 
-        assertFalse(mockLobby.getParticipants().contains(PLAYER_USERNAME));
+        assertFalse(mockLobby.getPlayers().contains(joinPlayer));
         verify(lobbyRegistry).getLobby(TEST_LOBBY_ID);
     }
 
     @Test
     void getLobby_WithValidId_ShouldReturnLobby() {
-        Lobby mockLobby = new Lobby(TEST_LOBBY_ID, HOST_USERNAME);
+        Lobby mockLobby = new Lobby(TEST_LOBBY_ID, hostPlayer);
         when(lobbyRegistry.getLobby(TEST_LOBBY_ID)).thenReturn(mockLobby);
         Lobby lobby = lobbyService.getLobby(TEST_LOBBY_ID);
 
         assertNotNull(lobby);
         assertEquals(TEST_LOBBY_ID, lobby.getId());
-        assertEquals(HOST_USERNAME, lobby.getHost());
+        assertEquals(hostPlayer.getPlayerID(), lobby.getHostId());
+        assertEquals(hostPlayer.getName(), lobby.getHost().getName());
         verify(lobbyRegistry).getLobby(TEST_LOBBY_ID);
     }
 }

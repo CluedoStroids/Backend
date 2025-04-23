@@ -28,9 +28,9 @@ public class LobbyService {
         lobby.addPlayer(player);
     }
 
-    public void leaveLobby(String lobbyId, UUID playerId) {
+    public void leaveLobby(String lobbyId, Player player) {
         Lobby lobby = lobbyRegistry.getLobby(lobbyId);
-        lobby.removePlayer(playerId);
+        lobby.removePlayer(player);
     }
 
     public Lobby getLobby(String lobbyId) {

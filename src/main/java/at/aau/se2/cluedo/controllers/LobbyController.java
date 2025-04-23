@@ -44,8 +44,9 @@ public class LobbyController {
     @MessageMapping("/leaveLobby/{lobbyId}")
     @SendTo("/topic/lobby/{lobbyId}")
     public LobbyResponse leaveLobby(@DestinationVariable String lobbyId, LeaveLobbyRequest request) {
-        logger.info("Player with ID {} leaving lobby: {}", request.getPlayerId(), lobbyId);
-        lobbyService.leaveLobby(lobbyId, request.getPlayerId());
+        Player player = request.getPlayer();
+        logger.info("Player {} leaving lobby: {}", player.getName(), lobbyId);
+        lobbyService.leaveLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
         return LobbyResponse.fromLobby(lobby);
     }

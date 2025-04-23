@@ -42,20 +42,20 @@ public class Lobby {
     }
 
 
-    public boolean removePlayer(UUID playerId) {
-        boolean removed = players.removeIf(p -> p.getPlayerID().equals(playerId));
+    public boolean removePlayer(Player player) {
+        boolean removed = players.removeIf(p -> p.getPlayerID().equals(player.getPlayerID()));
         if (removed) {
-            logger.info("Player with ID: {} left lobby {}", playerId, id);
+            logger.info("Player: {} left lobby {}", player.getName(), id);
             return true;
         } else {
-            logger.debug("Player with ID: {} not found in lobby {}", playerId, id);
+            logger.debug("Player: {} not found in lobby {}", player.getName(), id);
             return false;
         }
     }
 
 
-    public boolean hasPlayer(UUID playerId) {
-        return players.stream().anyMatch(p -> p.getPlayerID().equals(playerId));
+    public boolean hasPlayer(Player player) {
+        return players.stream().anyMatch(p -> p.getPlayerID().equals(player.getPlayerID()));
     }
 
     public Player getHost() {
