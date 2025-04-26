@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -71,5 +74,23 @@ class LobbyServiceTest {
         assertEquals(hostPlayer.getPlayerID(), lobby.getHostId());
         assertEquals(hostPlayer.getName(), lobby.getHost().getName());
         verify(lobbyRegistry).getLobby(TEST_LOBBY_ID);
+    }
+
+    @Test
+    void getAllActiveLobbies_ShouldReturnAllLobbies() {
+        // Arrange
+        Lobby lobby1 = new Lobby("lobby-id-1", hostPlayer);
+        Lobby lobby2 = new Lobby("lobby-id-2", joinPlayer);
+        List<Lobby> expectedLobbies = Arrays.asList(lobby1, lobby2);
+
+        when(lobbyRegistry.getAllLobbies()).thenReturn(expectedLobbies);
+
+        // Act
+        List<Lobby> actualLobbies = lobbyService.getAllActiveLobbies();
+
+        // Assert
+        assertEquals(expectedLobbies.size(), actualLobbies.size());
+        assertEquals(expectedLobbies, actualLobbies);
+        verify(lobbyRegistry).getAllLobbies();
     }
 }

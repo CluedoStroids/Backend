@@ -1,9 +1,6 @@
 package at.aau.se2.cluedo.controllers;
 
-import at.aau.se2.cluedo.dto.CreateLobbyRequest;
-import at.aau.se2.cluedo.dto.JoinLobbyRequest;
-import at.aau.se2.cluedo.dto.LeaveLobbyRequest;
-import at.aau.se2.cluedo.dto.LobbyResponse;
+import at.aau.se2.cluedo.dto.*;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.services.LobbyService;
@@ -14,6 +11,8 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+
+import java.util.List;
 
 @Controller
 public class LobbyController {
@@ -51,5 +50,12 @@ public class LobbyController {
         return LobbyResponse.fromLobby(lobby);
     }
 
+    @MessageMapping("/getActiveLobbies")
+    @SendTo("/topic/activeLobbies")
+    public ActiveLobbiesResponse getActiveLobbies(GetActiveLobbiesRequest request) {
+        logger.info("Getting all active lobbies");
+        List<Lobby> activeLobbies = lobbyService.getAllActiveLobbies();
+        return ActiveLobbiesResponse.fromLobbies(activeLobbies);
+    }
 
 }
