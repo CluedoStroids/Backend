@@ -13,6 +13,8 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import at.aau.se2.cluedo.dto.SolveCaseRequest;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 
 @Controller
 public class LobbyController {
@@ -46,6 +48,9 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         return LobbyResponse.fromLobby(lobby);
     }
-
+    @MessageMapping("/solveCase")
+    public void solveCase(SolveCaseRequest request) {
+        lobbyService.solveCase(request);
+    }
 
 }
