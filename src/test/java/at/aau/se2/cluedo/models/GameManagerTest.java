@@ -1,8 +1,9 @@
 package at.aau.se2.cluedo.models;
 
 import at.aau.se2.cluedo.models.cards.BasicCard;
-import at.aau.se2.cluedo.models.gamemanager.CluedoGame;
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,11 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GameManagerTest {
 
-    private CluedoGame gameManager;
+    private GameManager gameManager;
 
     @BeforeEach
     void setUp() {
-        gameManager = new CluedoGame();
+        gameManager = new GameManager("6");
         gameManager.initilizeGame();
 
         ArrayList<BasicCard> rooms = new ArrayList<>();
@@ -42,7 +43,7 @@ public class GameManagerTest {
 
     @Test
     void testAddAndGetPlayers() {
-        Player player = new Player("Markus","Green",2,5);
+        Player player = new Player("Markus","Markus",2,5, PlayerColor.GREEN);
         assertEquals(6, gameManager.getPlayers().size());
     }
 

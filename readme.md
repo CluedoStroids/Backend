@@ -9,9 +9,24 @@ The project follows a clean architecture with clear separation of concerns:
 - **Controllers**: Handle incoming WebSocket messages and route them to appropriate services
 - **Services**: Contain the business logic for game operations
 - **Models**: Define the data structures used in the application
+  - **gameobjects**: Player, cards, and other game entities
+  - **gameboard**: Game board implementation with cells and rooms
+  - **gamemanager**: Core game logic and state management
+  - **lobby**: Lobby management for pre-game setup
 - **DTOs**: Data Transfer Objects for communication between client and server
+- **Config**: Configuration classes for WebSocket and other services
 
 ## Features
+
+### Player Model
+
+The application uses a rich Player model that includes:
+
+- Player name and character
+- Unique player ID (UUID)
+- Position coordinates (x, y)
+- Game state (active, current player, has won)
+- Cards held by the player
 
 ### Lobby Management
 
@@ -20,6 +35,19 @@ The application provides functionality for managing game lobbies:
 - **Create Lobby**: Players can create a new lobby and become the host
 - **Join Lobby**: Players can join an existing lobby using a lobby ID
 - **Leave Lobby**: Players can leave a lobby they have joined
+
+### Game Mechanics
+
+The game implements the core mechanics of Cluedo:
+
+- **Game Board**: A detailed game board with rooms, hallways, doors, and secret passages
+- **Player Movement**: Players can move around the board using directional controls (W/A/S/D)
+- **Dice Rolling**: Movement is determined by dice rolls
+- **Room Actions**: Players can perform special actions when in rooms
+- **Suggestions**: Players can make suggestions about the crime when in a room
+- **Accusations**: Players can make final accusations to try to solve the crime
+- **Card System**: Cards are distributed to players, with a secret file containing the solution
+- **Win/Lose Conditions**: Players win by making correct accusations or lose by making incorrect ones
 
 ## WebSocket Communication
 
@@ -36,6 +64,7 @@ The application uses Spring's WebSocket support with STOMP messaging protocol:
 | `/app/createLobby` | Create a new lobby |
 | `/app/joinLobby/{lobbyId}` | Join an existing lobby |
 | `/app/leaveLobby/{lobbyId}` | Leave a lobby |
+| `/app/getActiveLobbies` | Get a list of all active lobbies |
 
 ### Subscription Topics
 
@@ -43,6 +72,7 @@ The application uses Spring's WebSocket support with STOMP messaging protocol:
 |-------|-------------|
 | `/topic/lobbyCreated` | Receive notifications when a new lobby is created |
 | `/topic/lobby/{lobbyId}` | Receive updates about a specific lobby |
+| `/topic/activeLobbies` | Receive list of all active lobbies |
 
 ## Getting Started
 
@@ -83,7 +113,11 @@ To run the tests, use the following command:
 **Request:**
 ```json
 {
-  "username": "playerName"
+  "player": {
+    "name": "playerName",
+    "character": "Red",
+    "playerID": "550e8400-e29b-41d4-a716-446655440000"
+  }
 }
 ```
 
@@ -95,7 +129,11 @@ A string containing the lobby ID.
 **Request:**
 ```json
 {
-  "username": "playerName"
+  "player": {
+    "name": "playerName",
+    "character": "Blue",
+    "playerID": "550e8400-e29b-41d4-a716-446655440001"
+  }
 }
 ```
 
@@ -103,8 +141,38 @@ A string containing the lobby ID.
 ```json
 {
   "id": "lobbyId",
-  "host": "hostName",
-  "participants": ["hostName", "playerName"]
+  "host": {
+    "name": "hostName",
+    "character": "Red",
+    "playerID": "550e8400-e29b-41d4-a716-446655440000",
+    "x": 0,
+    "y": 0,
+    "isCurrentPlayer": false,
+    "isActive": true,
+    "hasWon": false
+  },
+  "players": [
+    {
+      "name": "hostName",
+      "character": "Red",
+      "playerID": "550e8400-e29b-41d4-a716-446655440000",
+      "x": 0,
+      "y": 0,
+      "isCurrentPlayer": false,
+      "isActive": true,
+      "hasWon": false
+    },
+    {
+      "name": "playerName",
+      "character": "Blue",
+      "playerID": "550e8400-e29b-41d4-a716-446655440001",
+      "x": 0,
+      "y": 0,
+      "isCurrentPlayer": false,
+      "isActive": true,
+      "hasWon": false
+    }
+  ]
 }
 ```
 
@@ -113,7 +181,11 @@ A string containing the lobby ID.
 **Request:**
 ```json
 {
-  "username": "playerName"
+  "player": {
+    "name": "playerName",
+    "character": "Blue",
+    "playerID": "550e8400-e29b-41d4-a716-446655440001"
+  }
 }
 ```
 
@@ -121,7 +193,52 @@ A string containing the lobby ID.
 ```json
 {
   "id": "lobbyId",
-  "host": "hostName",
-  "participants": ["hostName"]
+  "host": {
+    "name": "hostName",
+    "character": "Red",
+    "playerID": "550e8400-e29b-41d4-a716-446655440000",
+    "x": 0,
+    "y": 0,
+    "isCurrentPlayer": false,
+    "isActive": true,
+    "hasWon": false
+  },
+  "players": [
+    {
+      "name": "hostName",
+      "character": "Red",
+      "playerID": "550e8400-e29b-41d4-a716-446655440000",
+      "x": 0,
+      "y": 0,
+      "isCurrentPlayer": false,
+      "isActive": true,
+      "hasWon": false
+    }
+  ]
+}
+```
+
+### Get Active Lobbies
+
+**Request:**
+```json
+{}
+```
+
+**Response:**
+```json
+{
+  "lobbies": [
+    {
+      "id": "lobby-id-1",
+      "hostName": "hostName1",
+      "playerCount": 2
+    },
+    {
+      "id": "lobby-id-2",
+      "hostName": "hostName2",
+      "playerCount": 1
+    }
+  ]
 }
 ```

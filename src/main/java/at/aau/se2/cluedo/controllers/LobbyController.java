@@ -1,9 +1,7 @@
 package at.aau.se2.cluedo.controllers;
 
-import at.aau.se2.cluedo.dto.CreateLobbyRequest;
-import at.aau.se2.cluedo.dto.JoinLobbyRequest;
-import at.aau.se2.cluedo.dto.LeaveLobbyRequest;
-import at.aau.se2.cluedo.dto.LobbyResponse;
+import at.aau.se2.cluedo.dto.*;
+import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.services.LobbyService;
 import org.slf4j.Logger;
@@ -13,6 +11,8 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+
+import java.util.List;
 
 @Controller
 public class LobbyController {
@@ -25,15 +25,17 @@ public class LobbyController {
     @MessageMapping("/createLobby")
     @SendTo("/topic/lobbyCreated")
     public String createLobby(CreateLobbyRequest request) {
-        logger.info("Creating lobby for user: {}", request.getUsername());
-        return lobbyService.createLobby(request.getUsername());
+        Player player = request.getPlayer();
+        logger.info("Creating lobby for player: {}", player.getName());
+        return lobbyService.createLobby(player);
     }
 
     @MessageMapping("/joinLobby/{lobbyId}")
     @SendTo("/topic/lobby/{lobbyId}")
     public LobbyResponse joinLobby(@DestinationVariable String lobbyId, JoinLobbyRequest request) {
-        logger.info("User {} joining lobby: {}", request.getUsername(), lobbyId);
-        lobbyService.joinLobby(lobbyId, request.getUsername());
+        Player player = request.getPlayer();
+        logger.info("Player {} joining lobby: {}", player.getName(), lobbyId);
+        lobbyService.joinLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
         return LobbyResponse.fromLobby(lobby);
     }
@@ -41,11 +43,19 @@ public class LobbyController {
     @MessageMapping("/leaveLobby/{lobbyId}")
     @SendTo("/topic/lobby/{lobbyId}")
     public LobbyResponse leaveLobby(@DestinationVariable String lobbyId, LeaveLobbyRequest request) {
-        logger.info("User {} leaving lobby: {}", request.getUsername(), lobbyId);
-        lobbyService.leaveLobby(lobbyId, request.getUsername());
+        Player player = request.getPlayer();
+        logger.info("Player {} leaving lobby: {}", player.getName(), lobbyId);
+        lobbyService.leaveLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
         return LobbyResponse.fromLobby(lobby);
     }
 
+    @MessageMapping("/getActiveLobbies")
+    @SendTo("/topic/activeLobbies")
+    public ActiveLobbiesResponse getActiveLobbies(GetActiveLobbiesRequest request) {
+        logger.info("Getting all active lobbies");
+        List<Lobby> activeLobbies = lobbyService.getAllActiveLobbies();
+        return ActiveLobbiesResponse.fromLobbies(activeLobbies);
+    }
 
 }
