@@ -17,14 +17,17 @@ public class Player extends GameObject {
     private boolean hasWon = false;
     // Player UUID for Unique identification
     private UUID playerID;
+    private PlayerColor color;
 
-    public Player(String name, String character, int startX, int startY) {
+
+    public Player(String name, String character, int startX, int startY, PlayerColor color) {
         this.name = name;
         this.playerID = UUID.randomUUID();
         this.character = character;
         this.x = startX;
         this.y = startY;
         this.cards = new ArrayList<>();
+        this.color = color;
     }
 
     public UUID getPlayerID() {
@@ -86,5 +89,13 @@ public class Player extends GameObject {
 
     public void setHasWon(boolean hasWon) {
         this.hasWon = hasWon;
+    }
+
+    public PlayerColor getColor() {
+        return color;
+    }
+
+    public void setColor(PlayerColor color) {
+        this.color = color;
     }
 }

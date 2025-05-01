@@ -5,6 +5,7 @@ import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,12 +43,12 @@ public class GameManager {
 
     private List<Player> initializePlayers(int count) {
         return Arrays.asList(
-                new Player("Miss Scarlet", "Red", 7, 24),
-                new Player("Colonel Mustard", "Yellow", 0, 17),
-                new Player("Mrs. White", "White", 9, 0),
-                new Player("Mr. Green", "Green", 14, 0),
-                new Player("Mrs. Peacock", "Blue", 24, 6),
-                new Player("Professor Plum", "Purple", 24, 19)
+                new Player("Miss Scarlet", "Scarlet", 7, 24, PlayerColor.RED),
+                new Player("Colonel Mustard", "Mustard", 0, 17, PlayerColor.YELLOW),
+                new Player("Mrs. White", "White", 9, 0, PlayerColor.WHITE),
+                new Player("Mr. Green", "Green", 14, 0, PlayerColor.GREEN),
+                new Player("Mrs. Peacock", "Peacock", 24, 6, PlayerColor.BLUE),
+                new Player("Professor Plum", "Plum", 24, 19, PlayerColor.PURPLE)
         ).subList(0,count);
     }
 

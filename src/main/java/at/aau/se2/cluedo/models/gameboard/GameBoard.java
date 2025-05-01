@@ -2,6 +2,7 @@ package at.aau.se2.cluedo.models.gameboard;
 
 
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -348,13 +349,13 @@ public class GameBoard {
     private String getColor(GameBoardCell cell, List<Player> players, int x, int y) {
         for (Player p : players) {
             if (p.getX() == x && p.getY() == y) {
-                return switch (p.getCharacter()) {
-                    case "Red" -> RED;
-                    case "Yellow" -> YELLOW;
-                    case "White" -> WHITE;
-                    case "Green" -> GREEN;
-                    case "Blue" -> BLUE;
-                    case "Purple" -> PURPLE;
+                return switch (p.getColor()) {
+                    case RED -> RED;
+                    case YELLOW -> YELLOW;
+                    case WHITE -> WHITE;
+                    case GREEN -> GREEN;
+                    case BLUE -> BLUE;
+                    case PURPLE -> PURPLE;
                     default -> "";
                 };
             }

@@ -1,6 +1,7 @@
 package at.aau.se2.cluedo.services;
 
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,8 +28,8 @@ class LobbyServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         lobbyService = new LobbyService(lobbyRegistry);
-        hostPlayer = new Player("testHost", "Red", 0, 0);
-        joinPlayer = new Player("testPlayer", "Blue", 0, 0);
+        hostPlayer = new Player("testHost", "Host", 0, 0, PlayerColor.RED);
+        joinPlayer = new Player("testPlayer", "Join", 0, 0, PlayerColor.BLUE);
     }
 
     @Test

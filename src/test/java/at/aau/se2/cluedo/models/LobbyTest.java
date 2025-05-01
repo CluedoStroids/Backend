@@ -1,6 +1,7 @@
 package at.aau.se2.cluedo.models;
 
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +17,8 @@ class LobbyTest {
 
     @BeforeEach
     void setUp() {
-        hostPlayer = new Player("testHost", "Red", 0, 0);
-        joinPlayer = new Player("testPlayer", "Blue", 0, 0);
+        hostPlayer = new Player("testHost", "Host", 0, 0, PlayerColor.RED);
+        joinPlayer = new Player("testPlayer", "Join", 0, 0, PlayerColor.BLUE);
     }
 
     @Test
@@ -65,7 +66,7 @@ class LobbyTest {
     @Test
     void removePlayer_WhenPlayerNotInLobby_ShouldReturnFalse() {
         Lobby lobby = new Lobby(TEST_LOBBY_ID, hostPlayer);
-        Player nonExistingPlayer = new Player("nonExisting", "Green", 0, 0);
+        Player nonExistingPlayer = new Player("nonExisting", "NonExisting", 0, 0, PlayerColor.GREEN);
         boolean result = lobby.removePlayer(nonExistingPlayer);
 
         assertFalse(result);
@@ -84,7 +85,7 @@ class LobbyTest {
     @Test
     void hasPlayer_WhenPlayerNotInLobby_ShouldReturnFalse() {
         Lobby lobby = new Lobby(TEST_LOBBY_ID, hostPlayer);
-        Player nonExistingPlayer = new Player("nonExisting", "Green", 0, 0);
+        Player nonExistingPlayer = new Player("nonExisting", "NonExisting", 0, 0, PlayerColor.GREEN);
         boolean result = lobby.hasPlayer(nonExistingPlayer);
 
         assertFalse(result);

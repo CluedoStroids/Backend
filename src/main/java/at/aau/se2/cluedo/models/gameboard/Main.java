@@ -1,6 +1,7 @@
 package at.aau.se2.cluedo.models.gameboard;
 
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,12 +42,12 @@ public class Main {
 
     private static List<Player> createPlayers() {
         return Arrays.asList(
-                new Player("Miss Scarlet", "Red", 7, 24),
-                new Player("Colonel Mustard", "Yellow", 0, 17),
-                new Player("Mrs. White", "White", 9, 0),
-                new Player("Mr. Green", "Green", 14, 0),
-                new Player("Mrs. Peacock", "Blue", 24, 6),
-                new Player("Professor Plum", "Purple", 24, 19)
+                new Player("Miss Scarlet", "Scarlet", 7, 24, PlayerColor.RED),
+                new Player("Colonel Mustard", "Mustard", 0, 17, PlayerColor.YELLOW),
+                new Player("Mrs. White", "White", 9, 0, PlayerColor.WHITE),
+                new Player("Mr. Green", "Green", 14, 0, PlayerColor.GREEN),
+                new Player("Mrs. Peacock", "Peacock", 24, 6, PlayerColor.BLUE),
+                new Player("Professor Plum", "Plum", 24, 19, PlayerColor.PURPLE)
         );
     }
 }
