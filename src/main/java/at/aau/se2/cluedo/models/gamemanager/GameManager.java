@@ -17,7 +17,6 @@ import java.util.*;
 public class GameManager {
     private final GameBoard gameBoard;
     private final List<Player> players;
-    private final Scanner scanner;
     private int currentPlayerIndex;
     private Random rn = new Random();
     private SecretFile secretFile;
@@ -26,22 +25,46 @@ public class GameManager {
     private ArrayList<BasicCard> weapons = new ArrayList<>();
     private ArrayList<BasicCard> character = new ArrayList<>();
 
-    public GameManager(String count) {
+    public GameManager(int count) {
+        this.gameBoard = new GameBoard();
+        this.players = initializePlayers(count);
+        initilizeGame();
+        this.currentPlayerIndex = 0;
+        players.get(0).setCurrentPlayer(true);
+    }
+
+
+    public GameManager(List<Player> lobbyPlayers) {
         this.gameBoard = new GameBoard();
 
+        List<Player> defaultPlayers = initializeDefaultPlayers(lobbyPlayers.size());
 
-        this.players = initializePlayers(Integer.parseInt(count));
-        this.scanner = new Scanner(System.in);
+        List<Player> updatedPlayers = new ArrayList<>();
+
+
+        for (int i = 0; i < lobbyPlayers.size(); i++) {
+            Player lobbyPlayer = lobbyPlayers.get(i);
+            Player defaultPlayer = defaultPlayers.get(i);
+
+            lobbyPlayer.move(defaultPlayer.getX(), defaultPlayer.getY());
+            updatedPlayers.add(lobbyPlayer);
+        }
+
+        this.players = updatedPlayers;
         initilizeGame();
         this.currentPlayerIndex = 0;
         players.get(0).setCurrentPlayer(true);
     }
 
     public static void main(String[] args) {
-        new GameManager(args[0]).startGame();
+        new GameManager(4).startGame();
     }
 
     private List<Player> initializePlayers(int count) {
+        return initializeDefaultPlayers(count);
+    }
+
+    private List<Player> initializeDefaultPlayers(int count) {
         return Arrays.asList(
                 new Player("Miss Scarlet", "Scarlet", 7, 24, PlayerColor.RED),
                 new Player("Colonel Mustard", "Mustard", 0, 17, PlayerColor.YELLOW),
@@ -49,7 +72,7 @@ public class GameManager {
                 new Player("Mr. Green", "Green", 14, 0, PlayerColor.GREEN),
                 new Player("Mrs. Peacock", "Peacock", 24, 6, PlayerColor.BLUE),
                 new Player("Professor Plum", "Plum", 24, 19, PlayerColor.PURPLE)
-        ).subList(0,count);
+        ).subList(0, count);
     }
 
     //Generate the secret File.
@@ -321,9 +344,14 @@ public class GameManager {
             topOfTheRound();
         players.get(currentPlayerIndex).setCurrentPlayer(true);
     }
-    private String getConsoleInputNextLine(){
-
-        return scanner.nextLine();
+    /**
+     * This method is a placeholder for getting input in the WebSocket version.
+     * In a real implementation, this would be replaced with WebSocket communication.
+     */
+    private String getConsoleInputNextLine() {
+        // In a WebSocket environment, this would be handled differently
+        // For now, just return a default value
+        return "3"; // Default to "do nothing" for room actions
     }
 
 }
