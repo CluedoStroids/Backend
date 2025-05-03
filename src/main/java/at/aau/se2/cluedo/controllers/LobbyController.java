@@ -4,6 +4,8 @@ import at.aau.se2.cluedo.dto.CreateLobbyRequest;
 import at.aau.se2.cluedo.dto.JoinLobbyRequest;
 import at.aau.se2.cluedo.dto.LeaveLobbyRequest;
 import at.aau.se2.cluedo.dto.LobbyResponse;
+import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.services.LobbyService;
 import org.slf4j.Logger;
@@ -13,6 +15,8 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+
+import java.util.List;
 
 @Controller
 public class LobbyController {
@@ -46,6 +50,42 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         return LobbyResponse.fromLobby(lobby);
     }
+
+
+
+
+
+    @MessageMapping("/makeSuggestion/{lobbyId}")
+    @SendTo("/topic/lobby/{lobbyId}")
+    public String makeSuggestion(@DestinationVariable Player player, String suspect, String weapon) {
+        logger.info("User {} makes a suggestion.", player.getName());
+        return lobbyService.makeSuggestion( player,  suspect,  weapon);
+
+    }
+    @MessageMapping("/makeAccusation/{lobbyId}")
+    @SendTo("/topic/lobby/{lobbyId}")
+    public String makeAccusation(@DestinationVariable Player player, SecretFile acusation) {
+        logger.info("User {} makes a accusation.", player.getName());
+        return lobbyService.makeAccusation( player,  acusation);
+
+    }
+    @MessageMapping("/performMovement/{lobbyId}")
+    @SendTo("/topic/lobby/{lobbyId}")
+    public int performMovement(@DestinationVariable Player player,  List<String> movement) {
+        logger.info("User {} makes a move.", player.getName());
+        return lobbyService.performMovement( player, movement);
+
+    }
+
+    @MessageMapping("/displayGameBoard/{lobbyId}")
+    @SendTo("/topic/lobby/{lobbyId}")
+    public String displayGameBoard(@DestinationVariable List<Player> players) {
+        return lobbyService.displayGameBoard(players);
+
+    }
+
+
+
 
 
 }
