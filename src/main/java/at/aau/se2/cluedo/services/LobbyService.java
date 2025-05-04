@@ -1,7 +1,7 @@
 package at.aau.se2.cluedo.services;
 
 import at.aau.se2.cluedo.models.lobby.Lobby;
-import at.aau.se2.cluedo.models.GameManager;
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import at.aau.se2.cluedo.dto.SolveCaseRequest;
@@ -21,6 +21,7 @@ public class LobbyService {
 
     public String createLobby(String host) {
         Lobby lobby = lobbyRegistry.createLobby(host);
+        lobby.setGameManager(new GameManager());
         return lobby.getId();
     }
 
@@ -49,6 +50,11 @@ public class LobbyService {
             return;
         }
 
+        if (!gameManager.getCurrentPlayer().isActive()) {
+            messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "already_eliminated");
+            return;
+        }
+
         String correctSuspect = gameManager.getCorrectSuspect();
         String correctRoom = gameManager.getCorrectRoom();
         String correctWeapon = gameManager.getCorrectWeapon();
@@ -60,8 +66,9 @@ public class LobbyService {
         if (isCorrect) {
             messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "correct");
         } else {
-            gameManager.eliminateCurrentPlayer(); // Or your own elimination logic
+            gameManager.eliminateCurrentPlayer();
             messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "wrong");
+            messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId() + "/players", gameManager.getPlayerList());
         }
     }
 }

@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.models.lobby;
 
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
@@ -7,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Data
 @NoArgsConstructor
@@ -17,7 +17,7 @@ public class Lobby {
     private String id;
     private String host;
     private List<String> participants = new ArrayList<>();
-
+    private transient GameManager gameManager;
 
     public Lobby(String id, String host) {
         this.id = id;
@@ -25,7 +25,6 @@ public class Lobby {
         this.participants.add(host);
         logger.info("Created lobby: {} with host: {}", id, host);
     }
-
 
     public boolean addParticipant(String username) {
         if (!participants.contains(username)) {
@@ -38,7 +37,6 @@ public class Lobby {
         }
     }
 
-
     public boolean removeParticipant(String username) {
         if (participants.contains(username)) {
             participants.remove(username);
@@ -50,8 +48,15 @@ public class Lobby {
         }
     }
 
-
     public boolean hasParticipant(String username) {
         return participants.contains(username);
+    }
+
+    public GameManager getGameManager() {
+        return gameManager;
+    }
+
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
     }
 }

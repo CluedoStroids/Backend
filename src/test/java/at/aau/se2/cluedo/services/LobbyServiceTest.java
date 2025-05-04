@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -13,8 +14,12 @@ class LobbyServiceTest {
 
     @Mock
     private LobbyRegistry lobbyRegistry;
-    
+
+    @Mock
+    private SimpMessagingTemplate messagingTemplate;
+
     private LobbyService lobbyService;
+
     private final String HOST_USERNAME = "testHost";
     private final String PLAYER_USERNAME = "testPlayer";
     private final String TEST_LOBBY_ID = "test-lobby-id";
@@ -22,7 +27,7 @@ class LobbyServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        lobbyService = new LobbyService(lobbyRegistry);
+        lobbyService = new LobbyService(lobbyRegistry, messagingTemplate);
     }
 
     @Test
@@ -44,7 +49,6 @@ class LobbyServiceTest {
         assertTrue(mockLobby.getParticipants().contains(PLAYER_USERNAME));
         verify(lobbyRegistry).getLobby(TEST_LOBBY_ID);
     }
-
 
     @Test
     void leaveLobby_ShouldRemoveUserFromLobby() {

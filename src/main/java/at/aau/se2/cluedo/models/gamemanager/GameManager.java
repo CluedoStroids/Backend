@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.models.gamemanager;
 
+import java.util.List;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameobjects.GameObject;
 import at.aau.se2.cluedo.models.gameobjects.Player;
@@ -96,5 +97,27 @@ public class GameManager {
 
         return rn.nextInt(12) + 1;
     }
+
+    public void eliminateCurrentPlayer() {
+        Player current = getCurrentPlayer();
+        current.setActive(false);
+    }
+
+    public String getCorrectSuspect() {
+        return secretFile.character().getCardName();
+    }
+
+    public String getCorrectRoom() {
+        return secretFile.room().getCardName();
+    }
+
+    public String getCorrectWeapon() {
+        return secretFile.weapon().getCardName();
+    }
+
+    public List<Player> getPlayerList() {
+        return new ArrayList<>(playerList);
+    }
+
 
 }
