@@ -87,4 +87,12 @@ public class Player extends GameObject {
     public void setHasWon(boolean hasWon) {
         this.hasWon = hasWon;
     }
+
+    public void setX(int i) {
+    }
+    public void setY(int i) {
+
+    }
+
+
 }

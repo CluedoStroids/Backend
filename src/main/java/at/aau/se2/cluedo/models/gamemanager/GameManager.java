@@ -199,7 +199,7 @@ public class GameManager {
         }
     }
 
-    private int performMovement(Player player,  List<String> movement) {
+    public int performMovement(Player player, List<String> movement) {
 
         if(movement.size() == 0){
             return 0;
@@ -248,7 +248,7 @@ public class GameManager {
         return (int) (Math.random() * 6) + 1;
     }
 
-    private boolean checkGameEnd() {
+    public boolean checkGameEnd() {
         for (Player p : players) {
             if (p.hasWon()) {
                 System.out.println(p.getName() + " has won!");

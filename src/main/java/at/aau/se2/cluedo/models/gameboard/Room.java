@@ -29,4 +29,7 @@ public class Room {
     public List<Player> getPlayersInRoom() {
         return new ArrayList<>(playersInRoom);
     }
+
+    public void setName(String library) {
+    }
 }
