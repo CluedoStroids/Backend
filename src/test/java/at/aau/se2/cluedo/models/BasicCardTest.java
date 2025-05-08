@@ -1,0 +1,59 @@
+package at.aau.se2.cluedo.models;
+
+import at.aau.se2.cluedo.models.cards.BasicCard;
+import at.aau.se2.cluedo.models.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class BasicCardTest {
+
+    private BasicCard card1;
+    private BasicCard card2;
+    private BasicCard card3;
+    private UUID uuid1;
+    private UUID uuid2;
+
+    @BeforeEach
+    void setUp() {
+        uuid1 = UUID.randomUUID();
+        uuid2 = UUID.randomUUID();
+
+        card1 = new BasicCard("Knife", uuid1, "A sharp knife", "Weapon");
+        card2 = new BasicCard("Knife", uuid2, "Another knife", "Weapon");
+        card3 = new BasicCard("Rope", uuid2, "A long rope", "Weapon");
+    }
+
+    @Test
+    void testCardCreation() {
+        assertEquals("Knife", card1.getCardName());
+        assertEquals(uuid1, card1.getCardID());
+        assertEquals("A sharp knife", card1.getCardValue());
+        assertEquals("Weapon", card1.getType());
+    }
+
+    @Test
+    void testCardEquals() {
+        // Same name should be equal
+        assertTrue(card1.equals(card2));
+
+        // Different name should not be equal
+        assertFalse(card1.equals(card3));
+    }
+
+    @Test
+    @Disabled
+    void testCardNotEqualToNull() {
+        assertFalse(card1.equals(null));
+    }
+
+    @Test
+    void testDifferentValuesButSameNameAreEqual() {
+        BasicCard cardWithDifferentValue = new BasicCard("Knife", UUID.randomUUID(), "Completely different value", "Weapon");
+        assertTrue(card1.equals(cardWithDifferentValue));
+    }
+}
