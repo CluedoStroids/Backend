@@ -19,6 +19,9 @@ public class Lobby {
     private List<String> participants = new ArrayList<>();
     private transient GameManager gameManager;
 
+
+    private String winnerUsername;
+
     public Lobby(String id, String host) {
         this.id = id;
         this.host = host;
@@ -58,5 +61,14 @@ public class Lobby {
 
     public void setGameManager(GameManager gameManager) {
         this.gameManager = gameManager;
+    }
+
+
+    public String getWinnerUsername() {
+        return winnerUsername;
+    }
+
+    public void setWinnerUsername(String winnerUsername) {
+        this.winnerUsername = winnerUsername;
     }
 }

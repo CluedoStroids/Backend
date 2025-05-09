@@ -1,11 +1,18 @@
 package at.aau.se2.cluedo.services;
 
+import at.aau.se2.cluedo.dto.SolveCaseRequest;
+import at.aau.se2.cluedo.models.cards.BasicCard;
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
+import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -71,5 +78,141 @@ class LobbyServiceTest {
         assertEquals(TEST_LOBBY_ID, lobby.getId());
         assertEquals(HOST_USERNAME, lobby.getHost());
         verify(lobbyRegistry).getLobby(TEST_LOBBY_ID);
+    }
+
+    @Test
+    void testSolveCase_correctGuess_setsWinner() {
+        Player player = new Player("Alice", "Blue", 0, 0);
+        GameManager gameManager = new GameManager();
+        gameManager.getPlayerList().add(player);
+
+        BasicCard suspect = new BasicCard("Mrs. White", UUID.randomUUID(), "", "Character");
+        BasicCard room = new BasicCard("Kitchen", UUID.randomUUID(), "", "Room");
+        BasicCard weapon = new BasicCard("Knife", UUID.randomUUID(), "", "Weapon");
+        SecretFile file = new SecretFile(room, weapon, suspect);
+        gameManager.setSecretFile(file);
+
+        Lobby lobby = new Lobby(TEST_LOBBY_ID, "Alice");
+        lobby.setGameManager(gameManager);
+        when(lobbyRegistry.getLobby(TEST_LOBBY_ID)).thenReturn(lobby);
+
+        SolveCaseRequest request = new SolveCaseRequest();
+        request.setLobbyId(TEST_LOBBY_ID);
+        request.setUsername("Alice");
+        request.setSuspect("Mrs. White");
+        request.setRoom("Kitchen");
+        request.setWeapon("Knife");
+
+        lobbyService.solveCase(request);
+
+        verify(messagingTemplate).convertAndSend("/topic/lobby/" + TEST_LOBBY_ID, "correct");
+        assertEquals("Alice", lobby.getWinnerUsername());
+    }
+
+    @Test
+    void testSolveCase_wrongGuess_eliminatesPlayer() {
+        Player player = new Player("Bob", "Green", 0, 0);
+        GameManager gameManager = new GameManager();
+        gameManager.getPlayerList().add(player);
+
+        BasicCard suspect = new BasicCard("Mrs. White", UUID.randomUUID(), "", "Character");
+        BasicCard room = new BasicCard("Kitchen", UUID.randomUUID(), "", "Room");
+        BasicCard weapon = new BasicCard("Knife", UUID.randomUUID(), "", "Weapon");
+        SecretFile file = new SecretFile(room, weapon, suspect);
+        gameManager.setSecretFile(file);
+
+        Lobby lobby = new Lobby(TEST_LOBBY_ID, "Bob");
+        lobby.setGameManager(gameManager);
+        when(lobbyRegistry.getLobby(TEST_LOBBY_ID)).thenReturn(lobby);
+
+        SolveCaseRequest request = new SolveCaseRequest();
+        request.setLobbyId(TEST_LOBBY_ID);
+        request.setUsername("Bob");
+        request.setSuspect("Wrong");
+        request.setRoom("Wrong");
+        request.setWeapon("Wrong");
+
+        lobbyService.solveCase(request);
+
+        verify(messagingTemplate).convertAndSend("/topic/lobby/" + TEST_LOBBY_ID, "wrong");
+        verify(messagingTemplate).convertAndSend(eq("/topic/lobby/" + TEST_LOBBY_ID + "/players"), any(Object.class));
+        assertFalse(player.isActive());
+    }
+
+    @Test
+    void testSolveCase_eliminatedPlayer_cannotSolveAgain() {
+        Player eliminated = new Player("Elim", "Red", 0, 0);
+        eliminated.setActive(false);
+
+        GameManager gameManager = new GameManager();
+        gameManager.getPlayerList().add(eliminated);
+
+        Lobby lobby = new Lobby(TEST_LOBBY_ID, "Elim");
+        lobby.setGameManager(gameManager);
+
+        when(lobbyRegistry.getLobby(TEST_LOBBY_ID)).thenReturn(lobby);
+
+        SolveCaseRequest request = new SolveCaseRequest();
+        request.setLobbyId(TEST_LOBBY_ID);
+        request.setUsername("Elim");
+        request.setSuspect("Mrs. White");
+        request.setRoom("Kitchen");
+        request.setWeapon("Knife");
+
+        lobbyService.solveCase(request);
+
+        verify(messagingTemplate).convertAndSend("/topic/lobby/" + TEST_LOBBY_ID, "already_eliminated");
+    }
+
+    @Test
+    void testSolveCase_wrongPlayerBlocked() {
+        Player current = new Player("Carol", "Red", 0, 0);
+        GameManager gameManager = new GameManager();
+        gameManager.getPlayerList().add(current);
+
+        Lobby lobby = new Lobby(TEST_LOBBY_ID, "Carol");
+        lobby.setGameManager(gameManager);
+        when(lobbyRegistry.getLobby(TEST_LOBBY_ID)).thenReturn(lobby);
+
+        SolveCaseRequest request = new SolveCaseRequest();
+        request.setLobbyId(TEST_LOBBY_ID);
+        request.setUsername("Eve");
+        request.setSuspect("X");
+        request.setRoom("Y");
+        request.setWeapon("Z");
+
+        lobbyService.solveCase(request);
+
+        verify(messagingTemplate).convertAndSend("/topic/lobby/" + TEST_LOBBY_ID, "not_your_turn");
+    }
+
+    @Test
+    void testSolveCase_lobbyNotFound() {
+        when(lobbyRegistry.getLobby(TEST_LOBBY_ID)).thenReturn(null);
+
+        SolveCaseRequest request = new SolveCaseRequest();
+        request.setLobbyId(TEST_LOBBY_ID);
+        request.setUsername("Nobody");
+        request.setSuspect("X");
+        request.setRoom("Y");
+        request.setWeapon("Z");
+
+        assertDoesNotThrow(() -> lobbyService.solveCase(request));
+    }
+
+    @Test
+    void testSolveCase_gameManagerNotSet() {
+        Lobby lobby = new Lobby(TEST_LOBBY_ID, "Dan");
+        lobby.setGameManager(null);
+        when(lobbyRegistry.getLobby(TEST_LOBBY_ID)).thenReturn(lobby);
+
+        SolveCaseRequest request = new SolveCaseRequest();
+        request.setLobbyId(TEST_LOBBY_ID);
+        request.setUsername("Dan");
+        request.setSuspect("X");
+        request.setRoom("Y");
+        request.setWeapon("Z");
+
+        assertDoesNotThrow(() -> lobbyService.solveCase(request));
     }
 }

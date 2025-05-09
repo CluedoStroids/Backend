@@ -2,6 +2,7 @@ package at.aau.se2.cluedo.services;
 
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
+import at.aau.se2.cluedo.models.gameobjects.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import at.aau.se2.cluedo.dto.SolveCaseRequest;
@@ -50,8 +51,15 @@ public class LobbyService {
             return;
         }
 
-        if (!gameManager.getCurrentPlayer().isActive()) {
+        Player currentPlayer = gameManager.getCurrentPlayer();
+
+        if (!currentPlayer.isActive()) {
             messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "already_eliminated");
+            return;
+        }
+
+        if (!currentPlayer.getName().equals(request.getUsername())) {
+            messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "not_your_turn");
             return;
         }
 
@@ -65,6 +73,7 @@ public class LobbyService {
 
         if (isCorrect) {
             messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "correct");
+            lobby.setWinnerUsername(request.getUsername());
         } else {
             gameManager.eliminateCurrentPlayer();
             messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "wrong");
