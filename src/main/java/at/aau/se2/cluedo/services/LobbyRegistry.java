@@ -1,11 +1,14 @@
 package at.aau.se2.cluedo.services;
 
+import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,7 +20,7 @@ public class LobbyRegistry {
     private final Map<String, Lobby> lobbies = new HashMap<>();
 
 
-    public Lobby createLobby(String host) {
+    public Lobby createLobby(Player host) {
         String lobbyId = UUID.randomUUID().toString();
         Lobby lobby = new Lobby(lobbyId, host);
         lobbies.put(lobbyId, lobby);
@@ -43,5 +46,10 @@ public class LobbyRegistry {
         }
         logger.debug("Failed to remove lobby: Lobby {} not found", lobbyId);
         return false;
+    }
+
+    public List<Lobby> getAllLobbies() {
+        logger.debug("Retrieving all lobbies. Count: {}", lobbies.size());
+        return new ArrayList<>(lobbies.values());
     }
 }

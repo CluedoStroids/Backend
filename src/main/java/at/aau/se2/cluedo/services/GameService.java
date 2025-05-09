@@ -1,0 +1,69 @@
+package at.aau.se2.cluedo.services;
+
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
+import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.lobby.Lobby;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class GameService {
+    private static final Logger logger = LoggerFactory.getLogger(GameService.class);
+    private static final int MIN_PLAYERS = 3;
+    private static final int MAX_PLAYERS = 6;
+
+    private final LobbyService lobbyService;
+    private final Map<String, GameManager> activeGames = new HashMap<>();
+
+    @Autowired
+    public GameService(LobbyService lobbyService) {
+        this.lobbyService = lobbyService;
+    }
+
+
+    public GameManager startGameFromLobby(String lobbyId) {
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+
+        if (lobby == null) {
+            logger.error("Failed to start game: Lobby {} not found", lobbyId);
+            throw new IllegalArgumentException("Lobby not found");
+        }
+
+        List<Player> players = lobby.getPlayers();
+
+        if (players.size() < MIN_PLAYERS) {
+            logger.error("Failed to start game: Not enough players in lobby {}. Required: {}, Found: {}",
+                    lobbyId, MIN_PLAYERS, players.size());
+            throw new IllegalStateException("Not enough players to start a game. Minimum required: " + MIN_PLAYERS);
+        }
+
+        if (players.size() > MAX_PLAYERS) {
+            logger.warn("Too many players in lobby {}. Maximum: {}, Found: {}. Using first {} players.",
+                    lobbyId, MAX_PLAYERS, players.size(), MAX_PLAYERS);
+            players = players.subList(0, MAX_PLAYERS);
+        }
+
+        GameManager gameManager = new GameManager(players);
+
+        activeGames.put(lobbyId, gameManager);
+
+        logger.info("Started new game from lobby {} with {} players", lobbyId, players.size());
+        return gameManager;
+    }
+
+
+    public GameManager getGame(String lobbyId) {
+        return activeGames.get(lobbyId);
+    }
+
+    public boolean canStartGame(String lobbyId) {
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        return lobby != null && lobby.getPlayers().size() >= MIN_PLAYERS;
+    }
+}

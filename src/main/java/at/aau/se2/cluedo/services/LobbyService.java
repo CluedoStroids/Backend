@@ -1,9 +1,5 @@
 package at.aau.se2.cluedo.services;
 
-import at.aau.se2.cluedo.models.cards.BasicCard;
-import at.aau.se2.cluedo.models.gameboard.GameBoard;
-import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
-import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.models.lobby.Lobby;
@@ -11,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 
 @Service
 public class LobbyService {
@@ -24,21 +19,20 @@ public class LobbyService {
     }
 
 
-    public String createLobby(String host) {
+    public String createLobby(Player host) {
         Lobby lobby = lobbyRegistry.createLobby(host);
         return lobby.getId();
     }
 
-    public void joinLobby(String lobbyId, String user) {
+    public void joinLobby(String lobbyId, Player player) {
         Lobby lobby = lobbyRegistry.getLobby(lobbyId);
-        lobby.addParticipant(user);
+        lobby.addPlayer(player);
     }
 
-    public void leaveLobby(String lobbyId, String user) {
+    public void leaveLobby(String lobbyId, Player player) {
         Lobby lobby = lobbyRegistry.getLobby(lobbyId);
-        lobby.removeParticipant(user);
+        lobby.removePlayer(player);
     }
-
 
     public Lobby getLobby(String lobbyId) {
         return lobbyRegistry.getLobby(lobbyId);
@@ -159,5 +153,9 @@ public class LobbyService {
         displayLegend(players.size());
         */
         return "[0,0,0,1,0,1,0";
+    }
+
+    public List<Lobby> getAllActiveLobbies() {
+        return lobbyRegistry.getAllLobbies();
     }
 }

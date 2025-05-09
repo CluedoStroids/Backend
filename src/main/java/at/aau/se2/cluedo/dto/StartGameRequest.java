@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class JoinLobbyRequest {
+public class StartGameRequest {
 
     @NotNull(message = "Player information cannot be null")
     private Player player;

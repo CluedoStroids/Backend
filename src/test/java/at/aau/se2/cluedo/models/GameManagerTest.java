@@ -5,6 +5,7 @@ import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -20,7 +21,7 @@ public class GameManagerTest {
 
     @BeforeEach
     void setUp() {
-        gameManager = new GameManager("6");
+        gameManager = new GameManager(6);
         gameManager.initilizeGame();
 
         ArrayList<BasicCard> rooms = new ArrayList<>();
@@ -42,8 +43,8 @@ public class GameManagerTest {
     }
 
     @Test
-    void testGameManagerInitializesCorrectly() {
-        assertNotNull(gameManager.getGameBoard());
+    void testAddAndGetPlayers() {
+        Player player = new Player("Markus","Markus",2,5, PlayerColor.GREEN);
         assertEquals(6, gameManager.getPlayers().size());
         assertEquals(0, gameManager.getCurrentPlayerIndex());
         assertTrue(gameManager.getPlayers().get(0).isCurrentPlayer());
