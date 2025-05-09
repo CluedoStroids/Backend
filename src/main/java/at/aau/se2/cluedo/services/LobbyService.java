@@ -31,7 +31,7 @@ public class LobbyService {
 
     public void leaveLobby(String lobbyId, Player player) {
         Lobby lobby = lobbyRegistry.getLobby(lobbyId);
-        lobby.removeParticipant(user);
+        lobby.removePlayer(player);
     }
 
     public Lobby getLobby(String lobbyId) {
