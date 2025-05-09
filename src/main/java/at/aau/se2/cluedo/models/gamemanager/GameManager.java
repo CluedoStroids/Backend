@@ -24,6 +24,7 @@ public class GameManager {
     private ArrayList<BasicCard> rooms = new ArrayList<>();
     private ArrayList<BasicCard> weapons = new ArrayList<>();
     private ArrayList<BasicCard> character = new ArrayList<>();
+    private int diceRollS;
 
     public GameManager(int count) {
         this.gameBoard = new GameBoard();
@@ -117,28 +118,29 @@ public class GameManager {
     public void startGame() {
         System.out.println("Welcome to Cluedo!");
 
-        while (true) {
+
             Player currentPlayer = players.get(currentPlayerIndex);
             playRound(currentPlayer);
 
             if (checkGameEnd()) {
-                break;
+                System.out.println("Game Ended");
             }
 
             nextPlayer();
-        }
+
     }
 
     private void playRound(Player player) {
         System.out.println("\n" + player.getName() + "'s turn");
         gameBoard.displayGameBoard(this.players);
 
+        System.out.println("Move or Perform Action");
+
         // Roll dice and move
-        int diceRoll = rollDice();
-        System.out.println("You rolled a " + diceRoll + "!");
+        diceRollS = rollDice();
+        System.out.println("You rolled a " + diceRollS + "!");
 
 
-        performMovement(player, diceRoll);
 
         // Room actions
         if (inRoom(player)) {
@@ -157,7 +159,7 @@ public class GameManager {
         System.out.println("2. Make an accusation");
         System.out.println("3. Do nothing");
         System.out.println("Please input the number of your choice:");
-
+/*
         int choice = 0;
         do {
 
@@ -189,19 +191,11 @@ public class GameManager {
                 roomActions(player);
             }
 
-        }
+        }*/
     }
 
-    public void makeSuggestion(Player player) {
-        System.out.println("\nMake a suggestion:");
-        System.out.println("Which suspect? " + rooms.toString());
-        String suspect = getConsoleInputNextLine();
+    public void makeSuggestion(Player player,String suspect, String weapon) {
 
-        System.out.println("Which weapon? " + weapons.toString());
-        String weapon = getConsoleInputNextLine();
-
-        System.out.println("current room: " +
-                gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
         String room = gameBoard.getCell(player.getX(), player.getY()).getRoom().getName();
 
         // Gather evidence
@@ -219,8 +213,6 @@ public class GameManager {
     }
 
     public void makeAccusation(Player player, SecretFile acusation) {
-        System.out.println("\nMake an accusation:");
-
 
         if (secretFile.room().equals(acusation.room()) && secretFile.character().equals(acusation.character()) && secretFile.weapon().equals(acusation.weapon())) {
             System.out.println("Correct! " + player.getName() + " has solved the crime!");
@@ -231,29 +223,17 @@ public class GameManager {
         }
     }
 
-    private int performMovement(Player player, int diceRoll) {
+    private int performMovement(Player player,  List<String> movement) {
 
-
-
-        if(diceRoll == 0){
+        if(movement.size() == 0){
             return 0;
         }
 
-        System.out.print("Direction (W/A/S/D) or X to cancel: ");
-        String inputLine = getConsoleInputNextLine().toUpperCase();
-
-
-        String[] inputArr = inputLine.split(" ");
-
-        System.out.println(Arrays.toString(inputArr));
-
-        if(inputArr.length > diceRoll){
-            System.out.println("Invalid move!");
-            return performMovement(player, diceRoll);
+        if(movement.size() > diceRollS){
+            return 0;
         }
 
-        for (String input: inputArr) {
-            System.out.println(input);
+        for (String input: movement) {
 
             if (input.equalsIgnoreCase("X")) {
                 return 0;
@@ -269,23 +249,23 @@ public class GameManager {
                 case "D" -> newX++;
                 default -> {
                     System.out.println("Invalid input!");
-                    return performMovement(player, diceRoll);
+                    return 0;
                 }
             }
 
             if (gameBoard.movePlayer(player, newX, newY)) {
-                if(input != inputArr[inputArr.length-1]){
-                    diceRoll--;
+                if(input != movement.get(movement.size()-1)){
+                    movement.subList(1,movement.size()-1);
                     continue;
                 }
-                return performMovement(player, diceRoll - 1);
+                return performMovement(player, movement.subList(1,movement.size()-1));
             } else {
                 System.out.println("Invalid move!");
-                return performMovement(player, diceRoll);
+                return performMovement(player,movement);
             }
         }
         System.out.println("Invalid move!");
-        return performMovement(player, diceRoll);
+        return performMovement(player, movement);
     }
 
     public int rollDice() {
