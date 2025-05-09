@@ -2,6 +2,7 @@ package at.aau.se2.cluedo.models;
 
 import at.aau.se2.cluedo.models.gameboard.Room;
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +19,7 @@ public class RoomTest {
     @BeforeEach
     void setUp() {
         room = new Room("Kitchen");
-        player = new Player("TestPlayer", "Miss Scarlet", 0, 0);
+        player = new Player("TestPlayer", "Miss Scarlet", 0, 0, PlayerColor.RED);
     }
 
     @Test

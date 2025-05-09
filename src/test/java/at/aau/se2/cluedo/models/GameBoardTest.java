@@ -4,6 +4,7 @@ import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ public class GameBoardTest {
     @BeforeEach
     void setUp() {
         gameBoard = new GameBoard();
-        player = new Player("TestPlayer", "Miss Scarlet", 7, 24);
+        player = new Player("TestPlayer", "Miss Scarlet", 7, 24, PlayerColor.RED);
     }
 
     @Test

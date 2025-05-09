@@ -2,6 +2,7 @@ package at.aau.se2.cluedo.models;
 
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ public class PlayerTest {
 
     @BeforeEach
     void setUp() {
-        player = new Player("TestPlayer", "Miss Scarlet", 5, 10);
+        player = new Player("TestPlayer", "Miss Scarlet", 5, 10, PlayerColor.RED);
         card = new BasicCard("Test Card", UUID.randomUUID(), "Test Value", "Test Type");
     }
 

@@ -26,4 +26,19 @@ public class BasicCard extends GameObject {
         return (cardName == card.cardName);
     }
 
+    public String getCardName() {
+        return cardName;
+    }
+
+    public UUID getCardID() {
+        return cardID;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getCardValue() {
+        return cardValue;
+    }
 }
