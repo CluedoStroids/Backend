@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.controllers;
 
+import at.aau.se2.cluedo.dto.DiceResult;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -18,7 +19,10 @@ public class DiceController {
 
     @MessageMapping("/rollDice")
     public void rollDice() {
-        int diceValue = random.nextInt(11) + 2; //random number between 2 and 12
-        messagingTemplate.convertAndSend("/topic/diceResult", diceValue);
+        int diceOneValue = random.nextInt(6) + 1;
+        int diceTwoValue = random.nextInt(6) + 1;
+
+        DiceResult result = new DiceResult(diceOneValue, diceTwoValue);
+        messagingTemplate.convertAndSend("/topic/diceResult", result);
     }
 }
