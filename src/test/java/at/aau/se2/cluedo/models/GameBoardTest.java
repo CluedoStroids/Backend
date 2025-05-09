@@ -110,14 +110,4 @@ public class GameBoardTest {
         assertNotEquals(5, player.getX());
         assertNotEquals(1, player.getY());
     }
-
-    @Test
-    void testDisplayGameBoard() {
-        // This is mostly a visual test, but we can at least ensure it doesn't throw
-        List<Player> players = new ArrayList<>();
-        players.add(player);
-
-        gameBoard.displayGameBoard(players);
-        // No assertion needed, just verify it runs without exceptions
-    }
 }

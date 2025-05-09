@@ -91,13 +91,6 @@ public class Player extends GameObject {
         this.hasWon = hasWon;
     }
 
-    public void setX(int i) {
-    }
-    public void setY(int i) {
-
-    }
-
-
     public PlayerColor getColor() {
         return color;
     }

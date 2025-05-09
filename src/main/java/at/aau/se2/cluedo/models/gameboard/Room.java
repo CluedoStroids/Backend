@@ -30,6 +30,4 @@ public class Room {
         return new ArrayList<>(playersInRoom);
     }
 
-    public void setName(String library) {
-    }
 }

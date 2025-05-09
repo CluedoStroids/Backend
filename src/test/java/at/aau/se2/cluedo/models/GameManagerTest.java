@@ -1,9 +1,9 @@
 package at.aau.se2.cluedo.models;
 
 import at.aau.se2.cluedo.models.cards.BasicCard;
-import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -11,7 +11,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -149,26 +151,6 @@ public class GameManagerTest {
         Player player = gameManager.getPlayers().get(0);
         List<String> moves = new ArrayList<>();
         assertEquals(0, gameManager.performMovement(player, moves));
-    }
-
-    @Test
-    @Disabled
-    void testSuggestionWithDisproof() {
-        Player current = gameManager.getPlayers().get(0);
-        Player next = gameManager.getPlayers().get(1);
-
-        BasicCard room = new BasicCard("Library", UUID.randomUUID(), "", "Room");
-        BasicCard weapon = new BasicCard("Gun", UUID.randomUUID(), "", "Weapon");
-        next.addCard(room);
-
-        current.setX(0);
-        current.setY(0);
-
-        GameBoardCell cell = gameManager.getGameBoard().getCell(0, 0);
-        cell.setCellType(CellType.ROOM);
-        cell.getRoom().setName("Library");
-
-        gameManager.makeSuggestion(current, "Unknown", "Gun");
     }
 
     @Test
