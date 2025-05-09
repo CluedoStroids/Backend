@@ -3,6 +3,7 @@ package at.aau.se2.cluedo.controllers;
 import at.aau.se2.cluedo.dto.*;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
+import at.aau.se2.cluedo.services.GameService;
 import at.aau.se2.cluedo.services.LobbyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,9 @@ public class LobbyController {
 
     @Autowired
     private LobbyService lobbyService;
+
+    @Autowired
+    private GameService gameService;
 
     @MessageMapping("/createLobby")
     @SendTo("/topic/lobbyCreated")
@@ -58,4 +62,11 @@ public class LobbyController {
         return ActiveLobbiesResponse.fromLobbies(activeLobbies);
     }
 
+    @MessageMapping("/canStartGame/{lobbyId}")
+    @SendTo("/topic/canStartGame/{lobbyId}")
+    public CanStartGameResponse canStartGame(@DestinationVariable String lobbyId) {
+        logger.info("Checking if lobby {} can start a game", lobbyId);
+        boolean canStart = gameService.canStartGame(lobbyId);
+        return new CanStartGameResponse(canStart);
+    }
 }

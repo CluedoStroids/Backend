@@ -19,7 +19,7 @@ public class GameManagerTest {
 
     @BeforeEach
     void setUp() {
-        gameManager = new GameManager("6");
+        gameManager = new GameManager(6);
         gameManager.initilizeGame();
 
         ArrayList<BasicCard> rooms = new ArrayList<>();
