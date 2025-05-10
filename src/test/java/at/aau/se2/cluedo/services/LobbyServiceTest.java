@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -84,7 +86,10 @@ class LobbyServiceTest {
     void testSolveCase_correctGuess_setsWinner() {
         Player player = new Player("Alice", "Blue", 0, 0);
         GameManager gameManager = new GameManager();
-        gameManager.getPlayerList().add(player);
+        gameManager.setPlayerList(new ArrayList<>(List.of(player)));
+        gameManager.setCurrentPlayer(0);
+
+        gameManager.setCurrentPlayer(0); // FIX
 
         BasicCard suspect = new BasicCard("Mrs. White", UUID.randomUUID(), "", "Character");
         BasicCard room = new BasicCard("Kitchen", UUID.randomUUID(), "", "Room");
@@ -113,7 +118,8 @@ class LobbyServiceTest {
     void testSolveCase_wrongGuess_eliminatesPlayer() {
         Player player = new Player("Bob", "Green", 0, 0);
         GameManager gameManager = new GameManager();
-        gameManager.getPlayerList().add(player);
+        gameManager.addPlayer(player);
+        gameManager.setCurrentPlayer(0);
 
         BasicCard suspect = new BasicCard("Mrs. White", UUID.randomUUID(), "", "Character");
         BasicCard room = new BasicCard("Kitchen", UUID.randomUUID(), "", "Room");
@@ -145,11 +151,11 @@ class LobbyServiceTest {
         eliminated.setActive(false);
 
         GameManager gameManager = new GameManager();
-        gameManager.getPlayerList().add(eliminated);
+        gameManager.setPlayerList(new ArrayList<>(List.of(eliminated)));
+        gameManager.setCurrentPlayer(0);
 
         Lobby lobby = new Lobby(TEST_LOBBY_ID, "Elim");
         lobby.setGameManager(gameManager);
-
         when(lobbyRegistry.getLobby(TEST_LOBBY_ID)).thenReturn(lobby);
 
         SolveCaseRequest request = new SolveCaseRequest();
@@ -168,7 +174,9 @@ class LobbyServiceTest {
     void testSolveCase_wrongPlayerBlocked() {
         Player current = new Player("Carol", "Red", 0, 0);
         GameManager gameManager = new GameManager();
-        gameManager.getPlayerList().add(current);
+        gameManager.setPlayerList(new ArrayList<>(List.of(current)));
+        gameManager.setCurrentPlayer(0);
+        gameManager.setCurrentPlayer(0);
 
         Lobby lobby = new Lobby(TEST_LOBBY_ID, "Carol");
         lobby.setGameManager(gameManager);
