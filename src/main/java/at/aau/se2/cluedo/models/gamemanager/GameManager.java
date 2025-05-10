@@ -55,12 +55,13 @@ public class GameManager {
 
         List<Player> updatedPlayers = new ArrayList<>();
 
-        for (int i = 0; i < lobbyPlayers.size(); i++) {
-            Player lobbyPlayer = lobbyPlayers.get(i);
-            Player defaultPlayer = defaultPlayers.get(i);
-
-            lobbyPlayer.move(defaultPlayer.getX(), defaultPlayer.getY());
-            updatedPlayers.add(lobbyPlayer);
+        for (Player player: lobbyPlayers) {
+            for (Player defaultPlayer: defaultPlayers) {
+                if(player.getColor() == defaultPlayer.getColor()) {
+                    player.move(defaultPlayer.getX(), defaultPlayer.getY());
+                    updatedPlayers.add(player);
+                }
+            }
         }
 
         this.players = updatedPlayers;
