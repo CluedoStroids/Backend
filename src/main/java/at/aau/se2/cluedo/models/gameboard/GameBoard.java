@@ -1,6 +1,7 @@
 package at.aau.se2.cluedo.models.gameboard;
 
 
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 
@@ -236,9 +237,6 @@ public class GameBoard {
             }
 
         }
-
-
-
         // Set new position
         player.move(newX, newY);
 
@@ -299,6 +297,25 @@ public class GameBoard {
             }
         }
         return false;
+    }
+    void teleportPlayerToRoom(Player player, Room room){
+        List<GameBoardCell> roomCells = new ArrayList<>();
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
+                GameBoardCell cell = grid[x][y];
+                if(cell.getRoom() == room && cell.getCellType() == CellType.ROOM){
+                    roomCells.add(cell);
+                }
+            }
+        }
+
+        long time = System.currentTimeMillis();
+        try {
+            GameBoardCell targetCell = roomCells.get((int)time % roomCells.size());
+            movePlayer(player, targetCell.getX(),targetCell.getY());
+        } catch (Exception e) {
+            teleportPlayerToRoom(player,room);
+        }
     }
 
     public void displayGameBoard(List<Player> players) {

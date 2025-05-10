@@ -5,6 +5,8 @@ public class GameBoardCell {
     private final int y;
     private CellType cellType;
     private Room room;
+
+    
     public GameBoardCell(int x, int y, CellType type) {
         this.x = x;
         this.y = y;
@@ -14,8 +16,9 @@ public class GameBoardCell {
     public boolean isAccessible() {
         boolean check = false;
 
-        if(cellType != CellType.WALL)
+        if(cellType != CellType.WALL) {
             check = true;
+        }
 
 
         return check;

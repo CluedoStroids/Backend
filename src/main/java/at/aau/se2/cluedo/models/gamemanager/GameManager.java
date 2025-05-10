@@ -4,6 +4,7 @@ import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
+import at.aau.se2.cluedo.models.gameboard.Room;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -223,6 +224,7 @@ public class GameManager {
         }
     }
 
+
     public int performMovement(Player player, List<String> movement) {
 
         if(movement.size() == 0){
@@ -250,6 +252,13 @@ public class GameManager {
                 default -> {
                     System.out.println("Invalid input!");
                     return 0;
+                }
+            }
+
+            for(Player p : players){
+                if(p.getX() == newX && p.getY() == newY){
+                    System.out.println("Invalid move!");
+                    return performMovement(player,movement);
                 }
             }
 
