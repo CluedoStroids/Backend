@@ -44,44 +44,36 @@ public class GameManagerConsole {
         }
     }
 
-    /*
-    public void startGame() {
+    public void startGame(GameManager game) {
         System.out.println("Welcome to Cluedo!");
 
-        Player currentPlayer = players.get(currentPlayerIndex);
-        playRound(currentPlayer);
+        playRound(game);
 
-        if (checkGameEnd()) {
+        if (game.checkGameEnd()) {
             System.out.println("Game Ended");
         }
 
-        nextPlayer();
+        game.nextTurn();
 
     }
-     */
 
-    /*
     private static void playRound(GameManager game){
-        System.out.println("\n" + player.getName() + "'s turn");
-        game.getGameBoard().displayGameBoard(this.players);
+        System.out.println("\n" + game.getCurrentPlayer().getName() + "'s turn");
+        game.getGameBoard().displayGameBoard(game.getPlayers());
 
         System.out.println("Move or Perform Action");
 
         // Roll dice and move
-        diceRollS = rollDice();
-        System.out.println("You rolled a " + diceRollS + "!");
-
-
+        game.rollDice();
+        System.out.println("You rolled a " + game.getDiceRollS() + "!");
 
         // Room actions
-        if (inRoom(player)) {
-            roomActions(player);
+        if (game.inRoom(game.getCurrentPlayer())) {
+            roomActions(game.getCurrentPlayer());
         }
     }
 
-     */
-
-    private void roomActions(Player player) {
+    private static void roomActions(Player player) {
         System.out.println("\nYou are in the " + game.getGameBoard().getCell(player.getX(), player.getY()).getRoom().getName());
         System.out.println("1. Make a suggestion");
         System.out.println("2. Make an accusation");

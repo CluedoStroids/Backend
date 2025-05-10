@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,7 +22,11 @@ public class GameManagerTest {
 
     @BeforeEach
     void setUp() {
-        gameManager = new GameManager(6);
+        Player player1 = new Player("John","Mr. Green",10,10, PlayerColor.GREEN);
+        Player player2 = new Player("Bob","Mrs. White",10,10, PlayerColor.WHITE);
+        Player player3 = new Player("Foo","Colonel Mustard",10,10, PlayerColor.YELLOW);
+        gameManager = new GameManager(List.of(player1, player2, player3));
+
     }
 
     @Test
@@ -51,25 +56,47 @@ public class GameManagerTest {
     }
 
     @Test
-    void testAddAndGetPlayers() {
-        Player player = new Player("Markus","Markus",2,5, PlayerColor.GREEN);
-        assertEquals(6, gameManager.getPlayers().size());
+    void testPlayerMovement(){
+        Player p = gameManager.getCurrentPlayer();
+        gameManager.performMovement(p, List.of("W","A","A"));
+        assertEquals(7,p.getX());
+        assertEquals(24,p.getY());
+    }
+
+    @Test
+    void testGetPlayers() {
+        assertEquals(3, gameManager.getPlayers().size());
     }
 
     @Test
     void testNextTurnAndTopOfRound() {
         gameManager.nextTurn();
-        assertEquals("Colonel Mustard", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).getName());
+        assertEquals("Bob", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).getName());
 
         gameManager.nextTurn();
         gameManager.nextTurn();
         gameManager.nextTurn();
         gameManager.nextTurn();
         gameManager.nextTurn();
-        gameManager.nextTurn(); // Should wrap around to 0
-        assertEquals("Colonel Mustard", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).getName());
+        gameManager.nextTurn();
+        assertEquals("Bob", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).getName());
     }
 
+    @Test
+    void testNextTurn() {
+        assertEquals(0, gameManager.getCurrentPlayerIndex());
+        assertTrue(gameManager.getPlayers().get(0).isCurrentPlayer());
+        assertFalse(gameManager.getPlayers().get(1).isCurrentPlayer());
+
+        gameManager.nextTurn();
+        assertEquals(1, gameManager.getCurrentPlayerIndex());
+        assertFalse(gameManager.getPlayers().get(0).isCurrentPlayer());
+        assertTrue(gameManager.getPlayers().get(1).isCurrentPlayer());
+
+        gameManager.getPlayers().get(2).setActive(false);
+        gameManager.nextTurn();
+        assertEquals(0, gameManager.getCurrentPlayerIndex());
+    }
 
     @Test
     void testSolveFileCorrectly() {
@@ -89,9 +116,48 @@ public class GameManagerTest {
         );gameManager.makeAccusation(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()),wrong);
 
         assertFalse(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).isActive());
-
     }
 
+    @Test
+    void testGetCardByNameReturnsCorrectCard() {
+        BasicCard anyCard = gameManager.getCards().get(0);
+        BasicCard foundCard = gameManager.getCardByName(anyCard.getCardName());
+
+        assertNotNull(foundCard);
+        assertEquals(anyCard.getCardName(), foundCard.getCardName());
+    }
+
+    @Test
+    void testGetCardByNameReturnsNullIfNotFound() {
+        BasicCard foundCard = gameManager.getCardByName("");
+        assertNull(foundCard);
+    }
+
+    @Test
+    void testGameEndsWhenOnlyOnePlayerRemains() {
+        for (int i = 1; i < gameManager.getPlayers().size(); i++) {
+            gameManager.getPlayers().get(i).setActive(false);
+        }
+
+        int activePlayers = (int) gameManager.getPlayers().stream().filter(Player::isActive).count();
+        assertEquals(1, activePlayers);
+    }
+
+    @Test
+    void testCheckGameEnd() {
+        assertFalse(gameManager.checkGameEnd());
+
+        gameManager.getPlayers().get(0).setHasWon(true);
+        assertTrue(gameManager.checkGameEnd());
+    }
+
+    @Test
+    void testCheckGameEndState() {
+        assertFalse(gameManager.checkGameEnd());
+
+        gameManager.setState(GameState.ENDED);
+        assertTrue(gameManager.checkGameEnd());
+    }
 
     @Test
     void testGetACardReturnsBasicCard() {
@@ -106,4 +172,5 @@ public class GameManagerTest {
             assertTrue(result >= 1 && result <= 6);
         }
     }
+
 }

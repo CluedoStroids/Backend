@@ -103,7 +103,7 @@ public class GameManager {
      * Generate the SecretFile containing 1 room, 1 weapon and 1 character.
      * Add all remaining cards and store them in the instnace variable cards.
      */
-    public void generateSecretFileAndCards() {
+    private void generateSecretFileAndCards() {
         cards.clear();
         List<BasicCard> rooms = BasicCard.getRooms();
         List<BasicCard> weapons = BasicCard.getWeapons();
@@ -142,7 +142,7 @@ public class GameManager {
      * @param movement List of moves the player takes
      * @return recursive call
      */
-    private int performMovement(Player player,  List<String> movement) {
+    public int performMovement(Player player,  List<String> movement) {
 
         if(movement.isEmpty()){
             return 0;
@@ -189,16 +189,6 @@ public class GameManager {
     }
 
     /**
-     * Returns True if the current player is in a room, else returns False.
-     * @param player
-     * @return
-     */
-    private boolean inRoom(Player player) {
-        GameBoardCell cell = gameBoard.getCell(player.getX(), player.getY());
-        return cell != null && cell.getCellType() == CellType.ROOM;
-    }
-
-    /**
      * Suggestion happening every round. Player suggest/accuses a character with a weapon in the current room pt gather intel/evidence
      * @param player current player
      * @param suspect suspected character
@@ -230,7 +220,7 @@ public class GameManager {
      * @param cardName
      * @return
      */
-    private BasicCard getCardByName(String cardName){
+    public BasicCard getCardByName(String cardName){
         for (BasicCard card : cards) {
             if (card.getCardName().equals(cardName)) {
                 return card;
@@ -257,7 +247,7 @@ public class GameManager {
         }
     }
 
-    private boolean checkGameEnd() {
+    public boolean checkGameEnd() {
         if(state == GameState.ENDED){
             return true;
         }
@@ -275,6 +265,20 @@ public class GameManager {
         }
 
         return false;
+    }
+
+    /**
+     * Returns True if the current player is in a room, else returns False.
+     * @param player
+     * @return
+     */
+    public boolean inRoom(Player player) {
+        GameBoardCell cell = gameBoard.getCell(player.getX(), player.getY());
+        return cell != null && cell.getCellType() == CellType.ROOM;
+    }
+
+    public Player getCurrentPlayer(){
+        return this.players.get(this.currentPlayerIndex);
     }
 
     /**
