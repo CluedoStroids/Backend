@@ -51,7 +51,7 @@ public class GameManager {
     public GameManager(List<Player> lobbyPlayers) {
         this.gameBoard = new GameBoard();
 
-        List<Player> defaultPlayers = initializeDefaultPlayers(lobbyPlayers.size());
+        List<Player> defaultPlayers = initializeDefaultPlayers();
 
         List<Player> updatedPlayers = new ArrayList<>();
 
@@ -84,11 +84,10 @@ public class GameManager {
     }
 
     private List<Player> initializePlayers(int count) {
-        //todo How are players initalized?
-        return initializeDefaultPlayers(count);
+        return initializeDefaultPlayers().subList(0, count);
     }
 
-    private List<Player> initializeDefaultPlayers(int count) {
+    private List<Player> initializeDefaultPlayers() {
         //todo Players have to be initalized based on the color they picked?
         return Arrays.asList(
                 new Player("Miss Scarlet", "Scarlet", 7, 24, PlayerColor.RED),
@@ -97,7 +96,7 @@ public class GameManager {
                 new Player("Mr. Green", "Green", 14, 0, PlayerColor.GREEN),
                 new Player("Mrs. Peacock", "Peacock", 24, 6, PlayerColor.BLUE),
                 new Player("Professor Plum", "Plum", 24, 19, PlayerColor.PURPLE)
-        ).subList(0, count);
+        );
     }
 
     /**
