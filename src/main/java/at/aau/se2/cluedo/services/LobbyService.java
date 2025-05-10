@@ -1,83 +1,161 @@
 package at.aau.se2.cluedo.services;
 
-import at.aau.se2.cluedo.models.lobby.Lobby;
-import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.SecretFile;
+import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import at.aau.se2.cluedo.dto.SolveCaseRequest;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import java.util.List;
 
 @Service
 public class LobbyService {
 
     private final LobbyRegistry lobbyRegistry;
-    private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
-    public LobbyService(LobbyRegistry lobbyRegistry, SimpMessagingTemplate messagingTemplate) {
+    public LobbyService(LobbyRegistry lobbyRegistry) {
         this.lobbyRegistry = lobbyRegistry;
-        this.messagingTemplate = messagingTemplate;
     }
 
-    public String createLobby(String host) {
+
+    public String createLobby(Player host) {
         Lobby lobby = lobbyRegistry.createLobby(host);
-        lobby.setGameManager(new GameManager());
         return lobby.getId();
     }
 
-    public void joinLobby(String lobbyId, String user) {
+    public void joinLobby(String lobbyId, Player player) {
         Lobby lobby = lobbyRegistry.getLobby(lobbyId);
-        lobby.addParticipant(user);
+        lobby.addPlayer(player);
     }
 
-    public void leaveLobby(String lobbyId, String user) {
+    public void leaveLobby(String lobbyId, Player player) {
         Lobby lobby = lobbyRegistry.getLobby(lobbyId);
-        lobby.removeParticipant(user);
+        lobby.removePlayer(player);
     }
 
     public Lobby getLobby(String lobbyId) {
         return lobbyRegistry.getLobby(lobbyId);
     }
 
-    public void solveCase(SolveCaseRequest request) {
-        Lobby lobby = lobbyRegistry.getLobby(request.getLobbyId());
-        if (lobby == null) {
-            return;
-        }
+    public String makeSuggestion(Player player,String suspect, String weapon) {
+/*
+        String room = gameBoard.getCell(player.getX(), player.getY()).getRoom().getName();
 
-        GameManager gameManager = lobby.getGameManager();
-        if (gameManager == null) {
-            return;
-        }
+        // Gather evidence
+        for (Player p : this.players) {
+            if (p != player) {
+                for (BasicCard card : p.getCards()) {
+                    if (card.equals(suspect) || card.equals(weapon) || card.equals(room)) {
+                        System.out.println(p.getName() + " shows you: " + card);
+                        return;
+                    }
+                }
+            }
+        }*/
+       return "No one could disprove your suggestion!";
 
-        Player currentPlayer = gameManager.getCurrentPlayer();
-
-        if (!currentPlayer.isActive()) {
-            messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "already_eliminated");
-            return;
-        }
-
-        if (!currentPlayer.getName().equals(request.getUsername())) {
-            messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "not_your_turn");
-            return;
-        }
-
-        String correctSuspect = gameManager.getCorrectSuspect();
-        String correctRoom = gameManager.getCorrectRoom();
-        String correctWeapon = gameManager.getCorrectWeapon();
-
-        boolean isCorrect = correctSuspect.equals(request.getSuspect()) &&
-                correctRoom.equals(request.getRoom()) &&
-                correctWeapon.equals(request.getWeapon());
-
-        if (isCorrect) {
-            messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "correct");
-            lobby.setWinnerUsername(request.getUsername());
+    }
+    public String makeAccusation(Player player, SecretFile acusation) {
+/*
+        if (secretFile.room().equals(acusation.room()) && secretFile.character().equals(acusation.character()) && secretFile.weapon().equals(acusation.weapon())) {
+            System.out.println("Correct! " + player.getName() + " has solved the crime!");
+            player.setHasWon(true);
         } else {
-            gameManager.eliminateCurrentPlayer();
-            messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId(), "wrong");
-            messagingTemplate.convertAndSend("/topic/lobby/" + request.getLobbyId() + "/players", gameManager.getPlayerList());
+            System.out.println("Wrong! " + player.getName() + " is out of the game!");
+            player.setActive(false);
         }
+
+ */
+        return "Wrong! " + player.getName() + " is out of the game!";
+    }
+
+
+
+
+    public int performMovement(Player player, List<String> movement) {
+/*
+        if(movement.size() == 0){
+            return 0;
+        }
+
+        if(movement.size() > diceRollS){
+            return 0;
+        }
+
+        for (String input: movement) {
+
+            if (input.equalsIgnoreCase("X")) {
+                return 0;
+            }
+
+            int newX = player.getX();
+            int newY = player.getY();
+
+            switch (input.toUpperCase()) {
+                case "W" -> newY--;
+                case "S" -> newY++;
+                case "A" -> newX--;
+                case "D" -> newX++;
+                default -> {
+                    System.out.println("Invalid input!");
+                    return 0;
+                }
+            }
+
+            if (gameBoard.movePlayer(player, newX, newY)) {
+                if(input != movement.getLast()){
+                    movement.subList(1,movement.size()-1);
+                    continue;
+                }
+                return performMovement(player, movement.subList(1,movement.size()-1));
+            } else {
+                System.out.println("Invalid move!");
+                return performMovement(player,movement);
+            }
+        }
+        System.out.println("Invalid move!");
+        return performMovement(player, movement);
+
+
+ */
+        return 0;
+    }
+    public String displayGameBoard(List<Player> players) {
+
+
+        /*
+        System.out.println("\n=== CLUE GAME BOARD ===");
+
+
+        System.out.print("  ");
+        for (int i = 0; i < WIDTH; i++) {
+            System.out.print(i % 10 + " ");
+
+        }
+        System.out.println();
+
+        for (int y = 0; y < HEIGHT; y++) {
+            System.out.print(y % 10 + " ");
+
+            for (int x = 0; x < WIDTH; x++) {
+
+                GameBoardCell cell = grid[x][y];
+                char symbol = getSymbol(cell);
+                String color = getColor(cell, players, x, y);
+
+                System.out.print(color + symbol + RESET + " ");
+            }
+
+            System.out.println();
+        }
+
+        displayLegend(players.size());
+        */
+        return "[0,0,0,1,0,1,0";
+    }
+
+    public List<Lobby> getAllActiveLobbies() {
+        return lobbyRegistry.getAllLobbies();
     }
 }
