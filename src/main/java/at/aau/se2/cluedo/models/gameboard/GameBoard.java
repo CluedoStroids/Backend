@@ -298,7 +298,7 @@ public class GameBoard {
         }
         return false;
     }
-    void teleportPlayerToRoom(Player player, Room room){
+    public void teleportPlayerToRoom(Player player, Room room){
         List<GameBoardCell> roomCells = new ArrayList<>();
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {

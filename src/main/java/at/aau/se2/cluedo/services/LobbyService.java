@@ -152,7 +152,7 @@ public class LobbyService {
 
         displayLegend(players.size());
         */
-        return "[0,0,0,1,0,1,0";
+        return "[0,0,0,1,0,1,0]";
     }
 
     public List<Lobby> getAllActiveLobbies() {

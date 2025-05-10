@@ -198,6 +198,15 @@ public class GameManager {
     public void makeSuggestion(Player player,String suspect, String weapon) {
 
         String room = gameBoard.getCell(player.getX(), player.getY()).getRoom().getName();
+        Player sus = player;
+        for(Player p : players) {
+            if (p.getName() == suspect)
+                sus = p;
+        }
+        if(sus == player){
+            System.out.println("There was an error with this suggestion!");
+        }
+        gameBoard.teleportPlayerToRoom(sus,gameBoard.getCell(player.getX(), player.getY()).getRoom());
 
         // Gather evidence
         for (Player p : this.players) {

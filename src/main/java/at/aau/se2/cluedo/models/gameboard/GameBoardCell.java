@@ -6,7 +6,7 @@ public class GameBoardCell {
     private CellType cellType;
     private Room room;
 
-    
+
     public GameBoardCell(int x, int y, CellType type) {
         this.x = x;
         this.y = y;
@@ -19,7 +19,6 @@ public class GameBoardCell {
         if(cellType != CellType.WALL) {
             check = true;
         }
-
 
         return check;
     }
