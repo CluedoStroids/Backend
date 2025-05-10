@@ -1,7 +1,9 @@
 package at.aau.se2.cluedo.models;
 
 import at.aau.se2.cluedo.models.cards.BasicCard;
+import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
+import at.aau.se2.cluedo.models.gamemanager.GameState;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -20,25 +22,32 @@ public class GameManagerTest {
     @BeforeEach
     void setUp() {
         gameManager = new GameManager(6);
-        gameManager.initilizeGame();
+    }
 
-        ArrayList<BasicCard> rooms = new ArrayList<>();
-        rooms.add(new BasicCard("Kitchen", UUID.randomUUID(), "Kitchen", "Room"));
-        rooms.add(new BasicCard("Library", UUID.randomUUID(), "Library", "Room"));
+    @Test
+    void testGameInitialization() {
+        assertEquals(GameState.INITIALIZED, gameManager.getState());
+        assertNotNull(gameManager.getSecretFile());
+        assertEquals(0, gameManager.getCurrentPlayerIndex());
+        assertTrue(gameManager.getPlayers().get(0).isCurrentPlayer());
+    }
 
-        ArrayList<BasicCard> weapons = new ArrayList<>();
-        weapons.add(new BasicCard("Knife", UUID.randomUUID(), "Knife", "Weapon"));
-        weapons.add(new BasicCard("Gun", UUID.randomUUID(), "Gun", "Weapon"));
+    @Test
+    void testCardDistribution() {
+        int totalCards = 0;
+        for (Player player : gameManager.getPlayers()) {
+            totalCards += player.getCards().size();
+        }
+        assertEquals(18, totalCards);
+    }
 
-
-        ArrayList<BasicCard> characters = new ArrayList<>();
-        characters.add(new BasicCard("Red", UUID.randomUUID(), "Red", "Character"));
-        characters.add(new BasicCard("White", UUID.randomUUID(), "White", "Character"));
-
-        gameManager.setRooms(rooms);
-        gameManager.setWeapons(weapons);
-        gameManager.setCharacter(characters);
-
+    @Test
+    void testInitializeGameGeneratesSecretFile() {
+        SecretFile secret = gameManager.getSecretFile();
+        assertNotNull(secret);
+        assertNotNull(secret.room());
+        assertNotNull(secret.weapon());
+        assertNotNull(secret.character());
     }
 
     @Test
@@ -61,14 +70,6 @@ public class GameManagerTest {
         assertEquals("Colonel Mustard", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).getName());
     }
 
-    @Test
-    void testInitializeGameGeneratesSecretFile() {
-        SecretFile secret = gameManager.getSecretFile();
-        assertNotNull(secret);
-        assertNotNull(secret.room());
-        assertNotNull(secret.weapon());
-        assertNotNull(secret.character());
-    }
 
     @Test
     void testSolveFileCorrectly() {
@@ -82,9 +83,9 @@ public class GameManagerTest {
     void testSolveFileIncorrectly() {
 
         SecretFile wrong = new SecretFile(
-                new BasicCard("FakeRoom", UUID.randomUUID(), "desc", "Room"),
-                new BasicCard("FakeWeapon", UUID.randomUUID(), "desc", "Weapon"),
-                new BasicCard("FakeChar", UUID.randomUUID(), "desc", "Character")
+                new BasicCard("FakeRoom", UUID.randomUUID(), CardType.ROOM),
+                new BasicCard("FakeWeapon", UUID.randomUUID(), CardType.WEAPON),
+                new BasicCard("FakeChar", UUID.randomUUID(), CardType.CHARACTER)
         );gameManager.makeAccusation(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()),wrong);
 
         assertFalse(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).isActive());
@@ -95,7 +96,7 @@ public class GameManagerTest {
     @Test
     void testGetACardReturnsBasicCard() {
         assertNotNull(gameManager.getCards().get(0));
-        assertTrue(gameManager.getCards().get(0) instanceof BasicCard);
+        assertInstanceOf(BasicCard.class, gameManager.getCards().get(0));
     }
 
     @Test
