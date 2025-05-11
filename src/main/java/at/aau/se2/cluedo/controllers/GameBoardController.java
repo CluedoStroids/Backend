@@ -1,8 +1,10 @@
 package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.GameDataResponse;
+import at.aau.se2.cluedo.dto.IsWallRequest;
 import at.aau.se2.cluedo.dto.PerformMoveRequest;
 import at.aau.se2.cluedo.dto.StartGameRequest;
+import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
@@ -44,17 +46,33 @@ public class GameBoardController {
     }
     @MessageMapping("/performMovement/{lobbyId}")
     @SendTo("/topic/performMovement/{lobbyId}")
-    public void performMovement( @DestinationVariable String lobbyId, PerformMoveRequest request){
+    public GameDataResponse performMovement( @DestinationVariable String lobbyId, PerformMoveRequest request){
         lobbyService.performMovement(request.getPlayer(),request.getMoves(),lobbyId);
 
         logger.info("Player {} is attempting to move {}", request.getPlayer().getName(), lobbyId);
         logger.info("Player X{} Y{} second X{} Y{}",request.getPlayer().getX(),request.getPlayer().getY(),gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()).getX(),gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()).getY());
         gameService.getGame(lobbyId).nextTurn();
         StartGameRequest response = new StartGameRequest();
-        response.setPlayer(gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()));
-        gameData(lobbyId,response);
-    }
 
+        response.setPlayer(gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()));
+
+        return gameData(lobbyId,response);
+    }
+    @MessageMapping("/isWall/{lobbyId}")
+    @SendTo("/topic/isWall/{lobbyId}")
+    public boolean isWall(@DestinationVariable String lobbyId, IsWallRequest request){
+
+        CellType temp = gameService.getGame(lobbyId).getGameBoard().getCell(request.x,request.y).getCellType();
+        if(temp.equals(CellType.ROOM)){
+            logger.info("Player ran against wall X{} Y{}",request.x,request.y);
+            return true;
+
+        }
+        logger.info("Player did not ran against wall X{} Y{}",request.x,request.y);
+        return false;
+
+
+    }
     @MessageMapping("/getGameData/{lobbyId}")
     @SendTo("/topic/gameData/{lobbyId}")
     public GameDataResponse gameData(@DestinationVariable String lobbyId, StartGameRequest request) {
@@ -68,7 +86,7 @@ public class GameBoardController {
                 .findFirst()
                 .orElse(null);
         try {
-            GameManager gameManager = gameService.startGameFromLobby(lobbyId);
+            GameManager gameManager = gameService.getGame(lobbyId);
             logger.info("Game Data successfully from lobby {}", lobbyId);
             List<Player> gamePlayers = gameManager.getPlayers();
             for (Player p: gamePlayers) {
