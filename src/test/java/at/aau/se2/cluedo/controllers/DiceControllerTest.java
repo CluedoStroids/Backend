@@ -1,8 +1,10 @@
 package at.aau.se2.cluedo.controllers;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class DiceControllerTest {
@@ -14,7 +16,11 @@ public class DiceControllerTest {
 
         controller.rollDice();
 
-        verify(mockTemplate, times(2)).convertAndSend(eq("/topic/diceResult"), intThat(val -> val >= 1 && val <= 6));
-    }
+        ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
+        verify(mockTemplate, times(2)).convertAndSend(eq("/topic/diceResult"), captor.capture());
 
+        for (Integer value : captor.getAllValues()) {
+            assertTrue(value >= 1 && value <= 6, "Dice value should be between 1 and 6");
+        }
+    }
 }
