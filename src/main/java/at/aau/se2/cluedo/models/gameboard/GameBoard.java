@@ -188,7 +188,7 @@ public class GameBoard {
         return null;
     }
 
-    public boolean movePlayer(Player player, int newX, int newY) {
+    public boolean movePlayer(Player player, int newX, int newY, boolean teleport) {
         GameBoardCell targetCell = getCell(newX, newY);
         GameBoardCell currCell = getCell(player.getX(), player.getY());
 
@@ -197,7 +197,7 @@ public class GameBoard {
         }
 
 
-        if(targetCell.getCellType() != currCell.getCellType() && targetCell.getCellType() != CellType.DOOR && currCell.getCellType() != CellType.DOOR && targetCell.getCellType() != CellType.SECRET_PASSAGE && currCell.getCellType() != CellType.SECRET_PASSAGE){
+        if(targetCell.getCellType() != currCell.getCellType() && targetCell.getCellType() != CellType.DOOR && currCell.getCellType() != CellType.DOOR && targetCell.getCellType() != CellType.SECRET_PASSAGE && currCell.getCellType() != CellType.SECRET_PASSAGE && !teleport){
             return false;
         }
 
@@ -309,10 +309,11 @@ public class GameBoard {
             }
         }
 
-        long time = System.currentTimeMillis();
+        String time = String.valueOf(System.currentTimeMillis());
+        int lastDigitsCount = 7;
         try {
-            GameBoardCell targetCell = roomCells.get((int)time % roomCells.size());
-            movePlayer(player, targetCell.getX(),targetCell.getY());
+            GameBoardCell targetCell = roomCells.get(Integer.parseInt(time.substring(time.length()-lastDigitsCount)) % roomCells.size());
+            movePlayer(player, targetCell.getX(),targetCell.getY(),true);
         } catch (Exception e) {
             teleportPlayerToRoom(player,room);
         }
@@ -343,8 +344,6 @@ public class GameBoard {
 
             System.out.println();
         }
-
-        displayLegend(players.size());
     }
 
     private char getSymbol(GameBoardCell cell) {
@@ -358,12 +357,11 @@ public class GameBoard {
             default -> retChar = '?';
 
         }
-        ;
 
         return retChar;
     }
 
-    private String getColor(GameBoardCell cell, List<Player> players, int x, int y) {
+    public String getColor(GameBoardCell cell, List<Player> players, int x, int y) {
         for (Player p : players) {
             if (p.getX() == x && p.getY() == y) {
                 return switch (p.getColor()) {
@@ -373,31 +371,9 @@ public class GameBoard {
                     case GREEN -> GREEN;
                     case BLUE -> BLUE;
                     case PURPLE -> PURPLE;
-                    default -> "";
                 };
             }
         }
         return "";
-    }
-
-    private void displayLegend(int size) {
-        System.out.println("\nLEGEND:");
-        for (int i = 0; i < size; i++) {
-            switch (i) {
-                case 0->System.out.println(RED + "S" + RESET + " Miss Scarlet (Red)");
-                case 1->System.out.println(YELLOW + "O" + RESET + " Colonel Mustard (Yellow)");
-
-                case 2->System.out.println(WHITE + "W" + RESET + " Mrs. White (White)");
-
-                case 3->System.out.println(GREEN + "G" + RESET + " Mr. Green (Green)");
-
-                case 4->System.out.println(BLUE + "P" + RESET + " Mrs. Peacock (Blue)");
-
-                case 5->System.out.println(PURPLE + "M" + RESET + " Professor Plum (Purple)");
-
-            }
-        }
-
-        System.out.println("R - Room  · - Hallway  █ - Wall  D - Door  G - Secret Passage");
     }
 }

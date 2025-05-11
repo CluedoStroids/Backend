@@ -74,4 +74,24 @@ public class Lobby {
     public String getId() {
         return id;
     }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(List<Player> players) {
+        this.players = players;
+    }
+
+    public UUID getHostId() {
+        return hostId;
+    }
+
+    public void setHostId(UUID hostId) {
+        this.hostId = hostId;
+    }
 }

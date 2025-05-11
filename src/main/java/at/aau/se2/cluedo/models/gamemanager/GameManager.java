@@ -4,7 +4,6 @@ import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
-import at.aau.se2.cluedo.models.gameboard.Room;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -19,7 +18,6 @@ public class GameManager {
     private final GameBoard gameBoard;
     private final List<Player> players;
     private int currentPlayerIndex;
-    private Random rn = new Random();
     private SecretFile secretFile;
     private ArrayList<BasicCard> cards = new ArrayList<>();
     private ArrayList<BasicCard> rooms = new ArrayList<>();
@@ -30,7 +28,7 @@ public class GameManager {
     public GameManager(int count) {
         this.gameBoard = new GameBoard();
         this.players = initializePlayers(count);
-        initilizeGame();
+        initializeGame();
         this.currentPlayerIndex = 0;
         players.get(0).setCurrentPlayer(true);
     }
@@ -53,7 +51,7 @@ public class GameManager {
         }
 
         this.players = updatedPlayers;
-        initilizeGame();
+        initializeGame();
         this.currentPlayerIndex = 0;
         players.get(0).setCurrentPlayer(true);
     }
@@ -200,7 +198,7 @@ public class GameManager {
         String room = gameBoard.getCell(player.getX(), player.getY()).getRoom().getName();
         Player sus = player;
         for(Player p : players) {
-            if (p.getName() == suspect)
+            if (Objects.equals(p.getName(), suspect))
                 sus = p;
         }
         if(sus == player){
@@ -222,9 +220,9 @@ public class GameManager {
         System.out.println("No one could disprove your suggestion!");
     }
 
-    public void makeAccusation(Player player, SecretFile acusation) {
+    public void makeAccusation(Player player, SecretFile accusation) {
 
-        if (secretFile.room().equals(acusation.room()) && secretFile.character().equals(acusation.character()) && secretFile.weapon().equals(acusation.weapon())) {
+        if (secretFile.room().equals(accusation.room()) && secretFile.character().equals(accusation.character()) && secretFile.weapon().equals(accusation.weapon())) {
             System.out.println("Correct! " + player.getName() + " has solved the crime!");
             player.setHasWon(true);
         } else {
@@ -267,11 +265,11 @@ public class GameManager {
             for(Player p : players){
                 if(p.getX() == newX && p.getY() == newY){
                     System.out.println("Invalid move!");
-                    return performMovement(player,movement);
+                    return 0;
                 }
             }
 
-            if (gameBoard.movePlayer(player, newX, newY)) {
+            if (gameBoard.movePlayer(player, newX, newY,false)) {
                 if(input != movement.get(movement.size()-1)){
                     movement.subList(1,movement.size()-1);
                     continue;
@@ -324,14 +322,14 @@ public class GameManager {
         character.add(new BasicCard("Mrs. White", UUID.randomUUID(), "Its Mrs White", "Character"));
     }
 
-    public void initilizeGame() {
+    public void initializeGame() {
         //Call GameBoard
         generateCards();
         generateFile();
         distributeCards();
     }
 
-    private void nextPlayer() {
+    public void nextPlayer() {
         players.get(currentPlayerIndex).setCurrentPlayer(false);
 
         do {

@@ -3,10 +3,10 @@ package at.aau.se2.cluedo.models;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
+import at.aau.se2.cluedo.models.gameboard.Room;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -25,31 +25,33 @@ public class GameBoardTest {
         player = new Player("TestPlayer", "Miss Scarlet", 7, 24, PlayerColor.RED);
     }
 
+
     @Test
-    @Disabled
-    void testGameBoardInitialization() {
-        // Check outer walls
-        for (int x = 0; x < 25; x++) {
-            assertEquals(CellType.WALL, gameBoard.getCell(x, 0).getCellType());
-            assertEquals(CellType.WALL, gameBoard.getCell(x, 24).getCellType());
-        }
+    public void testInitialization() {
+        // Check that the board is properly initialized
+        assertNotNull(gameBoard);
 
-        for (int y = 0; y < 25; y++) {
-            assertEquals(CellType.WALL, gameBoard.getCell(0, y).getCellType());
-            assertEquals(CellType.WALL, gameBoard.getCell(24, y).getCellType());
-        }
+        // Test a hallway cell
+        GameBoardCell hallwayCell = gameBoard.getCell(8, 8);
+        assertEquals(CellType.HALLWAY, hallwayCell.getCellType());
+        assertTrue(hallwayCell.isAccessible());
 
-        // Check a few room cells
-        assertEquals(CellType.ROOM, gameBoard.getCell(3, 3).getCellType());
-        assertNotNull(gameBoard.getCell(3, 3).getRoom());
+        // Test a wall cell
+        GameBoardCell wallCell = gameBoard.getCell(0, 0);
+        assertEquals(CellType.WALL, wallCell.getCellType());
+        assertFalse(wallCell.isAccessible());
 
-        // Check a hallway cell
-        assertEquals(CellType.HALLWAY, gameBoard.getCell(11, 11).getCellType());
+        // Test a room cell
+        GameBoardCell roomCell = gameBoard.getCell(2, 3);
+        assertEquals(CellType.ROOM, roomCell.getCellType());
+        assertTrue(roomCell.isAccessible());
+        assertNotNull(roomCell.getRoom());
 
-        // Check a door
-        assertEquals(CellType.DOOR, gameBoard.getCell(4, 6).getCellType());
+        // Test a door cell
+        GameBoardCell doorCell = gameBoard.getCell(4, 6);
+        assertEquals(CellType.DOOR, doorCell.getCellType());
+        assertTrue(doorCell.isAccessible());
     }
-
     @Test
     void testGetCell() {
         // Valid cell
@@ -68,7 +70,7 @@ public class GameBoardTest {
     @Test
     void testMovePlayerToValidCell() {
         // Move to a valid hallway cell
-        boolean moved = gameBoard.movePlayer(player, 7, 23);
+        boolean moved = gameBoard.movePlayer(player, 7, 23,false);
         assertTrue(moved);
         assertEquals(7, player.getX());
         assertEquals(23, player.getY());
@@ -77,37 +79,191 @@ public class GameBoardTest {
     @Test
     void testMovePlayerToInvalidCell() {
         // Try moving to a wall
-        boolean moved = gameBoard.movePlayer(player, 0, 0);
+        boolean moved = gameBoard.movePlayer(player, 0, 0,false);
         assertFalse(moved);
         assertEquals(7, player.getX());
         assertEquals(24, player.getY());
     }
 
     @Test
-    @Disabled
     void testMovePlayerThroughDoor() {
         // Position player near a door
         player.move(4, 7);
 
         // Move through the door
-        boolean moved = gameBoard.movePlayer(player, 4, 6);
-        assertTrue(moved);
+        assertTrue(gameBoard.movePlayer(player, 4, 6,false));
+
         assertEquals(4, player.getX());
-        assertEquals(6, player.getY());
+        assertEquals(5, player.getY());
+
+        GameBoardCell currentCell = gameBoard.getCell(player.getX(), player.getY());
+        assertEquals(CellType.ROOM, currentCell.getCellType());
+        assertNotNull(currentCell.getRoom());
+
     }
 
     @Test
-    @Disabled
-    void testUseSecretPassage() {
-        // Position player at a secret passage
+    public void testSecretPassage() {
+        // Place player at secret passage in kitchen
         player.move(5, 1);
 
-        // Try to use the secret passage
-        boolean used = gameBoard.useSecretPassage(player);
-        assertTrue(used);
+        // Use secret passage
+        assertTrue(gameBoard.useSecretPassage(player));
 
-        // Player should have moved to the other end of the passage
-        assertNotEquals(5, player.getX());
-        assertNotEquals(1, player.getY());
+        // Player should now be in study or near it
+        GameBoardCell currentCell = gameBoard.getCell(player.getX(), player.getY());
+        assertTrue(currentCell.isAccessible());
+
+        // The closest room should be Study
+        if (currentCell.getCellType() == CellType.ROOM) {
+            assertTrue(currentCell.getRoom().getName().equals("Study"));
+        }
     }
+
+    @Test
+    void testUseSecretPassage() {
+        player.move(5, 1);
+
+        // Use secret passage
+        assertTrue(gameBoard.useSecretPassage(player));
+
+        // Player should now be in study or near it
+        GameBoardCell currentCell = gameBoard.getCell(player.getX(), player.getY());
+        assertTrue(currentCell.isAccessible());
+
+        // The closest room should be Study
+        if (currentCell.getCellType() == CellType.ROOM) {
+            assertTrue(currentCell.getRoom().getName().equals("Study"));
+        }
+    }
+    @Test
+    void testTeleportPlayerToRoom() {
+        Room targetRoom = gameBoard.getCell(2, 3).getRoom();  // Should be Kitchen
+        assertNotNull(targetRoom);
+
+        gameBoard.teleportPlayerToRoom(player, targetRoom);
+
+        GameBoardCell cell = gameBoard.getCell(player.getX(), player.getY());
+        assertEquals(CellType.ROOM, cell.getCellType());
+        assertEquals(targetRoom, cell.getRoom());
+    }
+    // Helper to access private method
+    private char invokePrivateSymbolMethod(GameBoardCell cell) {
+        try {
+            java.lang.reflect.Method method = GameBoard.class.getDeclaredMethod("getSymbol", GameBoardCell.class);
+            method.setAccessible(true);
+            return (char) method.invoke(gameBoard, cell);
+        } catch (Exception e) {
+            fail("Reflection failed");
+            return '?';
+        }
+    }
+    @Test
+    void testDisplayGameBoard() {
+        List<Player> players = new ArrayList<>();
+        players.add(player);
+        assertDoesNotThrow(() -> gameBoard.displayGameBoard(players));
+    }
+
+    @Test
+    void testUseSecretPassageWhenNoneExists() {
+        player.move(7, 24);  // Regular hallway
+        assertFalse(gameBoard.useSecretPassage(player), "No passage here, should return false");
+    }
+    @Test
+    void testGetColorForAllPlayerColors() {
+        for (PlayerColor color : PlayerColor.values()) {
+            Player testPlayer = new Player("Player", "Character", 10, 10, color);
+            List<Player> players = List.of(testPlayer);
+            GameBoardCell cell = gameBoard.getCell(10, 10);
+
+            String colorStr = gameBoard.getColor(cell, players, 10, 10);
+            assertNotNull(colorStr, "Color string should not be null for " + color);
+        }
+    }
+    @Test
+    void testMovePlayer_InitialPositionIsValid() {
+        assertEquals(7, player.getX());
+        assertEquals(24, player.getY());
+        assertTrue(gameBoard.getCell(7, 24).isAccessible());
+    }
+
+    @Test
+    void testMovePlayer_ValidHallwayMove() {
+        assertTrue(gameBoard.movePlayer(player, 7, 23, false));
+        assertEquals(7, player.getX());
+        assertEquals(23, player.getY());
+    }
+
+    @Test
+    void testMovePlayer_InvalidWallMove() {
+        assertFalse(gameBoard.movePlayer(player, 0, 0, false));
+        assertEquals(7, player.getX());
+        assertEquals(24, player.getY());
+    }
+
+    @Test
+    void testMovePlayer_InvalidOutOfBounds() {
+        assertFalse(gameBoard.movePlayer(player, -1, 24, false));
+        assertFalse(gameBoard.movePlayer(player, 7, 25, false));
+        assertEquals(7, player.getX());
+        assertEquals(24, player.getY());
+    }
+
+    @Test
+    void testMovePlayer_ValidRoomEntryThroughDoor() {
+        // Position player near door at 6,24
+        player.move(6, 24);
+        assertTrue(gameBoard.movePlayer(player, 6, 24, false));
+        // Player should be adjusted to proper position
+        assertNotEquals(5, player.getX());
+        assertNotEquals(24, player.getY());
+    }
+
+
+
+    @Test
+    void testMovePlayer_TeleportToRoom() {
+        Room kitchen = gameBoard.getCell(1, 1).getRoom();
+        assertTrue(gameBoard.movePlayer(player, 1, 1, true));
+        assertEquals(kitchen, gameBoard.getCell(player.getX(), player.getY()).getRoom());
+        assertTrue(kitchen.getPlayersInRoom().contains(player));
+    }
+
+
+
+    @Test
+    void testMovePlayer_InvalidDirectRoomEntryWithoutDoor() {
+        // Try to move directly into Lounge without using door
+        assertFalse(gameBoard.movePlayer(player, 0, 19, false));
+        assertEquals(7, player.getX());
+        assertEquals(24, player.getY());
+    }
+
+
+    @Test
+    void testMovePlayer_ThroughMultipleDoors() {
+        // Starting near door at 6,24
+        player.move(6, 24);
+        assertTrue(gameBoard.movePlayer(player, 6, 24, false));
+        // Continue movement through the door system...
+        // This would depend on your specific board layout
+    }
+
+    @Test
+    void testMovePlayer_InvalidMoveBetweenDifferentCellTypes() {
+        // Try to move directly from hallway to room without door
+        assertFalse(gameBoard.movePlayer(player, 1, 1, false));
+    }
+
+    @Test
+    void testMovePlayer_ValidMoveBetweenSameCellTypes() {
+        // Move within hallways
+        player.move(7, 23);
+        assertTrue(gameBoard.movePlayer(player, 7, 22, false));
+    }
+
+
+
+
 }

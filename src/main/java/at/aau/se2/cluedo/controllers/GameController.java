@@ -64,7 +64,7 @@ public class GameController {
 
             List<Player> gamePlayers = gameManager.getPlayers();
 
-            return new GameStartedResponse(lobbyId, gamePlayers);
+            return (new GameStartedResponse(lobbyId, gamePlayers));
         } catch (Exception e) {
             logger.error("Failed to start game from lobby {}: {}", lobbyId, e.getMessage());
             throw new IllegalStateException("Failed to start game: " + e.getMessage());
