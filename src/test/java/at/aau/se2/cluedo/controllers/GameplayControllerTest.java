@@ -72,7 +72,7 @@ class GameplayControllerTest {
         verify(lobbyService).makeAccusation(testPlayer, testSecretFile);
     }
 
-    @Test
+    /*@Test
     void performMovement_ShouldCallLobbyService() {
         // Arrange
         int expectedResult = 0;
@@ -84,7 +84,7 @@ class GameplayControllerTest {
         // Assert
         assertEquals(expectedResult, result);
         verify(lobbyService).performMovement(testPlayer, testMovement);
-    }
+    }*/
 
     @Test
     void displayGameBoard_ShouldCallLobbyService() {

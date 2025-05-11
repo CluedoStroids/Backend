@@ -36,12 +36,12 @@ public class GameplayController {
         return lobbyService.makeAccusation(player, acusation);
     }
 
-    @MessageMapping("/performMovement/{lobbyId}")
+    /*@MessageMapping("/performMovement/{lobbyId}")
     @SendTo("/topic/lobby/{lobbyId}")
     public int performMovement(@DestinationVariable Player player, List<String> movement) {
         logger.info("User {} makes a move.", player.getName());
         return lobbyService.performMovement(player, movement);
-    }
+    }*/
 
     @MessageMapping("/displayGameBoard/{lobbyId}")
     @SendTo("/topic/lobby/{lobbyId}")

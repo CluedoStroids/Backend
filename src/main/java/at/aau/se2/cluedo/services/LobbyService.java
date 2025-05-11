@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.services;
 
+import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.models.lobby.Lobby;
@@ -11,13 +12,24 @@ import java.util.List;
 @Service
 public class LobbyService {
 
+
+
     private final LobbyRegistry lobbyRegistry;
+
+    public LobbyRegistry getLobbyRegistry() {
+        return lobbyRegistry;
+    }
 
     @Autowired
     public LobbyService(LobbyRegistry lobbyRegistry) {
         this.lobbyRegistry = lobbyRegistry;
     }
 
+    public GameService gameService;
+
+    public void setGameService(GameService gameService) {
+        this.gameService = gameService;
+    }
 
     public String createLobby(Player host) {
         Lobby lobby = lobbyRegistry.createLobby(host);
@@ -38,7 +50,7 @@ public class LobbyService {
         return lobbyRegistry.getLobby(lobbyId);
     }
 
-    public String makeSuggestion(Player player,String suspect, String weapon) {
+    public String makeSuggestion(Player player, String suspect, String weapon) {
 /*
         String room = gameBoard.getCell(player.getX(), player.getY()).getRoom().getName();
 
@@ -53,9 +65,10 @@ public class LobbyService {
                 }
             }
         }*/
-       return "No one could disprove your suggestion!";
+        return "No one could disprove your suggestion!";
 
     }
+
     public String makeAccusation(Player player, SecretFile acusation) {
 /*
         if (secretFile.room().equals(acusation.room()) && secretFile.character().equals(acusation.character()) && secretFile.weapon().equals(acusation.weapon())) {
@@ -71,9 +84,40 @@ public class LobbyService {
     }
 
 
+    public int performMovement(Player player, List<String> movement,String lobbId) {
 
+        int x = gameService.getGame(lobbId).getPlayer(player.getName()).getX();
+        int y = gameService.getGame(lobbId).getPlayer(player.getName()).getY();
+        for (String move : movement) {
+            switch (move) {
+                case "W":
+                    y--;
+                    if (y > GameBoard.HEIGHT) {
+                        y = GameBoard.HEIGHT;
+                    }
+                    break;
+                case "D":
+                    x++;
+                    if (x > GameBoard.WIDTH) {
+                        x = GameBoard.WIDTH;
+                    }
+                    break;
+                case "A":
+                    x--;
+                    if (x < 0) {
+                        x = 0;
+                    }
+                    break;
+                case "S":
+                    y++;
+                    if (y < 0) {
+                        y = 0;
+                    }
+                    break;
+            }
 
-    public int performMovement(Player player, List<String> movement) {
+        }
+        gameService.getGame(lobbId).getPlayer(player.getName()).move(x,y);
 /*
         if(movement.size() == 0){
             return 0;
@@ -121,6 +165,7 @@ public class LobbyService {
  */
         return 0;
     }
+
     public String displayGameBoard(List<Player> players) {
 
 

@@ -152,6 +152,14 @@ public class GameManager {
         GameBoardCell cell = gameBoard.getCell(player.getX(), player.getY());
         return cell != null && cell.getCellType() == CellType.ROOM;
     }
+    public Player getPlayer(String username){
+        for (Player p: players) {
+            if(Objects.equals(p.getName(), username)){
+                return p;
+            }
+        }
+        return null;
+    }
 
     private void roomActions(Player player) {
         System.out.println("\nYou are in the " + gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
@@ -223,7 +231,7 @@ public class GameManager {
         }
     }
 
-    private int performMovement(Player player,  List<String> movement) {
+    public int performMovement(Player player,  List<String> movement) {
 
         if(movement.size() == 0){
             return 0;
@@ -286,7 +294,6 @@ public class GameManager {
             System.out.println("Game over! No one solved the crime.");
             return true;
         }
-
         return false;
     }
 

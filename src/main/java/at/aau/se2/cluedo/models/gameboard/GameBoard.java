@@ -18,8 +18,8 @@ public class GameBoard {
     public static final String BLUE = "\u001B[44m";
     public static final String PURPLE = "\u001B[45m";
     public static final String RESET = "\u001B[0m";
-    private static final int WIDTH = 25;
-    private static final int HEIGHT = 25;
+    public static final int WIDTH = 25;
+    public static final int HEIGHT = 25;
     private final GameBoardCell[][] grid;
     private final Map<String, Room> rooms;
     private final Map<Room, Room> secretPassages;

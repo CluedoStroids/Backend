@@ -16,6 +16,8 @@ import java.util.UUID;
 public class Lobby {
     private static final Logger logger = LoggerFactory.getLogger(Lobby.class);
 
+
+
     private String id;
     private UUID hostId;
     private List<Player> players = new ArrayList<>();
@@ -28,7 +30,9 @@ public class Lobby {
         logger.info("Created lobby: {} with host: {}", id, host.getName());
     }
 
-
+    public String getId() {
+        return id;
+    }
     public boolean addPlayer(Player player) {
         // Check if player with same ID already exists
         if (players.stream().noneMatch(p -> p.getPlayerID().equals(player.getPlayerID()))) {
@@ -56,6 +60,15 @@ public class Lobby {
 
     public boolean hasPlayer(Player player) {
         return players.stream().anyMatch(p -> p.getPlayerID().equals(player.getPlayerID()));
+    }
+
+    public Player getPlayer(String username){
+        for (Player p: players) {
+            if(p.getName() == username){
+                return p;
+            }
+        }
+        return null;
     }
 
     public Player getHost() {
