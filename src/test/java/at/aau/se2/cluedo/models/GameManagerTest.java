@@ -93,7 +93,7 @@ public class GameManagerTest {
         SecretFile correct = gm.getSecretFile();
         Player p = gm.getPlayers().get(0);
         gm.makeAccusation(p, correct);
-        assertTrue(p.hasWon());
+        assertTrue(p.isHasWon());
     }
 
     @Test
@@ -197,7 +197,7 @@ public class GameManagerTest {
         SecretFile actual = gameManager.getSecretFile();
         Player player = gameManager.getPlayers().get(0);
         gameManager.makeAccusation(player, actual);
-        assertTrue(player.hasWon());
+        assertTrue(player.isHasWon());
     }
 
     @Test
@@ -210,7 +210,7 @@ public class GameManagerTest {
         );
         gameManager.makeAccusation(player, wrong);
         assertFalse(player.isActive());
-        assertFalse(player.hasWon());
+        assertFalse(player.isHasWon());
     }
 
     @Test

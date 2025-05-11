@@ -30,7 +30,7 @@ public class PlayerTest {
         assertNotNull(player.getPlayerID());
         assertTrue(player.isActive());
         assertFalse(player.isCurrentPlayer());
-        assertFalse(player.hasWon());
+        assertFalse(player.isHasWon());
     }
 
     @Test
@@ -83,13 +83,13 @@ public class PlayerTest {
 
     @Test
     void testSetHasWon() {
-        assertFalse(player.hasWon());
+        assertFalse(player.isHasWon());
 
         player.setHasWon(true);
-        assertTrue(player.hasWon());
+        assertTrue(player.isHasWon());
 
         player.setHasWon(false);
-        assertFalse(player.hasWon());
+        assertFalse(player.isHasWon());
     }
 
 }

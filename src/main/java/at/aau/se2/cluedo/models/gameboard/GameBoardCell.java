@@ -1,9 +1,15 @@
 package at.aau.se2.cluedo.models.gameboard;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
 public class GameBoardCell {
     private final int x;
     private final int y;
+    @Setter
     private CellType cellType;
+    @Setter
     private Room room;
 
 
@@ -14,37 +20,8 @@ public class GameBoardCell {
     }
 
     public boolean isAccessible() {
-        boolean check = false;
 
-        if(cellType != CellType.WALL) {
-            check = true;
-        }
-
-        return check;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public CellType getCellType() {
-        return cellType;
-    }
-
-    public void setCellType(CellType type) {
-        this.cellType = type;
-    }
-
-    public Room getRoom() {
-        return room;
-    }
-
-    public void setRoom(Room room) {
-        this.room = room;
+        return cellType != CellType.WALL;
     }
 
 

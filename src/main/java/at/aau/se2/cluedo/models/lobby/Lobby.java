@@ -2,7 +2,9 @@ package at.aau.se2.cluedo.models.lobby;
 
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +13,8 @@ import java.util.List;
 import java.util.UUID;
 
 
+@Setter
+@Getter
 @Data
 @NoArgsConstructor
 public class Lobby {
@@ -71,27 +75,4 @@ public class Lobby {
                 .toList();
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public List<Player> getPlayers() {
-        return players;
-    }
-
-    public void setPlayers(List<Player> players) {
-        this.players = players;
-    }
-
-    public UUID getHostId() {
-        return hostId;
-    }
-
-    public void setHostId(UUID hostId) {
-        this.hostId = hostId;
-    }
 }

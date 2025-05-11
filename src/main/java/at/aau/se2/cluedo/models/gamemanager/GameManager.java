@@ -234,7 +234,7 @@ public class GameManager {
 
     public int performMovement(Player player, List<String> movement) {
 
-        if(movement.size() == 0){
+        if(movement.isEmpty()){
             return 0;
         }
 
@@ -270,7 +270,7 @@ public class GameManager {
             }
 
             if (gameBoard.movePlayer(player, newX, newY,false)) {
-                if(input != movement.get(movement.size()-1)){
+                if(!input.equals(movement.get(movement.size() - 1))){
                     movement.subList(1,movement.size()-1);
                     continue;
                 }
@@ -290,7 +290,7 @@ public class GameManager {
 
     public boolean checkGameEnd() {
         for (Player p : players) {
-            if (p.hasWon()) {
+            if (p.isHasWon()) {
                 System.out.println(p.getName() + " has won!");
                 return true;
             }

@@ -66,4 +66,5 @@ public class GameService {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         return lobby != null && lobby.getPlayers().size() >= MIN_PLAYERS;
     }
+
 }
