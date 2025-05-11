@@ -80,7 +80,7 @@ public class GameObjectsTest {
         player.setHasWon(true);
 
         // Assert the player has won
-        assertTrue(player.isHasWon(), "Player should have won.");
+        assertTrue(player.hasWon(), "Player should have won.");
     }
 
     @Test

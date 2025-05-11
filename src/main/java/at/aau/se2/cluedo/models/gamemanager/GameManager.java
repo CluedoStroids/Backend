@@ -290,7 +290,7 @@ public class GameManager {
 
     public boolean checkGameEnd() {
         for (Player p : players) {
-            if (p.isHasWon()) {
+            if (p.hasWon()) {
                 System.out.println(p.getName() + " has won!");
                 return true;
             }

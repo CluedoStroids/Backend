@@ -18,7 +18,7 @@ public class Player extends GameObject {
     private boolean isCurrentPlayer;
     private boolean isActive = true;
 
-    public boolean isHasWon() {
+    public boolean hasWon() {
         return hasWon;
     }
 
