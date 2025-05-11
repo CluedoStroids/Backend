@@ -50,8 +50,4 @@ public class Player extends GameObject {
     public boolean hasCard(String card) {
         return cards.contains(card);
     }
-
-    public List<BasicCard> getCards() {
-        return new ArrayList<>(cards);
-    }
 }
