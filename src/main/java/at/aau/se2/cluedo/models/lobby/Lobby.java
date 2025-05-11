@@ -2,7 +2,9 @@ package at.aau.se2.cluedo.models.lobby;
 
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
+@Getter
+@Setter
 @Data
 @NoArgsConstructor
 public class Lobby {
