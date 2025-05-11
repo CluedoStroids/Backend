@@ -70,4 +70,8 @@ public class Lobby {
                 .map(Player::getName)
                 .toList();
     }
+
+    public String getId() {
+        return id;
+    }
 }
