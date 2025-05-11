@@ -1,11 +1,10 @@
 package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.GameStartedResponse;
-import at.aau.se2.cluedo.models.gamemanager.GameManager;
+import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.services.GameService;
-import at.aau.se2.cluedo.services.LobbyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,23 +25,28 @@ public class GameplayController {
     private GameService gameService;
 
     @MessageMapping("/makeSuggestion/{lobbyId}")
-    @SendTo("/topic/lobby/{lobbyId}")
+    @SendTo("/topic/madeSuggestion/{lobbyId}")
     public void makeSuggestion(@DestinationVariable String lobbyId, Player player, String suspect, String weapon) {
         logger.info("User {} makes a suggestion.", player.getName());
         gameService.getGame(lobbyId).makeSuggestion(player, suspect, weapon);
     }
 
     @MessageMapping("/makeAccusation/{lobbyId}")
-    @SendTo("/topic/lobby/{lobbyId}")
-    public void makeAccusation(@DestinationVariable String lobbyId, Player player, SecretFile acusation) {
+    @SendTo("/topic/madeAccusation/{lobbyId}")
+    public void makeAccusation(@DestinationVariable String lobbyId, Player player, SecretFile accusation) {
         logger.info("User {} makes a accusation.", player.getName());
-        gameService.getGame(lobbyId).makeAccusation(player, acusation);
+        gameService.getGame(lobbyId).makeAccusation(player, accusation);
     }
 
     @MessageMapping("/displayGameBoard/{lobbyId}")
-    @SendTo("/topic/lobby/{lobbyId}")
+    @SendTo("/topic/displayedGameBoard/{lobbyId}")
     public void displayGameBoard(@DestinationVariable String lobbyId,List<Player> players) {
         gameService.getGame(lobbyId).getGameBoard().displayGameBoard(players);
+    }
+    @MessageMapping("/getGameBoard/{lobbyId}")
+    @SendTo("/topic/gotGameBoard/{lobbyId}")
+    public GameBoard getGameBoard(@DestinationVariable String lobbyId) {
+        return gameService.getGame(lobbyId).getGameBoard();
     }
     @MessageMapping("/performMovement/{lobbyId}")
     @SendTo("/topic/performedMovement/{lobbyId}")
