@@ -264,6 +264,7 @@ public class GameManagerTest {
         assertFalse(gameManager.getWeapons().isEmpty());
         assertFalse(gameManager.getCharacter().isEmpty());
     }
+    @Test
     public void testSkipInactivePlayers() {
         // Make player 1 inactive
         gameManager.getPlayers().get(1).setActive(false);
@@ -278,5 +279,10 @@ public class GameManagerTest {
         assertTrue(gameManager.getPlayers().get(2).isCurrentPlayer());
         assertEquals(2, gameManager.getCurrentPlayerIndex());
     }
-
+    @Test
+    public void testMakeSuggestion(){
+        Player player = gameManager.getPlayers().get(1);
+        player.move(2,2);
+        gameManager.makeSuggestion(player,"Mr. White","Knife");
+    }
 }
