@@ -51,7 +51,7 @@ public class GameplayController {
     @MessageMapping("/performMovement/{lobbyId}")
     @SendTo("/topic/performedMovement/{lobbyId}")
     public GameStartedResponse performMovement(@DestinationVariable String lobbyId, Player player, List<String> movement) {
-        logger.info("Player {} is attempting to start a movement in lobby {}", player.getName(), lobbyId);
+        logger.info("Player {} is attempting to start a movement", player.getName());
         gameService.getGame(lobbyId).performMovement(player,movement);
         return null;
     }
