@@ -353,7 +353,7 @@ public class GameManager {
         return secretFile.weapon().getCardName();
     }
 
-    protected List<Player> getPlayerList() {
+    public List<Player> getPlayerList() {
         return new ArrayList<>(players);
     }
 
