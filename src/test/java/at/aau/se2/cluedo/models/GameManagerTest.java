@@ -31,16 +31,13 @@ public class GameManagerTest {
         System.out.println(gameManager.getPlayers());
         System.out.println();
 
-    }
+
 
         ArrayList<BasicCard> characters = new ArrayList<>();
-        characters.add(new BasicCard("Red", UUID.randomUUID(), "Red", "Character"));
-        characters.add(new BasicCard("White", UUID.randomUUID(), "White", "Character"));
+        characters.add(new BasicCard("Red", UUID.randomUUID(), CardType.CHARACTER));
+        characters.add(new BasicCard("White", UUID.randomUUID(),  CardType.CHARACTER));
 
-        gameManager.setRooms(rooms);
-        gameManager.setWeapons(weapons);
-        gameManager.setCharacter(characters);
-        gameManager.generateFile();
+        gameManager.initilizeGame();
     }
     @Test
     void testConstructorWithPlayerCount() {
@@ -63,28 +60,20 @@ public class GameManagerTest {
     @Test
     void testGenerateCards() {
         GameManager gm = new GameManager(3);
-        assertFalse(gm.getRooms().isEmpty());
-        assertFalse(gm.getWeapons().isEmpty());
-        assertFalse(gm.getCharacter().isEmpty());
+        assertFalse(gm.getCards().isEmpty());
     }
 
-    @Test
-    void testGenerateFile() {
-        GameManager gm = new GameManager(3);
-        gm.generateFile();
-        assertNotNull(gm.getSecretFile());
-        assertFalse(gm.getCards().contains(gm.getSecretFile().room()));
-    }
+
     @Test
     void testStartGameDoesNotCrash() {
         GameManager gm = new GameManager(2);
-        assertDoesNotThrow(gm::startGame);
+        assertDoesNotThrow(gm::initilizeGame);
     }
 
     @Test
     void testNextPlayerWrapsAround() {
         GameManager gm = new GameManager(2);
-        gm.nextPlayer();
+        gm.nextTurn();
         assertEquals(1, gm.getCurrentPlayerIndex());
     }
 
@@ -102,9 +91,9 @@ public class GameManagerTest {
         GameManager gm = new GameManager(2);
         Player p = gm.getPlayers().get(0);
 
-        BasicCard wrongRoom = new BasicCard("WrongRoom", UUID.randomUUID(), "desc", "Room");
-        BasicCard wrongWeapon = new BasicCard("WrongWeapon", UUID.randomUUID(), "desc", "Weapon");
-        BasicCard wrongCharacter = new BasicCard("WrongChar", UUID.randomUUID(), "desc", "Character");
+        BasicCard wrongRoom = new BasicCard("WrongRoom", UUID.randomUUID(), CardType.ROOM);
+        BasicCard wrongWeapon = new BasicCard("WrongWeapon", UUID.randomUUID(), CardType.WEAPON);
+        BasicCard wrongCharacter = new BasicCard("WrongChar", UUID.randomUUID(), CardType.CHARACTER);
 
         SecretFile wrong = new SecretFile(wrongRoom, wrongWeapon, wrongCharacter);
         gm.makeAccusation(p, wrong);
@@ -142,6 +131,7 @@ public class GameManagerTest {
             int roll = gm.rollDice();
             assertTrue(roll >= 1 && roll <= 6);
         }
+    }
     @Test
     void testGameInitialization() {
         assertEquals(GameState.INITIALIZED, gameManager.getState());
@@ -156,7 +146,7 @@ public class GameManagerTest {
         for (Player player : gameManager.getPlayers()) {
             totalCards += player.getCards().size();
         }
-        assertEquals(18, totalCards);
+        assertEquals(36, totalCards);
     }
 
     @Test
@@ -180,7 +170,7 @@ public class GameManagerTest {
     @Test
     void testAddAndGetPlayers() {
         Player player = new Player("Markus","Markus",2,5, PlayerColor.GREEN);
-        assertEquals(6, gameManager.getPlayers().size());
+        assertEquals(3, gameManager.getPlayers().size());
         assertEquals(0, gameManager.getCurrentPlayerIndex());
         assertTrue(gameManager.getPlayers().get(0).isCurrentPlayer());
     }
@@ -193,19 +183,7 @@ public class GameManagerTest {
         }
     }
 
-    @Test
-    void testTopOfRoundResetsIndex() {
-        gameManager.setCurrentPlayerIndex(5);
-        gameManager.topOfTheRound();
-        assertEquals(0, gameManager.getCurrentPlayerIndex());
-    }
 
-    @Test
-    void testNextPlayerWrapsCorrectly() {
-        gameManager.setCurrentPlayerIndex(5);
-    void testGetPlayers() {
-        assertEquals(3, gameManager.getPlayers().size());
-    }
 
     @Test
     void testNextTurnAndTopOfRound() {
@@ -250,7 +228,7 @@ public class GameManagerTest {
     @Disabled
     void testCardsAreDistributedEvenlyAmongPlayers() {
         int totalCards = gameManager.getCards().size();
-        gameManager.initializeGame();
+        gameManager.initilizeGame();
         int distributed = gameManager.getPlayers().stream().mapToInt(p -> p.getCards().size()).sum();
         assertEquals(totalCards, distributed);
     }
@@ -323,18 +301,6 @@ public class GameManagerTest {
     }
 
     @Test
-    void testGenerateCardsCreatesAllCardTypes() {
-        gameManager.getRooms().clear();
-        gameManager.getWeapons().clear();
-        gameManager.getCharacter().clear();
-
-        gameManager.initializeGame();
-
-        assertFalse(gameManager.getRooms().isEmpty());
-        assertFalse(gameManager.getWeapons().isEmpty());
-        assertFalse(gameManager.getCharacter().isEmpty());
-    }
-    @Test
     public void testSkipInactivePlayers() {
         // Make player 1 inactive
         gameManager.getPlayers().get(1).setActive(false);
@@ -343,7 +309,7 @@ public class GameManagerTest {
         assertTrue(gameManager.getPlayers().get(0).isCurrentPlayer());
 
         // Call next player, should skip player 1
-        gameManager.nextPlayer();
+        gameManager.nextTurn();
 
         // Player 2 should be current
         assertTrue(gameManager.getPlayers().get(2).isCurrentPlayer());

@@ -1,6 +1,7 @@
 package at.aau.se2.cluedo.models;
 
 import at.aau.se2.cluedo.models.cards.BasicCard;
+import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +26,7 @@ public class GameObjectsTest {
     public void testAddCard() {
         // Create a BasicCard with a unique UUID and add it to the player
         UUID cardID = UUID.randomUUID();
-        BasicCard card = new BasicCard("Revolver", cardID, "Weapon", "Weapon");
+        BasicCard card = new BasicCard("Revolver", cardID, CardType.WEAPON);
 
         // Add the card to the player
         player.addCard(card);
@@ -39,20 +40,20 @@ public class GameObjectsTest {
     public void testHasCard() {
         // Create a BasicCard and add it to the player
         UUID cardID = UUID.randomUUID();
-        BasicCard card = new BasicCard("Revolver", cardID, "Weapon", "Weapon");
+        BasicCard card = new BasicCard("Revolver", cardID, CardType.WEAPON);
         player.addCard(card);
 
         // Assert the player has the card by name
-        assertTrue(player.hasCard("Revolver"), "Player should have the Revolver card.");
+        assertTrue(player.hasCard(card), "Player should have the Revolver card.");
     }
 
     @Test
     public void testHasCardReturnsFalseWhenCardNotPresent() {
         // Create a card but don't add it to the player
-        BasicCard card = new BasicCard("Candlestick", UUID.randomUUID(), "Weapon", "Weapon");
+        BasicCard card = new BasicCard("Candlestick", UUID.randomUUID(), CardType.WEAPON);
 
         // Assert that the player doesn't have the "Candlestick" card
-        assertFalse(player.hasCard("Candlestick"), "Player should not have the Candlestick card.");
+        assertFalse(player.hasCard(card), "Player should not have the Candlestick card.");
     }
 
     @Test
