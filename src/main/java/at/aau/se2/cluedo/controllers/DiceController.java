@@ -5,13 +5,14 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 @Controller
 public class DiceController {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final Random random = new Random();
+    private final SecureRandom random = new SecureRandom();
 
     public DiceController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;

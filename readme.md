@@ -49,6 +49,20 @@ The game implements the core mechanics of Cluedo:
 - **Card System**: Cards are distributed to players, with a secret file containing the solution
 - **Win/Lose Conditions**: Players win by making correct accusations or lose by making incorrect ones
 
+### Game Flow
+
+The game follows a structured flow from lobby creation to game completion:
+
+1. **Lobby Creation**: A player creates a lobby and becomes the host
+2. **Player Joining**: Other players join the lobby using the lobby ID
+3. **Game Start**: Once at least 3 players have joined, the host can start the game
+4. **Game Initialization**:
+   - Players are positioned on the board at their starting positions
+   - Cards are distributed to players
+   - A secret file is created with the solution
+5. **Game Play**: Players take turns rolling dice, moving, and performing actions
+6. **Game End**: The game ends when a player makes a correct accusation or when only one player remains active
+
 ## WebSocket Communication
 
 The application uses Spring's WebSocket support with STOMP messaging protocol:
@@ -59,20 +73,38 @@ The application uses Spring's WebSocket support with STOMP messaging protocol:
 
 ### Message Endpoints
 
+#### Lobby Endpoints
+
 | Endpoint | Description |
 |----------|-------------|
 | `/app/createLobby` | Create a new lobby |
 | `/app/joinLobby/{lobbyId}` | Join an existing lobby |
 | `/app/leaveLobby/{lobbyId}` | Leave a lobby |
 | `/app/getActiveLobbies` | Get a list of all active lobbies |
+| `/app/canStartGame/{lobbyId}` | Check if a lobby has enough players to start a game |
+
+#### Game Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `/app/startGame/{lobbyId}` | Start a game from a lobby (minimum 3 players required) |
 
 ### Subscription Topics
+
+#### Lobby Topics
 
 | Topic | Description |
 |-------|-------------|
 | `/topic/lobbyCreated` | Receive notifications when a new lobby is created |
 | `/topic/lobby/{lobbyId}` | Receive updates about a specific lobby |
 | `/topic/activeLobbies` | Receive list of all active lobbies |
+| `/topic/canStartGame/{lobbyId}` | Receive information about whether a lobby can start a game |
+
+#### Game Topics
+
+| Topic | Description |
+|-------|-------------|
+| `/topic/gameStarted/{lobbyId}` | Receive notification when a game has started from a lobby |
 
 ## Getting Started
 
@@ -108,7 +140,9 @@ To run the tests, use the following command:
 
 ## API Documentation
 
-### Create Lobby
+### Lobby Operations
+
+#### Create Lobby
 
 **Request:**
 ```json
@@ -124,7 +158,7 @@ To run the tests, use the following command:
 **Response:**
 A string containing the lobby ID.
 
-### Join Lobby
+#### Join Lobby
 
 **Request:**
 ```json
@@ -176,7 +210,7 @@ A string containing the lobby ID.
 }
 ```
 
-### Leave Lobby
+#### Leave Lobby
 
 **Request:**
 ```json
@@ -218,7 +252,7 @@ A string containing the lobby ID.
 }
 ```
 
-### Get Active Lobbies
+#### Get Active Lobbies
 
 **Request:**
 ```json
@@ -238,6 +272,75 @@ A string containing the lobby ID.
       "id": "lobby-id-2",
       "hostName": "hostName2",
       "playerCount": 1
+    }
+  ]
+}
+```
+
+#### Check If Lobby Can Start Game
+
+**Request:**
+No request body needed, the lobby ID is included in the URL.
+
+**Response:**
+```json
+{
+  "canStart": true
+}
+```
+
+### Game Operations
+
+#### Start Game
+
+**Request:**
+```json
+{
+  "player": {
+    "name": "hostName",
+    "character": "Red",
+    "playerID": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "lobbyId": "lobby-id-1",
+  "players": [
+    {
+      "name": "hostName",
+      "character": "Red",
+      "playerID": "550e8400-e29b-41d4-a716-446655440000",
+      "x": 7,
+      "y": 24,
+      "isCurrentPlayer": true,
+      "isActive": true,
+      "hasWon": false,
+      "color": "RED"
+    },
+    {
+      "name": "playerName",
+      "character": "Blue",
+      "playerID": "550e8400-e29b-41d4-a716-446655440001",
+      "x": 0,
+      "y": 17,
+      "isCurrentPlayer": false,
+      "isActive": true,
+      "hasWon": false,
+      "color": "BLUE"
+    },
+    {
+      "name": "playerName2",
+      "character": "Green",
+      "playerID": "550e8400-e29b-41d4-a716-446655440002",
+      "x": 9,
+      "y": 0,
+      "isCurrentPlayer": false,
+      "isActive": true,
+      "hasWon": false,
+      "color": "GREEN"
     }
   ]
 }

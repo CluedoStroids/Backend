@@ -7,41 +7,88 @@ import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
+import at.aau.se2.cluedo.services.LobbyRegistry;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.security.SecureRandom;
 import java.util.*;
+
 
 @Getter
 @Setter
 public class GameManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(LobbyRegistry.class);
+
     private final GameBoard gameBoard;
     private final List<Player> players;
-    private final Scanner scanner;
-    private int currentPlayerIndex;
-    private Random rn = new Random();
+    private List<BasicCard> cards;
     private SecretFile secretFile;
-    private ArrayList<BasicCard> cards = new ArrayList<>();
-    private ArrayList<BasicCard> rooms = new ArrayList<>();
-    private ArrayList<BasicCard> weapons = new ArrayList<>();
-    private ArrayList<BasicCard> character = new ArrayList<>();
 
-    public GameManager(String count) {
+    private Player winner;
+    private GameState state;
+
+    private int currentPlayerIndex;
+    private int diceRollS;
+
+    public GameManager(int count) {
         this.gameBoard = new GameBoard();
+        this.players = initializePlayers(count);
+        this.cards = new ArrayList<>();
+        this.secretFile = null;
+        this.winner = null;
+        this.state = GameState.NOT_INITIALIZED;
 
-
-        this.players = initializePlayers(Integer.parseInt(count));
-        this.scanner = new Scanner(System.in);
-        initilizeGame();
         this.currentPlayerIndex = 0;
+
+        initilizeGame();
         players.get(0).setCurrentPlayer(true);
     }
 
-    public static void main(String[] args) {
-        new GameManager(args[0]).startGame();
+    public GameManager(List<Player> lobbyPlayers) {
+        this.gameBoard = new GameBoard();
+
+        List<Player> defaultPlayers = initializeDefaultPlayers();
+
+        List<Player> updatedPlayers = new ArrayList<>();
+
+        for (Player player: lobbyPlayers) {
+            for (Player defaultPlayer: defaultPlayers) {
+                if(player.getColor() == defaultPlayer.getColor()) {
+                    player.move(defaultPlayer.getX(), defaultPlayer.getY());
+                    updatedPlayers.add(player);
+                }
+            }
+        }
+
+        this.players = updatedPlayers;
+        this.cards = new ArrayList<>();
+        this.secretFile = null;
+        this.winner = null;
+        this.state = GameState.NOT_INITIALIZED;
+
+        this.currentPlayerIndex = 0;
+
+        initilizeGame();
+        players.get(0).setCurrentPlayer(true);
+    }
+
+    public void initilizeGame() {
+        //Call GameBoard
+        generateSecretFileAndCards();
+        distributeCards();
+        this.state = GameState.INITIALIZED;
     }
 
     private List<Player> initializePlayers(int count) {
+        return initializeDefaultPlayers().subList(0, count);
+    }
+
+    private List<Player> initializeDefaultPlayers() {
+        //todo Players have to be initalized based on the color they picked?
         return Arrays.asList(
                 new Player("Miss Scarlet", "Scarlet", 7, 24, PlayerColor.RED),
                 new Player("Colonel Mustard", "Mustard", 0, 17, PlayerColor.YELLOW),
@@ -49,188 +96,64 @@ public class GameManager {
                 new Player("Mr. Green", "Green", 14, 0, PlayerColor.GREEN),
                 new Player("Mrs. Peacock", "Peacock", 24, 6, PlayerColor.BLUE),
                 new Player("Professor Plum", "Plum", 24, 19, PlayerColor.PURPLE)
-        ).subList(0,count);
+        );
     }
 
-    //Generate the secret File.
-    public void generateFile() {
+    /**
+     * Generate the SecretFile containing 1 room, 1 weapon and 1 character.
+     * Add all remaining cards and store them in the instnace variable cards.
+     */
+    private void generateSecretFileAndCards() {
         cards.clear();
-        //pick room
+        List<BasicCard> rooms = BasicCard.getRooms();
+        List<BasicCard> weapons = BasicCard.getWeapons();
+        List<BasicCard> characters = BasicCard.getCharacters();
+
         Collections.shuffle(rooms);
-        Collections.shuffle(character);
+        Collections.shuffle(characters);
         Collections.shuffle(weapons);
 
-        secretFile = new SecretFile(rooms.remove(0), weapons.remove(0), character.remove(0));
+        secretFile = new SecretFile(rooms.remove(0), weapons.remove(0), characters.remove(0));
         cards.addAll(rooms);
         cards.addAll(weapons);
-        cards.addAll(character);
+        cards.addAll(characters);
     }
 
-    // Top of the Round so restarting at 0
-    public void topOfTheRound() {
-        currentPlayerIndex = 0;
-    }
-
+    /**
+     * Shuffle the remaining cards and distribute them evenly to each player.
+     */
     private void distributeCards() {
-        List<BasicCard> allCards = new ArrayList<>();
-        allCards.addAll(rooms);
-        allCards.addAll(weapons);
-        allCards.addAll(character);
+        Collections.shuffle(cards);
 
-        // Remove solution cards
-        allCards.remove(secretFile.character());
-        allCards.remove(secretFile.weapon());
-        allCards.remove(secretFile.room());
-        Collections.shuffle(allCards);
-
-        // Distribute cards evenly
         int playerIndex = 0;
-        for (BasicCard card : allCards) {
+        for (BasicCard card : cards) {
             players.get(playerIndex).addCard(card);
             playerIndex = (playerIndex + 1) % players.size();
         }
     }
 
-    public void startGame() {
-        System.out.println("Welcome to Cluedo!");
-
-        while (true) {
-            Player currentPlayer = players.get(currentPlayerIndex);
-            playRound(currentPlayer);
-
-            if (checkGameEnd()) {
-                break;
-            }
-
-            nextPlayer();
-        }
+    public int rollDice() {
+        return (int) (Math.random() * 6) + 1;
     }
 
-    private void playRound(Player player) {
-        System.out.println("\n" + player.getName() + "'s turn");
-        gameBoard.displayGameBoard(this.players);
+    /**
+     * Recursive function to perform movement on the gameboard.
+     * @param player current player who is moving
+     * @param movement List of moves the player takes
+     * @return recursive call
+     */
+    public int performMovement(Player player,  List<String> movement) {
 
-        // Roll dice and move
-        int diceRoll = rollDice();
-        System.out.println("You rolled a " + diceRoll + "!");
-
-
-        performMovement(player, diceRoll);
-
-        // Room actions
-        if (inRoom(player)) {
-            roomActions(player);
-        }
-    }
-
-    private boolean inRoom(Player player) {
-        GameBoardCell cell = gameBoard.getCell(player.getX(), player.getY());
-        return cell != null && cell.getCellType() == CellType.ROOM;
-    }
-
-    private void roomActions(Player player) {
-        System.out.println("\nYou are in the " + gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
-        System.out.println("1. Make a suggestion");
-        System.out.println("2. Make an accusation");
-        System.out.println("3. Do nothing");
-        System.out.println("Please input the number of your choice:");
-
-        int choice = 0;
-        do {
-
-
-            try {
-                choice = Integer.parseInt(getConsoleInputNextLine());
-            }catch (Exception e){
-                System.out.println("Invalid input. Try again.");
-
-            }
-        }
-        while (choice == 0);
-
-        Collections.shuffle(rooms);
-        BasicCard room = rooms.get(0);
-        Collections.shuffle(weapons);
-        BasicCard weapon = weapons.get(0);
-        Collections.shuffle(rooms);
-        BasicCard chara = character.get(0);
-
-        switch (choice) {
-            case 1 -> makeSuggestion(player);
-            case 2 -> makeAccusation(player, new SecretFile(room, weapon, chara));
-            case 3 -> {
-                return;
-            }
-            default -> {
-                System.out.println("Invalid input. Try again.");
-                roomActions(player);
-            }
-
-        }
-    }
-
-    public void makeSuggestion(Player player) {
-        System.out.println("\nMake a suggestion:");
-        System.out.println("Which suspect? " + rooms.toString());
-        String suspect = getConsoleInputNextLine();
-
-        System.out.println("Which weapon? " + weapons.toString());
-        String weapon = getConsoleInputNextLine();
-
-        System.out.println("current room: " +
-                gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
-        String room = gameBoard.getCell(player.getX(), player.getY()).getRoom().getName();
-
-        // Gather evidence
-        for (Player p : this.players) {
-            if (p != player) {
-                for (BasicCard card : p.getCards()) {
-                    if (card.equals(suspect) || card.equals(weapon) || card.equals(room)) {
-                        System.out.println(p.getName() + " shows you: " + card);
-                        return;
-                    }
-                }
-            }
-        }
-        System.out.println("No one could disprove your suggestion!");
-    }
-
-    public void makeAccusation(Player player, SecretFile acusation) {
-        System.out.println("\nMake an accusation:");
-
-
-        if (secretFile.room().equals(acusation.room()) && secretFile.character().equals(acusation.character()) && secretFile.weapon().equals(acusation.weapon())) {
-            System.out.println("Correct! " + player.getName() + " has solved the crime!");
-            player.setHasWon(true);
-        } else {
-            System.out.println("Wrong! " + player.getName() + " is out of the game!");
-            player.setActive(false);
-        }
-    }
-
-    private int performMovement(Player player, int diceRoll) {
-
-
-
-        if(diceRoll == 0){
+        if(movement.isEmpty()){
             return 0;
         }
 
-        System.out.print("Direction (W/A/S/D) or X to cancel: ");
-        String inputLine = getConsoleInputNextLine().toUpperCase();
-
-
-        String[] inputArr = inputLine.split(" ");
-
-        System.out.println(Arrays.toString(inputArr));
-
-        if(inputArr.length > diceRoll){
-            System.out.println("Invalid move!");
-            return performMovement(player, diceRoll);
+        //todo prevents from cheating.
+        if(movement.size() > diceRollS){
+            return 0;
         }
 
-        for (String input: inputArr) {
-            System.out.println(input);
+        for (String input: movement) {
 
             if (input.equalsIgnoreCase("X")) {
                 return 0;
@@ -246,71 +169,122 @@ public class GameManager {
                 case "D" -> newX++;
                 default -> {
                     System.out.println("Invalid input!");
-                    return performMovement(player, diceRoll);
+                    return 0;
                 }
             }
 
             if (gameBoard.movePlayer(player, newX, newY)) {
-                if(input != inputArr[inputArr.length-1]){
-                    diceRoll--;
+                if(input != movement.get(movement.size()-1)){
+                    movement.subList(1,movement.size()-1);
                     continue;
                 }
-                return performMovement(player, diceRoll - 1);
+                return performMovement(player, movement.subList(1,movement.size()-1));
             } else {
                 System.out.println("Invalid move!");
-                return performMovement(player, diceRoll);
+                return performMovement(player,movement);
             }
         }
         System.out.println("Invalid move!");
-        return performMovement(player, diceRoll);
+        return performMovement(player, movement);
     }
 
-    public int rollDice() {
-        return (int) (Math.random() * 6) + 1;
+    /**
+     * Suggestion happening every round. Player suggest/accuses a character with a weapon in the current room pt gather intel/evidence
+     * @param player current player
+     * @param suspect suspected character
+     * @param weapon suspected weapon
+     */
+    public void makeSuggestion(Player player,String suspect, String weapon) {
+
+        //todo implement actually suggest function with user interaction
+        BasicCard room = getCardByName(gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
+        BasicCard suspectCard = getCardByName(suspect);
+        BasicCard weaponCard = getCardByName(weapon);
+
+        // Gather evidence
+        for (Player p : this.players) {
+            if (p != player) {
+                for (BasicCard card : p.getCards()) {
+                    if (card.equals(suspectCard) || card.equals(weaponCard) || card.equals(room)) {
+                        System.out.println(p.getName() + " shows you: " + card);
+                        return;
+                    }
+                }
+            }
+        }
+        System.out.println("No one could disprove your suggestion!");
     }
 
-    private boolean checkGameEnd() {
+    /**
+     * returns a BasicCard object based on the corresponding card name if its in the current card list of the game. Otherwise null.
+     * @param cardName
+     * @return
+     */
+    public BasicCard getCardByName(String cardName){
+        for (BasicCard card : cards) {
+            if (card.getCardName().equals(cardName)) {
+                return card;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Accusation to solve the SecretFile. If correct player wins the game, otherwise he gets eliminated
+     * @param player current player
+     * @param accusation suspected secret file
+     */
+    public void makeAccusation(Player player, SecretFile accusation) {
+
+        if (secretFile.room().equals(accusation.room()) && secretFile.character().equals(accusation.character()) && secretFile.weapon().equals(accusation.weapon())) {
+            logger.info("Correct! {} has solved the crime!", player.getName());
+            player.setHasWon(true);
+            this.winner = player;
+            this.state = GameState.ENDED;
+        } else {
+            logger.info("Wrong! {} is out of the game!", player.getName());
+            player.setActive(false);
+        }
+    }
+
+    public boolean checkGameEnd() {
+        if(state == GameState.ENDED){
+            return true;
+        }
+
         for (Player p : players) {
             if (p.hasWon()) {
-                System.out.println(p.getName() + " has won!");
                 return true;
             }
         }
 
         // Check if only one player remains active
         long activePlayers = players.stream().filter(Player::isActive).count();
-        if (activePlayers <= 1) {
-            System.out.println("Game over! No one solved the crime.");
+        if (activePlayers == 1) {
             return true;
         }
 
         return false;
     }
 
+    /**
+     * Returns True if the current player is in a room, else returns False.
+     * @param player
+     * @return
+     */
+    public boolean inRoom(Player player) {
+        GameBoardCell cell = gameBoard.getCell(player.getX(), player.getY());
+        return cell != null && cell.getCellType() == CellType.ROOM;
+    }
+
+    public Player getCurrentPlayer(){
+        return this.players.get(this.currentPlayerIndex);
+    }
+
+    /**
+     * increments the currentPlayerIndex indicating the next turn
+     */
     public void nextTurn() {
-        currentPlayerIndex += 1;
-        if (currentPlayerIndex >= players.size()) {
-            topOfTheRound();
-        }
-    }
-
-    private void generateCards() {
-        rooms.add(new BasicCard("Livingroom", UUID.randomUUID(), "Its a room", "Room"));
-        rooms.add(new BasicCard("Garage", UUID.randomUUID(), "Its a room", "Room"));
-        weapons.add(new BasicCard("Knife", UUID.randomUUID(), "Its a Knife", "Weapon"));
-        weapons.add(new BasicCard("Rope", UUID.randomUUID(), "Its a Knife", "Weapon"));
-        character.add(new BasicCard("Portz", UUID.randomUUID(), "Its Portz", "Character"));
-        character.add(new BasicCard("Mrs. White", UUID.randomUUID(), "Its Mrs White", "Character"));
-    }
-
-    public void initilizeGame() {
-        //Call GameBoard
-        generateCards();
-        generateFile();
-        distributeCards();
-    }
-
-    private void nextPlayer() {
         players.get(currentPlayerIndex).setCurrentPlayer(false);
 
         do {
@@ -318,12 +292,8 @@ public class GameManager {
         } while (!players.get(currentPlayerIndex).isActive());
 
         if (currentPlayerIndex >= players.size())
-            topOfTheRound();
+            this.currentPlayerIndex = 0;
+
         players.get(currentPlayerIndex).setCurrentPlayer(true);
     }
-    private String getConsoleInputNextLine(){
-
-        return scanner.nextLine();
-    }
-
 }
