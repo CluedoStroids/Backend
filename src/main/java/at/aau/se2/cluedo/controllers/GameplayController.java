@@ -5,6 +5,7 @@ import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.services.GameService;
+import at.aau.se2.cluedo.services.LobbyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,21 +24,23 @@ public class GameplayController {
 
     @Autowired
     private LobbyService lobbyService;
+
     @Autowired
     private GameService gameService;
 
     @MessageMapping("/makeSuggestion/{lobbyId}")
     @SendTo("/topic/madeSuggestion/{lobbyId}")
-    public void makeSuggestion(@DestinationVariable String lobbyId, Player player, String suspect, String weapon) {
+    public String makeSuggestion(@DestinationVariable String lobbyId, Player player, String suspect, String weapon) {
         logger.info("User {} makes a suggestion.", player.getName());
         gameService.getGame(lobbyId).makeSuggestion(player, suspect, weapon);
+        return lobbyId;
     }
 
     @MessageMapping("/makeAccusation/{lobbyId}")
     @SendTo("/topic/madeAccusation/{lobbyId}")
-    public void makeAccusation(@DestinationVariable String lobbyId, Player player, SecretFile accusation) {
+    public String makeAccusation(@DestinationVariable String lobbyId, Player player, SecretFile accusation) {
         logger.info("User {} makes a accusation.", player.getName());
-        return lobbyService.makeAccusation(player, acusation);
+        return lobbyService.makeAccusation(player, accusation);
     }
 
     /*@MessageMapping("/performMovement/{lobbyId}")
@@ -45,20 +48,23 @@ public class GameplayController {
     public int performMovement(@DestinationVariable Player player, List<String> movement) {
         logger.info("User {} makes a move.", player.getName());
         return lobbyService.performMovement(player, movement);
-    }*/
         gameService.getGame(lobbyId).makeAccusation(player, accusation);
-    }
+
+    }*/
+
 
     @MessageMapping("/displayGameBoard/{lobbyId}")
     @SendTo("/topic/displayedGameBoard/{lobbyId}")
-    public void displayGameBoard(@DestinationVariable String lobbyId,List<Player> players) {
+    public String displayGameBoard(@DestinationVariable String lobbyId, List<Player> players) {
         gameService.getGame(lobbyId).getGameBoard().displayGameBoard(players);
+        return lobbyId;
     }
     @MessageMapping("/getGameBoard/{lobbyId}")
     @SendTo("/topic/gotGameBoard/{lobbyId}")
     public GameBoard getGameBoard(@DestinationVariable String lobbyId) {
         return gameService.getGame(lobbyId).getGameBoard();
     }
+    /*
     @MessageMapping("/performMovement/{lobbyId}")
     @SendTo("/topic/performedMovement/{lobbyId}")
     public GameStartedResponse performMovement(@DestinationVariable String lobbyId, Player player, List<String> movement) {
@@ -66,4 +72,5 @@ public class GameplayController {
         gameService.getGame(lobbyId).performMovement(player,movement);
         return null;
     }
+  */
 }

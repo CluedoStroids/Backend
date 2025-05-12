@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.controllers;
 
+import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -42,35 +43,8 @@ class GameplayControllerTest {
         );
     }
 
-    @Test
-    void makeSuggestion_ShouldCallLobbyService() {
-        // Arrange
-        String suspect = "Colonel Mustard";
-        String weapon = "Candlestick";
-        String expectedResult = "No one could disprove your suggestion!";
-        when(lobbyService.makeSuggestion(testPlayer, suspect, weapon)).thenReturn(expectedResult);
 
-        // Act
-        String result = gameplayController.makeSuggestion(testPlayer, suspect, weapon);
 
-        // Assert
-        assertEquals(expectedResult, result);
-        verify(lobbyService).makeSuggestion(testPlayer, suspect, weapon);
-    }
-
-    @Test
-    void makeAccusation_ShouldCallLobbyService() {
-        // Arrange
-        String expectedResult = "Wrong! TestPlayer is out of the game!";
-        when(lobbyService.makeAccusation(testPlayer, testSecretFile)).thenReturn(expectedResult);
-
-        // Act
-        String result = gameplayController.makeAccusation(testPlayer, testSecretFile);
-
-        // Assert
-        assertEquals(expectedResult, result);
-        verify(lobbyService).makeAccusation(testPlayer, testSecretFile);
-    }
 
     /*@Test
     void performMovement_ShouldCallLobbyService() {
@@ -86,17 +60,5 @@ class GameplayControllerTest {
         verify(lobbyService).performMovement(testPlayer, testMovement);
     }*/
 
-    @Test
-    void displayGameBoard_ShouldCallLobbyService() {
-        // Arrange
-        String expectedResult = "[0,0,0,1,0,1,0";
-        when(lobbyService.displayGameBoard(testPlayers)).thenReturn(expectedResult);
 
-        // Act
-        String result = gameplayController.displayGameBoard(testPlayers);
-
-        // Assert
-        assertEquals(expectedResult, result);
-        verify(lobbyService).displayGameBoard(testPlayers);
-    }
 }

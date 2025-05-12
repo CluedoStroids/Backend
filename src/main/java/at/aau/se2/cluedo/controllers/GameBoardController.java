@@ -47,8 +47,6 @@ public class GameBoardController {
     @MessageMapping("/performMovement/{lobbyId}")
     @SendTo("/topic/performMovement/{lobbyId}")
     public GameDataResponse performMovement( @DestinationVariable String lobbyId, PerformMoveRequest request){
-
-
         logger.info("Player {} is attempting to move {} {}", request.getPlayer().getName(), lobbyId,lobbyService.gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()));
         lobbyService.performMovement(request.getPlayer(),request.getMoves(),lobbyId);
         logger.info("Player X{} Y{} second X{} Y{}",request.getPlayer().getX(),request.getPlayer().getY(),gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()).getX(),gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()).getY());

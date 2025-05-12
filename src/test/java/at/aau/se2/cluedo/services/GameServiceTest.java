@@ -2,6 +2,7 @@ package at.aau.se2.cluedo.services;
 
 import at.aau.se2.cluedo.dto.SolveCaseRequest;
 import at.aau.se2.cluedo.models.cards.BasicCard;
+import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -100,9 +101,9 @@ class GameServiceTest {
         Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
         GameManager manager = new GameManager(List.of(player));
 
-        BasicCard correctChar = new BasicCard("Miss Scarlett", null, "", "");
-        BasicCard correctRoom = new BasicCard("Study", null, "", "");
-        BasicCard correctWeapon = new BasicCard("Candlestick", null, "", "");
+        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
         SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
         manager.setSecretFile(solution);
 
@@ -121,9 +122,9 @@ class GameServiceTest {
         Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
         GameManager manager = new GameManager(List.of(player));
 
-        BasicCard correctChar = new BasicCard("Miss Scarlett", null, "", "");
-        BasicCard correctRoom = new BasicCard("Study", null, "", "");
-        BasicCard correctWeapon = new BasicCard("Candlestick", null, "", "");
+        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
         SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
         manager.setSecretFile(solution);
 
