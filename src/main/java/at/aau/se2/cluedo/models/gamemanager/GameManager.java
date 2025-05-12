@@ -329,8 +329,6 @@ public class GameManager {
         return new ArrayList<>(players);
     }
 
-    public Player getCurrentPlayer() {
-        return players.get(currentPlayerIndex);
-    }
+
 
 }
