@@ -175,8 +175,15 @@ public class GameManager {
                 }
             }
 
-            if (gameBoard.movePlayer(player, newX, newY)) {
-                if(input != movement.get(movement.size()-1)){
+            for(Player p : players){
+                if(p.getX() == newX && p.getY() == newY){
+                    System.out.println("Invalid move!");
+                    return 0;
+                }
+            }
+
+            if (gameBoard.movePlayer(player, newX, newY,false)) {
+                if(!input.equals(movement.get(movement.size() - 1))){
                     movement.subList(1,movement.size()-1);
                     continue;
                 }

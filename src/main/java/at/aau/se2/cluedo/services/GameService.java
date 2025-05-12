@@ -49,9 +49,10 @@ public class GameService {
         }
 
         GameManager gameManager = new GameManager(players);
+
         activeGames.put(lobbyId, gameManager);
 
-        logger.info("Game started for lobby {}", lobbyId);
+        logger.info("Started new game from lobby {} with {} players", lobbyId, players.size());
         return gameManager;
     }
 
@@ -105,4 +106,5 @@ public class GameService {
     protected Map<String, GameManager> getActiveGames() {
         return activeGames;
     }
+
 }

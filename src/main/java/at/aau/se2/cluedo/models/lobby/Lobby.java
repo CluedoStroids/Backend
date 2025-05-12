@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Setter
+@Getter
+
 @Data
 @NoArgsConstructor
 public class Lobby {
@@ -67,4 +70,5 @@ public class Lobby {
                 .map(Player::getName)
                 .toList();
     }
+
 }
