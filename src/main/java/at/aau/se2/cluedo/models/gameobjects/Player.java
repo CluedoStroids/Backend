@@ -1,12 +1,16 @@
 package at.aau.se2.cluedo.models.gameobjects;
 
 import at.aau.se2.cluedo.models.cards.BasicCard;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Getter
 public class Player extends GameObject {
+
     private final String name;
     private final String character;
     private final List<BasicCard> cards;
@@ -14,9 +18,11 @@ public class Player extends GameObject {
     private int y;
     private boolean isCurrentPlayer;
     private boolean isActive = true;
+    @Setter
     private boolean hasWon = false;
     // Player UUID for Unique identification
     private UUID playerID;
+    @Setter
     private PlayerColor color;
 
 
@@ -43,28 +49,8 @@ public class Player extends GameObject {
         cards.add(card);
     }
 
-    public boolean hasCard(String card) {
+    public boolean hasCard(BasicCard card) {
         return cards.contains(card);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getCharacter() {
-        return character;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public List<BasicCard> getCards() {
-        return new ArrayList<>(cards);
     }
 
     public boolean isCurrentPlayer() {
@@ -87,15 +73,4 @@ public class Player extends GameObject {
         return hasWon;
     }
 
-    public void setHasWon(boolean hasWon) {
-        this.hasWon = hasWon;
-    }
-
-    public PlayerColor getColor() {
-        return color;
-    }
-
-    public void setColor(PlayerColor color) {
-        this.color = color;
-    }
 }
