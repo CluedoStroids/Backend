@@ -4,6 +4,7 @@ import at.aau.se2.cluedo.dto.*;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.services.GameService;
+import at.aau.se2.cluedo.services.LobbyRegistry;
 import at.aau.se2.cluedo.services.LobbyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,23 @@ public class LobbyController {
 
     private static final Logger logger = LoggerFactory.getLogger(LobbyController.class);
 
+    private static LobbyController instance = null;
+
+    public static LobbyController getInstance(){
+        if(instance == null){
+            instance = new LobbyController();
+        }
+        return instance;
+    }
+
+    public LobbyService getLobbyService() {
+        return lobbyService;
+    }
+
+    public GameService getGameService() {
+        return gameService;
+    }
+
     @Autowired
     private LobbyService lobbyService;
 
@@ -31,6 +49,7 @@ public class LobbyController {
     public String createLobby(CreateLobbyRequest request) {
         Player player = request.getPlayer();
         logger.info("Creating lobby for player: {}", player.getName());
+        lobbyService.setGameService(gameService);
         return lobbyService.createLobby(player);
     }
 
@@ -41,6 +60,7 @@ public class LobbyController {
         logger.info("Player {} joining lobby: {}", player.getName(), lobbyId);
         lobbyService.joinLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
+        lobbyService.setGameService(gameService);
         return LobbyResponse.fromLobby(lobby);
     }
 
@@ -69,4 +89,11 @@ public class LobbyController {
         boolean canStart = gameService.canStartGame(lobbyId);
         return new CanStartGameResponse(canStart);
     }
+
+    @MessageMapping("/solveCase")
+    public void solveCase(SolveCaseRequest request) {
+        logger.info("Received solve case attempt from {}", request.getUsername());
+        gameService.processSolveCase(request);
+    }
+
 }

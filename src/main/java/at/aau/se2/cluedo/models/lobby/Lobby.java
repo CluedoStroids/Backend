@@ -1,10 +1,9 @@
 package at.aau.se2.cluedo.models.lobby;
 
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Setter
-@Getter
 
 @Data
 @NoArgsConstructor
@@ -23,7 +20,8 @@ public class Lobby {
     private String id;
     private UUID hostId;
     private List<Player> players = new ArrayList<>();
-
+    private GameManager gameManager;
+    private String winnerUsername;
 
     public Lobby(String id, Player host) {
         this.id = id;
@@ -32,9 +30,10 @@ public class Lobby {
         logger.info("Created lobby: {} with host: {}", id, host.getName());
     }
 
-
+    public String getId() {
+        return id;
+    }
     public boolean addPlayer(Player player) {
-        // Check if player with same ID already exists
         if (players.stream().noneMatch(p -> p.getPlayerID().equals(player.getPlayerID()))) {
             players.add(player);
             logger.info("Player: {} joined lobby {}", player.getName(), id);
@@ -44,7 +43,6 @@ public class Lobby {
             return false;
         }
     }
-
 
     public boolean removePlayer(Player player) {
         boolean removed = players.removeIf(p -> p.getPlayerID().equals(player.getPlayerID()));
@@ -57,9 +55,17 @@ public class Lobby {
         }
     }
 
-
     public boolean hasPlayer(Player player) {
         return players.stream().anyMatch(p -> p.getPlayerID().equals(player.getPlayerID()));
+    }
+
+    public Player getPlayer(String username){
+        for (Player p: players) {
+            if(p.getName() == username){
+                return p;
+            }
+        }
+        return null;
     }
 
     public Player getHost() {

@@ -1,8 +1,12 @@
 package at.aau.se2.cluedo.services;
 
-import at.aau.se2.cluedo.models.gamemanager.GameManager;
+import at.aau.se2.cluedo.dto.SolveCaseRequest;
+import at.aau.se2.cluedo.models.cards.BasicCard;
+import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
+import at.aau.se2.cluedo.models.gameobjects.SecretFile;
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,9 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class GameServiceTest {
 
@@ -55,7 +60,7 @@ class GameServiceTest {
     void canStartGame_WithNotEnoughPlayers_ShouldReturnFalse() {
         Lobby lobbyWithTwoPlayers = new Lobby(TEST_LOBBY_ID, player1);
         lobbyWithTwoPlayers.addPlayer(player2);
-        
+
         when(lobbyService.getLobby(TEST_LOBBY_ID)).thenReturn(lobbyWithTwoPlayers);
 
         boolean result = gameService.canStartGame(TEST_LOBBY_ID);
@@ -79,14 +84,57 @@ class GameServiceTest {
     void startGameFromLobby_WithNotEnoughPlayers_ShouldThrowException() {
         Lobby lobbyWithTwoPlayers = new Lobby(TEST_LOBBY_ID, player1);
         lobbyWithTwoPlayers.addPlayer(player2);
-        
+
         when(lobbyService.getLobby(TEST_LOBBY_ID)).thenReturn(lobbyWithTwoPlayers);
 
         Exception exception = assertThrows(IllegalStateException.class, () -> {
             gameService.startGameFromLobby(TEST_LOBBY_ID);
         });
-        
+
         assertTrue(exception.getMessage().contains("Not enough players"));
         verify(lobbyService).getLobby(TEST_LOBBY_ID);
+    }
+
+    @Test
+    void testCorrectSolveCaseMarksPlayerAsWinner() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
+        SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
+        manager.setSecretFile(solution);
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
+        simpleGameService.processSolveCase(request);
+
+        Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
+        assertTrue(p.hasWon());
+        assertTrue(p.isActive());
+    }
+
+    @Test
+    void testWrongSolveCaseEliminatesPlayer() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
+        SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
+        manager.setSecretFile(solution);
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Wrong", "Wrong", "Wrong", "TestUser");
+        simpleGameService.processSolveCase(request);
+
+        Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
+        assertFalse(p.hasWon());
+        assertFalse(p.isActive());
+
     }
 }
