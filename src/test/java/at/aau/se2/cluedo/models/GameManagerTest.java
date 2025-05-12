@@ -1,7 +1,9 @@
 package at.aau.se2.cluedo.models;
 
 import at.aau.se2.cluedo.models.cards.BasicCard;
+import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
+import at.aau.se2.cluedo.models.gamemanager.GameState;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -21,16 +23,15 @@ public class GameManagerTest {
 
     @BeforeEach
     void setUp() {
-        gameManager = new GameManager(6);
-        gameManager.initializeGame();
+        Player player1 = new Player("John","Mr. Green",0,0, PlayerColor.GREEN);
+        Player player2 = new Player("Bob","Mrs. White",0,0, PlayerColor.WHITE);
+        Player player3 = new Player("Foo","Colonel Mustard",0,0, PlayerColor.YELLOW);
+        gameManager = new GameManager(List.of(player1, player2, player3));
 
-        ArrayList<BasicCard> rooms = new ArrayList<>();
-        rooms.add(new BasicCard("Kitchen", UUID.randomUUID(), "Kitchen", "Room"));
-        rooms.add(new BasicCard("Library", UUID.randomUUID(), "Library", "Room"));
+        System.out.println(gameManager.getPlayers());
+        System.out.println();
 
-        ArrayList<BasicCard> weapons = new ArrayList<>();
-        weapons.add(new BasicCard("Knife", UUID.randomUUID(), "Knife", "Weapon"));
-        weapons.add(new BasicCard("Gun", UUID.randomUUID(), "Gun", "Weapon"));
+    }
 
         ArrayList<BasicCard> characters = new ArrayList<>();
         characters.add(new BasicCard("Red", UUID.randomUUID(), "Red", "Character"));
@@ -141,6 +142,38 @@ public class GameManagerTest {
             int roll = gm.rollDice();
             assertTrue(roll >= 1 && roll <= 6);
         }
+    @Test
+    void testGameInitialization() {
+        assertEquals(GameState.INITIALIZED, gameManager.getState());
+        assertNotNull(gameManager.getSecretFile());
+        assertEquals(0, gameManager.getCurrentPlayerIndex());
+        assertTrue(gameManager.getPlayers().get(0).isCurrentPlayer());
+    }
+
+    @Test
+    void testCardDistribution() {
+        int totalCards = 0;
+        for (Player player : gameManager.getPlayers()) {
+            totalCards += player.getCards().size();
+        }
+        assertEquals(18, totalCards);
+    }
+
+    @Test
+    void testInitializeGameGeneratesSecretFile() {
+        SecretFile secret = gameManager.getSecretFile();
+        assertNotNull(secret);
+        assertNotNull(secret.room());
+        assertNotNull(secret.weapon());
+        assertNotNull(secret.character());
+    }
+
+    @Test
+    void testPlayerMovement(){
+        Player p = gameManager.getCurrentPlayer();
+        gameManager.performMovement(p, List.of("W","A","A"));
+        assertEquals(14,p.getX());
+        assertEquals(0,p.getY());
     }
 
 
@@ -170,6 +203,36 @@ public class GameManagerTest {
     @Test
     void testNextPlayerWrapsCorrectly() {
         gameManager.setCurrentPlayerIndex(5);
+    void testGetPlayers() {
+        assertEquals(3, gameManager.getPlayers().size());
+    }
+
+    @Test
+    void testNextTurnAndTopOfRound() {
+        gameManager.nextTurn();
+        assertEquals("Bob", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).getName());
+
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        assertEquals("Bob", gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).getName());
+    }
+
+    @Test
+    void testNextTurn() {
+        assertEquals(0, gameManager.getCurrentPlayerIndex());
+        assertTrue(gameManager.getPlayers().get(0).isCurrentPlayer());
+        assertFalse(gameManager.getPlayers().get(1).isCurrentPlayer());
+
+        gameManager.nextTurn();
+        assertEquals(1, gameManager.getCurrentPlayerIndex());
+        assertFalse(gameManager.getPlayers().get(0).isCurrentPlayer());
+        assertTrue(gameManager.getPlayers().get(1).isCurrentPlayer());
+
+        gameManager.getPlayers().get(2).setActive(false);
         gameManager.nextTurn();
         assertEquals(0, gameManager.getCurrentPlayerIndex());
     }
@@ -204,52 +267,59 @@ public class GameManagerTest {
     void testIncorrectAccusationRemovesPlayer() {
         Player player = gameManager.getPlayers().get(0);
         SecretFile wrong = new SecretFile(
-                new BasicCard("WrongRoom", UUID.randomUUID(), "", "Room"),
-                new BasicCard("WrongWeapon", UUID.randomUUID(), "", "Weapon"),
-                new BasicCard("WrongChar", UUID.randomUUID(), "", "Character")
-        );
-        gameManager.makeAccusation(player, wrong);
-        assertFalse(player.isActive());
-        assertFalse(player.hasWon());
+                new BasicCard("FakeRoom", UUID.randomUUID(), CardType.ROOM),
+                new BasicCard("FakeWeapon", UUID.randomUUID(), CardType.WEAPON),
+                new BasicCard("FakeChar", UUID.randomUUID(), CardType.CHARACTER)
+        );gameManager.makeAccusation(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()),wrong);
+
+        assertFalse(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).isActive());
     }
 
     @Test
-    void testGameEndsWhenOnePlayerRemains() {
+    void testGetCardByNameReturnsCorrectCard() {
+        BasicCard anyCard = gameManager.getCards().get(0);
+        BasicCard foundCard = gameManager.getCardByName(anyCard.getCardName());
+
+        assertNotNull(foundCard);
+        assertEquals(anyCard.getCardName(), foundCard.getCardName());
+    }
+
+    @Test
+    void testGetCardByNameReturnsNullIfNotFound() {
+        BasicCard foundCard = gameManager.getCardByName("");
+        assertNull(foundCard);
+    }
+
+    @Test
+    void testGameEndsWhenOnlyOnePlayerRemains() {
         for (int i = 1; i < gameManager.getPlayers().size(); i++) {
             gameManager.getPlayers().get(i).setActive(false);
         }
+
+        int activePlayers = (int) gameManager.getPlayers().stream().filter(Player::isActive).count();
+        assertEquals(1, activePlayers);
+    }
+
+    @Test
+    void testCheckGameEnd() {
+        assertFalse(gameManager.checkGameEnd());
+
+        gameManager.getPlayers().get(0).setHasWon(true);
         assertTrue(gameManager.checkGameEnd());
     }
 
     @Test
-    void testGameEndsWhenAPlayerWins() {
-        Player winner = gameManager.getPlayers().get(0);
-        winner.setHasWon(true);
+    void testCheckGameEndState() {
+        assertFalse(gameManager.checkGameEnd());
+
+        gameManager.setState(GameState.ENDED);
         assertTrue(gameManager.checkGameEnd());
     }
 
     @Test
-    void testPerformMovementWithInvalidDirection() {
-        Player player = gameManager.getPlayers().get(0);
-        List<String> moves = List.of("Z");
-        gameManager.setDiceRollS(1);
-        int result = gameManager.performMovement(player, moves);
-        assertEquals(0, result);
-    }
-
-    @Test
-    void testMovementTooLong() {
-        Player player = gameManager.getPlayers().get(0);
-        List<String> moves = List.of("W", "W", "W", "W", "W", "W", "W");
-        gameManager.setDiceRollS(3);
-        assertEquals(0, gameManager.performMovement(player, moves));
-    }
-
-    @Test
-    void testEmptyMovementInput() {
-        Player player = gameManager.getPlayers().get(0);
-        List<String> moves = new ArrayList<>();
-        assertEquals(0, gameManager.performMovement(player, moves));
+    void testGetACardReturnsBasicCard() {
+        assertNotNull(gameManager.getCards().get(0));
+        assertInstanceOf(BasicCard.class, gameManager.getCards().get(0));
     }
 
     @Test

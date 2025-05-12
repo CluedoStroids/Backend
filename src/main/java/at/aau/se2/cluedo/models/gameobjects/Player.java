@@ -10,6 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class Player extends GameObject {
+
     private final String name;
     private final String character;
     private final List<BasicCard> cards;
@@ -25,6 +26,7 @@ public class Player extends GameObject {
     private boolean hasWon = false;
     // Player UUID for Unique identification
     private UUID playerID;
+    @Setter
     private PlayerColor color;
 
 
@@ -47,7 +49,7 @@ public class Player extends GameObject {
         cards.add(card);
     }
 
-    public boolean hasCard(String card) {
+    public boolean hasCard(BasicCard card) {
         return cards.contains(card);
     }
 }
