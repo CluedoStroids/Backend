@@ -1,7 +1,9 @@
 package at.aau.se2.cluedo.services;
 
+import at.aau.se2.cluedo.dto.SolveCaseRequest;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,13 +21,12 @@ public class GameService {
     private static final int MAX_PLAYERS = 6;
 
     private final LobbyService lobbyService;
-    private final Map<String, GameManager> activeGames = new HashMap<>();
+    protected final Map<String, GameManager> activeGames = new HashMap<>();
 
     @Autowired
     public GameService(LobbyService lobbyService) {
         this.lobbyService = lobbyService;
     }
-
 
     public GameManager startGameFromLobby(String lobbyId) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
@@ -38,25 +39,21 @@ public class GameService {
         List<Player> players = lobby.getPlayers();
 
         if (players.size() < MIN_PLAYERS) {
-            logger.error("Failed to start game: Not enough players in lobby {}. Required: {}, Found: {}",
-                    lobbyId, MIN_PLAYERS, players.size());
-            throw new IllegalStateException("Not enough players to start a game. Minimum required: " + MIN_PLAYERS);
+            logger.error("Failed to start game: Not enough players in lobby {}", lobbyId);
+            throw new IllegalStateException("Not enough players to start a game.");
         }
 
         if (players.size() > MAX_PLAYERS) {
-            logger.warn("Too many players in lobby {}. Maximum: {}, Found: {}. Using first {} players.",
-                    lobbyId, MAX_PLAYERS, players.size(), MAX_PLAYERS);
+            logger.warn("Too many players in lobby {}. Truncating to max {}", lobbyId, MAX_PLAYERS);
             players = players.subList(0, MAX_PLAYERS);
         }
 
         GameManager gameManager = new GameManager(players);
-
         activeGames.put(lobbyId, gameManager);
 
-        logger.info("Started new game from lobby {} with {} players", lobbyId, players.size());
+        logger.info("Game started for lobby {}", lobbyId);
         return gameManager;
     }
-
 
     public GameManager getGame(String lobbyId) {
         return activeGames.get(lobbyId);
@@ -65,5 +62,47 @@ public class GameService {
     public boolean canStartGame(String lobbyId) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         return lobby != null && lobby.getPlayers().size() >= MIN_PLAYERS;
+    }
+
+    public void processSolveCase(SolveCaseRequest request) {
+        GameManager game = activeGames.get(request.getLobbyId());
+        if (game == null) {
+            logger.warn("No active game found for lobby ID: {}", request.getLobbyId());
+            return;
+        }
+
+        Player player = game.getPlayerList().stream()
+                .filter(p -> p.getName().equalsIgnoreCase(request.getUsername()))
+                .findFirst()
+                .orElse(null);
+
+        if (player == null) {
+            logger.warn("Player {} not found in game.", request.getUsername());
+            return;
+        }
+
+        if (!player.isActive()) {
+            logger.info("Player {} is already eliminated.", player.getName());
+            return;
+        }
+
+        SecretFile solution = game.getSecretFile();
+
+        boolean isCorrect = solution.character().getCardName().equalsIgnoreCase(request.getSuspect()) &&
+                solution.room().getCardName().equalsIgnoreCase(request.getRoom()) &&
+                solution.weapon().getCardName().equalsIgnoreCase(request.getWeapon());
+
+        if (isCorrect) {
+            player.setHasWon(true);
+            logger.info("Player {} made a correct accusation and won!", player.getName());
+        } else {
+            player.setActive(false);
+            logger.info("Player {} guessed wrong and has been eliminated.", player.getName());
+        }
+    }
+
+    // For test access only
+    protected Map<String, GameManager> getActiveGames() {
+        return activeGames;
     }
 }
