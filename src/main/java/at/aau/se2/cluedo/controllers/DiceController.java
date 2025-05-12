@@ -26,4 +26,6 @@ public class DiceController {
         DiceResult result = new DiceResult(diceOneValue, diceTwoValue);
         messagingTemplate.convertAndSend("/topic/diceResult", result);
     }
+
+
 }
