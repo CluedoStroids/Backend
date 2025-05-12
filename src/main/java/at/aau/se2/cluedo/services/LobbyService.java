@@ -88,6 +88,7 @@ public class LobbyService {
 
         int x = gameService.getGame(lobbId).getPlayer(player.getName()).getX();
         int y = gameService.getGame(lobbId).getPlayer(player.getName()).getY();
+
         for (String move : movement) {
             switch (move) {
                 case "W":

@@ -83,7 +83,14 @@ public class GameManager {
         distributeCards();
         this.state = GameState.INITIALIZED;
     }
-
+    public Player getPlayer(String username){
+        for (Player p: players) {
+            if(p.getName().equals(username)){
+                return p;
+            }
+        }
+        return null;
+    }
     private List<Player> initializePlayers(int count) {
         return initializeDefaultPlayers().subList(0, count);
     }
