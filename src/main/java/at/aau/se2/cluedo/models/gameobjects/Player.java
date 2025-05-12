@@ -7,8 +7,8 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 @Getter
+@Setter
 public class Player extends GameObject {
 
     private final String name;
@@ -18,7 +18,11 @@ public class Player extends GameObject {
     private int y;
     private boolean isCurrentPlayer;
     private boolean isActive = true;
-    @Setter
+
+    public boolean hasWon() {
+        return hasWon;
+    }
+
     private boolean hasWon = false;
     // Player UUID for Unique identification
     private UUID playerID;
@@ -36,10 +40,6 @@ public class Player extends GameObject {
         this.color = color;
     }
 
-    public UUID getPlayerID() {
-        return playerID;
-    }
-
     public void move(int x, int y) {
         this.x = x;
         this.y = y;
@@ -52,25 +52,4 @@ public class Player extends GameObject {
     public boolean hasCard(BasicCard card) {
         return cards.contains(card);
     }
-
-    public boolean isCurrentPlayer() {
-        return isCurrentPlayer;
-    }
-
-    public void setCurrentPlayer(boolean isCurrentPlayer) {
-        this.isCurrentPlayer = isCurrentPlayer;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
-    }
-
-    public boolean hasWon() {
-        return hasWon;
-    }
-
 }
