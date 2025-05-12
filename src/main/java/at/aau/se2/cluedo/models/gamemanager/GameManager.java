@@ -1,5 +1,7 @@
 package at.aau.se2.cluedo.models.gamemanager;
 
+import java.util.List;
+import java.util.ArrayList;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
@@ -181,8 +183,15 @@ public class GameManager {
                 }
             }
 
-            if (gameBoard.movePlayer(player, newX, newY)) {
-                if(input != movement.get(movement.size()-1)){
+            for(Player p : players){
+                if(p.getX() == newX && p.getY() == newY){
+                    System.out.println("Invalid move!");
+                    return 0;
+                }
+            }
+
+            if (gameBoard.movePlayer(player, newX, newY,false)) {
+                if(!input.equals(movement.get(movement.size() - 1))){
                     movement.subList(1,movement.size()-1);
                     continue;
                 }
@@ -304,4 +313,37 @@ public class GameManager {
 
         players.get(currentPlayerIndex).setCurrentPlayer(true);
     }
+    /**
+     * This method is a placeholder for getting input in the WebSocket version.
+     * In a real implementation, this would be replaced with WebSocket communication.
+     */
+    private String getConsoleInputNextLine() {
+        // In a WebSocket environment, this would be handled differently
+        // For now, just return a default value
+        return "3"; // Default to "do nothing" for room actions
+    }
+
+    public void eliminateCurrentPlayer() {
+        Player current = getCurrentPlayer();
+        current.setActive(false);
+    }
+
+    public String getCorrectSuspect() {
+        return secretFile.character().getCardName();
+    }
+
+    public String getCorrectRoom() {
+        return secretFile.room().getCardName();
+    }
+
+    public String getCorrectWeapon() {
+        return secretFile.weapon().getCardName();
+    }
+
+    public List<Player> getPlayerList() {
+        return new ArrayList<>(players);
+    }
+
+
+
 }

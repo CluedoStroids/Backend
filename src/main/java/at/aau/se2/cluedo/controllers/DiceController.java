@@ -29,4 +29,6 @@ public class DiceController {
         messagingTemplate.convertAndSend("/topic/diceResult", result);
         logger.info("Hey würfel mich");
     }
+
+
 }

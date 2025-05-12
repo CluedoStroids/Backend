@@ -89,4 +89,11 @@ public class LobbyController {
         boolean canStart = gameService.canStartGame(lobbyId);
         return new CanStartGameResponse(canStart);
     }
+
+    @MessageMapping("/solveCase")
+    public void solveCase(SolveCaseRequest request) {
+        logger.info("Received solve case attempt from {}", request.getUsername());
+        gameService.processSolveCase(request);
+    }
+
 }
