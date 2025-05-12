@@ -109,20 +109,30 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
+            <plugins>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version> <!-- or any compatible version -->
+        <configuration>
+            <source>23</source>
+            <target>23</target>
+            <compilerArgs>
+                <arg>--enable-preview</arg>
+            </compilerArgs>
+        </configuration>
+    </plugin>
 
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>23</source>
-                    <target>23</target>
-                    <compilerArgs>--enable-preview</compilerArgs>
-                </configuration>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.1.2</version>
+        <configuration>
+            <argLine>--enable-preview</argLine>
+        </configuration>
+    </plugin>
+</plugins>
 
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
-
-            </plugin>
         </plugins>
     </build>
 </project>
