@@ -52,6 +52,11 @@ public class GameManagerTest {
         setUp();
         assertEquals(player1,gameManager.getPlayer(player1.getName()));
     }
+    @Test
+    void testGetNullPlayer(){
+        setUp();
+        assertNull(gameManager.getPlayer("House"));
+    }
 
     @Test
     void testConstructorWithLobbyPlayers() {
@@ -326,10 +331,43 @@ public class GameManagerTest {
         assertEquals(2, gameManager.getCurrentPlayerIndex());
     }
     @Test
+    void testTopOftheRound(){
+        setUp();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+
+        assertEquals(0,gameManager.getCurrentPlayerIndex());
+    }
+
+    @Test
+    void testEliminatePlayer()
+    {
+        gameManager.eliminateCurrentPlayer();
+        assertFalse(gameManager.getPlayer(player1.getName()).isActive());
+    }
+    @Test
     void testMakeSuggestion(){
         Player player = gameManager.getPlayers().get(1);
         player.move(2,2);
         assertTrue(gameManager.makeSuggestion(player,"Mr. White","Knife"));
 
+    }
+
+    @Test
+    void testGetCorrectSuspect(){
+        setUp();
+        assertEquals(gameManager.getSecretFile().character(),gameManager.getCorrectSuspect());
+    }
+    @Test
+    void testGetCorrectRoom(){
+        setUp();
+        assertEquals(gameManager.getSecretFile().room(),gameManager.getCorrectRoom());
+    }
+
+    @Test
+    void testGetCorrectWeapon(){
+        setUp();
+        assertEquals(gameManager.getSecretFile().weapon(),gameManager.getCorrectWeapon());
     }
 }
