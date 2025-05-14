@@ -2,13 +2,10 @@ package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.DiceResult;
 import at.aau.se2.cluedo.models.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.security.SecureRandom;
 
 @Controller
 public class DiceController {

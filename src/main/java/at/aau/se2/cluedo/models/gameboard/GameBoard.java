@@ -1,9 +1,9 @@
 package at.aau.se2.cluedo.models.gameboard;
 
 
-import at.aau.se2.cluedo.models.gamemanager.GameManager;
+
 import at.aau.se2.cluedo.models.gameobjects.Player;
-import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;

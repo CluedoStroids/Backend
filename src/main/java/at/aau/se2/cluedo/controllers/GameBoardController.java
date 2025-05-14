@@ -7,11 +7,11 @@ import at.aau.se2.cluedo.dto.StartGameRequest;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
-import at.aau.se2.cluedo.models.lobby.Lobby;
+
 import at.aau.se2.cluedo.services.GameService;
 import at.aau.se2.cluedo.services.LobbyService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -19,7 +19,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 @Controller
@@ -61,13 +61,7 @@ public class GameBoardController {
     public boolean isWall(@DestinationVariable String lobbyId, IsWallRequest request){
 
         CellType temp = gameService.getGame(lobbyId).getGameBoard().getCell(request.x,request.y).getCellType();
-        if(temp.equals(CellType.ROOM)){
-
-            return true;
-
-        }
-
-        return false;
+        return temp.equals(CellType.ROOM);
 
 
     }
