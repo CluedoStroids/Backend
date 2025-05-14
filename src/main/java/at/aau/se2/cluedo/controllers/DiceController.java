@@ -14,7 +14,6 @@ import java.security.SecureRandom;
 public class DiceController {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final SecureRandom random = new SecureRandom();
 
     public DiceController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
