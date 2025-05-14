@@ -357,17 +357,17 @@ public class GameManagerTest {
     @Test
     void testGetCorrectSuspect(){
         setUp();
-        assertEquals(gameManager.getSecretFile().character(),gameManager.getCorrectSuspect());
+        assertEquals(gameManager.getSecretFile().character().getCardName(),gameManager.getCorrectSuspect());
     }
     @Test
     void testGetCorrectRoom(){
         setUp();
-        assertEquals(gameManager.getSecretFile().room(),gameManager.getCorrectRoom());
+        assertEquals(gameManager.getSecretFile().room().getCardName(),gameManager.getCorrectRoom());
     }
 
     @Test
     void testGetCorrectWeapon(){
         setUp();
-        assertEquals(gameManager.getSecretFile().weapon(),gameManager.getCorrectWeapon());
+        assertEquals(gameManager.getSecretFile().weapon().getCardName(),gameManager.getCorrectWeapon());
     }
 }
