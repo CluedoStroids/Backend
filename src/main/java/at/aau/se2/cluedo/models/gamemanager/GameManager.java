@@ -2,6 +2,8 @@ package at.aau.se2.cluedo.models.gamemanager;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import at.aau.se2.cluedo.models.Random;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
@@ -142,7 +144,7 @@ public class GameManager {
     }
 
     public int rollDice() {
-        return (int) (Math.random() * 6) + 1;
+        return Random.rand(6,1);
     }
 
     /**

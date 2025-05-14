@@ -34,6 +34,7 @@ public class GameBoard {
         initializeSecretPassages();
     }
 
+
     private void initializeGameBoard() {
         // 1. Initialize everything as hallways
         for (int x = 0; x < WIDTH; x++) {
