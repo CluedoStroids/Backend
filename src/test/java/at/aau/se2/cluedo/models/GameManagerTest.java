@@ -48,7 +48,7 @@ public class GameManagerTest {
         assertTrue(gm.getPlayers().get(0).isCurrentPlayer());
     }
     @Test
-    public void testGetPlayer(){
+    void testGetPlayer(){
         setUp();
         assertEquals(player1,gameManager.getPlayer(player1.getName()));
     }
@@ -311,7 +311,7 @@ public class GameManagerTest {
     }
 
     @Test
-    public void testSkipInactivePlayers() {
+    void testSkipInactivePlayers() {
         // Make player 1 inactive
         gameManager.getPlayers().get(1).setActive(false);
 
@@ -326,7 +326,7 @@ public class GameManagerTest {
         assertEquals(2, gameManager.getCurrentPlayerIndex());
     }
     @Test
-    public void testMakeSuggestion(){
+    void testMakeSuggestion(){
         Player player = gameManager.getPlayers().get(1);
         player.move(2,2);
         gameManager.makeSuggestion(player,"Mr. White","Knife");
