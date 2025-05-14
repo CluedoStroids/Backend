@@ -48,7 +48,7 @@ public class LobbyController {
     @SendTo("/topic/lobbyCreated")
     public String createLobby(CreateLobbyRequest request) {
         Player player = request.getPlayer();
-        logger.info("Creating lobby for player: {}", player.getName());
+        //logger.info("Creating lobby for player: {}", player.getName());
         lobbyService.setGameService(gameService);
         return lobbyService.createLobby(player);
     }
@@ -57,7 +57,7 @@ public class LobbyController {
     @SendTo("/topic/lobby/{lobbyId}")
     public LobbyResponse joinLobby(@DestinationVariable String lobbyId, JoinLobbyRequest request) {
         Player player = request.getPlayer();
-        logger.info("Player {} joining lobby: {}", player.getName(), lobbyId);
+        //logger.info("Player {} joining lobby: {}", player.getName(), lobbyId);
         lobbyService.joinLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
         lobbyService.setGameService(gameService);
@@ -68,7 +68,7 @@ public class LobbyController {
     @SendTo("/topic/lobby/{lobbyId}")
     public LobbyResponse leaveLobby(@DestinationVariable String lobbyId, LeaveLobbyRequest request) {
         Player player = request.getPlayer();
-        logger.info("Player {} leaving lobby: {}", player.getName(), lobbyId);
+        //logger.info("Player {} leaving lobby: {}", player.getName(), lobbyId);
         lobbyService.leaveLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
         return LobbyResponse.fromLobby(lobby);
@@ -77,7 +77,7 @@ public class LobbyController {
     @MessageMapping("/getActiveLobbies")
     @SendTo("/topic/activeLobbies")
     public ActiveLobbiesResponse getActiveLobbies(GetActiveLobbiesRequest request) {
-        logger.info("Getting all active lobbies");
+        //logger.info("Getting all active lobbies");
         List<Lobby> activeLobbies = lobbyService.getAllActiveLobbies();
         return ActiveLobbiesResponse.fromLobbies(activeLobbies);
     }
@@ -85,14 +85,14 @@ public class LobbyController {
     @MessageMapping("/canStartGame/{lobbyId}")
     @SendTo("/topic/canStartGame/{lobbyId}")
     public CanStartGameResponse canStartGame(@DestinationVariable String lobbyId) {
-        logger.info("Checking if lobby {} can start a game", lobbyId);
+        //logger.info("Checking if lobby {} can start a game", lobbyId);
         boolean canStart = gameService.canStartGame(lobbyId);
         return new CanStartGameResponse(canStart);
     }
 
     @MessageMapping("/solveCase")
     public void solveCase(SolveCaseRequest request) {
-        logger.info("Received solve case attempt from {}", request.getUsername());
+        //logger.info("Received solve case attempt from {}", request.getUsername());
         gameService.processSolveCase(request);
     }
 
