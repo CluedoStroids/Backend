@@ -212,7 +212,7 @@ public class GameManager {
      * @param suspect suspected character
      * @param weapon suspected weapon
      */
-    public void makeSuggestion(Player player,String suspect, String weapon) {
+    public boolean makeSuggestion(Player player,String suspect, String weapon) {
 
         //todo implement actually suggest function with user interaction
         BasicCard room = getCardByName(gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
@@ -225,12 +225,13 @@ public class GameManager {
                 for (BasicCard card : p.getCards()) {
                     if (card.cardEquals(suspectCard) || card.cardEquals(weaponCard) || card.cardEquals(room)) {
                         System.out.println(p.getName() + " shows you: " + card);
-                        return;
+                        return true;
                     }
                 }
             }
         }
         System.out.println("No one could disprove your suggestion!");
+        return false;
     }
 
     /**
