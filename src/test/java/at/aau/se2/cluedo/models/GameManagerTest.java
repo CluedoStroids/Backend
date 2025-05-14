@@ -336,8 +336,9 @@ public class GameManagerTest {
         gameManager.nextTurn();
         gameManager.nextTurn();
         gameManager.nextTurn();
+        gameManager.nextTurn();
 
-        assertEquals(0,gameManager.getCurrentPlayerIndex());
+        assertEquals(1,gameManager.getCurrentPlayerIndex());
     }
 
     @Test
