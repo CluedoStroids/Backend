@@ -20,10 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameManagerTest {
 
     private GameManager gameManager;
+    Player player1;
 
     @BeforeEach
     void setUp() {
-        Player player1 = new Player("John","Mr. Green",0,0, PlayerColor.GREEN);
+        player1 = new Player("John","Mr. Green",0,0, PlayerColor.GREEN);
         Player player2 = new Player("Bob","Mrs. White",0,0, PlayerColor.WHITE);
         Player player3 = new Player("Foo","Colonel Mustard",0,0, PlayerColor.YELLOW);
         gameManager = new GameManager(List.of(player1, player2, player3));
@@ -45,6 +46,11 @@ public class GameManagerTest {
         assertEquals(3, gm.getPlayers().size());
         assertEquals(0, gm.getCurrentPlayerIndex());
         assertTrue(gm.getPlayers().get(0).isCurrentPlayer());
+    }
+    @Test
+    public void testGetPlayer(){
+        setUp();
+        assertEquals(player1,gameManager.getPlayer(player1.getName()));
     }
 
     @Test
@@ -183,7 +189,11 @@ public class GameManagerTest {
         }
     }
 
-
+    @Test
+    void testInRoomFalse(){
+        setUp();
+        assertFalse(gameManager.inRoom(player1));
+    }
 
     @Test
     void testNextTurnAndTopOfRound() {

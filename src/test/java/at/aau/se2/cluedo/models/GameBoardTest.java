@@ -26,6 +26,7 @@ public class GameBoardTest {
     }
 
 
+
     @Test
     public void testInitialization() {
         // Check that the board is properly initialized
