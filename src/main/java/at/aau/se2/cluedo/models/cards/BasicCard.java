@@ -1,7 +1,6 @@
 package at.aau.se2.cluedo.models.cards;
 
 import at.aau.se2.cluedo.models.gameobjects.GameObject;
-import jakarta.persistence.Basic;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -23,7 +22,8 @@ public class BasicCard extends GameObject {
         this.type = type;
     }
 
-    public boolean equals(BasicCard card){
+
+    public boolean cardEquals(BasicCard card){
         if(card == null){
             return false;
         }

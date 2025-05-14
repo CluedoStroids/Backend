@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class GameController {
 
-    private static final Logger logger = LoggerFactory.getLogger(GameController.class);
+
 
     @Autowired
     private GameService gameService;
@@ -32,7 +32,7 @@ public class GameController {
     @SendTo("/topic/gameStarted/{lobbyId}")
     public GameStartedResponse startGame(@DestinationVariable String lobbyId, StartGameRequest request) {
         Player initiator = request.getPlayer();
-        //logger.info("Player {} is attempting to start a game from lobby {}", initiator.getName(), lobbyId);
+
 
         Lobby lobby = lobbyService.getLobby(lobbyId);
 
@@ -42,29 +42,27 @@ public class GameController {
                 .orElse(null);
 
         if (lobbyPlayer == null) {
-            //logger.warn("Player {} attempted to start a game but is not in lobby {}",initiator.getName(), lobbyId);
+
             throw new IllegalStateException("Player not found in lobby");
         }
 
         if (!lobby.getHostId().equals(lobbyPlayer.getPlayerID())) {
-            //logger.warn("Player {} attempted to start a game but is not the host of lobby {}",initiator.getName(), lobbyId;);
+
             throw new IllegalStateException("Only the host can start the game");
         }
 
         if (!gameService.canStartGame(lobbyId)) {
-            //logger.warn("Not enough players in lobby {} to start a game", lobbyId);
+
             throw new IllegalStateException("Not enough players to start a game. Minimum required: 3");
         }
 
         try {
             GameManager gameManager = gameService.startGameFromLobby(lobbyId);
-            //logger.info("Game started successfully from lobby {}", lobbyId);
 
             List<Player> gamePlayers = gameManager.getPlayers();
 
             return (new GameStartedResponse(lobbyId, gamePlayers));
         } catch (Exception e) {
-            //logger.error("Failed to start game from lobby {}: {}", lobbyId, e.getMessage());
             throw new IllegalStateException("Failed to start game: " + e.getMessage());
         }
     }

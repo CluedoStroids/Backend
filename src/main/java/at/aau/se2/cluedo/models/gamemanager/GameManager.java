@@ -15,7 +15,6 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.SecureRandom;
 import java.util.*;
 
 
@@ -222,7 +221,7 @@ public class GameManager {
         for (Player p : this.players) {
             if (p != player) {
                 for (BasicCard card : p.getCards()) {
-                    if (card.equals(suspectCard) || card.equals(weaponCard) || card.equals(room)) {
+                    if (card.cardEquals(suspectCard) || card.cardEquals(weaponCard) || card.cardEquals(room)) {
                         System.out.println(p.getName() + " shows you: " + card);
                         return;
                     }
@@ -253,7 +252,7 @@ public class GameManager {
      */
     public void makeAccusation(Player player, SecretFile accusation) {
 
-        if (secretFile.room().equals(accusation.room()) && secretFile.character().equals(accusation.character()) && secretFile.weapon().equals(accusation.weapon())) {
+        if (secretFile.room().cardEquals(accusation.room()) && secretFile.character().cardEquals(accusation.character()) && secretFile.weapon().cardEquals(accusation.weapon())) {
             logger.info("Correct! {} has solved the crime!", player.getName());
             player.setHasWon(true);
             this.winner = player;

@@ -36,23 +36,23 @@ public class BasicCardTest {
     }
 
     @Test
-    void testCardEquals() {
+    void testCardCardEquals() {
         // Same name should be equal
-        assertTrue(card1.equals(card2));
+        assertTrue(card1.cardEquals(card2));
 
         // Different name should not be equal
-        assertFalse(card1.equals(card3));
+        assertFalse(card1.cardEquals(card3));
     }
 
     @Test
     @Disabled
     void testCardNotEqualToNull() {
-        assertFalse(card1.equals(null));
+        assertFalse(card1.cardEquals(null));
     }
 
     @Test
     void testDifferentValuesButSameNameAreEqual() {
         BasicCard cardWithDifferentValue = new BasicCard("Knife", UUID.randomUUID(),  CardType.WEAPON);
-        assertTrue(card1.equals(cardWithDifferentValue));
+        assertTrue(card1.cardEquals(cardWithDifferentValue));
     }
 }

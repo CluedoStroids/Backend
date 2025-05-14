@@ -20,7 +20,6 @@ import java.util.List;
 @Controller
 public class GameplayController {
 
-    private static final Logger logger = LoggerFactory.getLogger(GameplayController.class);
 
     @Autowired
     private LobbyService lobbyService;
@@ -31,7 +30,7 @@ public class GameplayController {
     @MessageMapping("/makeSuggestion/{lobbyId}")
     @SendTo("/topic/madeSuggestion/{lobbyId}")
     public String makeSuggestion(@DestinationVariable String lobbyId, Player player, String suspect, String weapon) {
-        //logger.info("User {} makes a suggestion.", player.getName());
+
         gameService.getGame(lobbyId).makeSuggestion(player, suspect, weapon);
         return lobbyId;
     }
@@ -39,7 +38,6 @@ public class GameplayController {
     @MessageMapping("/makeAccusation/{lobbyId}")
     @SendTo("/topic/madeAccusation/{lobbyId}")
     public String makeAccusation(@DestinationVariable String lobbyId, Player player, SecretFile accusation) {
-        //logger.info("User {} makes a accusation.", player.getName());
         return lobbyService.makeAccusation(player, accusation);
     }
 

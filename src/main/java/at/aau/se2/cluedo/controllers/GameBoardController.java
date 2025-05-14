@@ -25,7 +25,6 @@ import java.util.List;
 @Controller
 public class GameBoardController {
 
-    private static final Logger logger = LoggerFactory.getLogger(GameBoardController.class);
     private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
@@ -75,10 +74,6 @@ public class GameBoardController {
     @MessageMapping("/getGameData/{lobbyId}")
     @SendTo("/topic/gameData/{lobbyId}")
     public GameDataResponse gameData(@DestinationVariable String lobbyId, StartGameRequest request) {
-        Player initiator = request.getPlayer();
-
-
-        Lobby lobby = lobbyService.getLobby(lobbyId);
 
 
         try {

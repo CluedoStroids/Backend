@@ -12,7 +12,7 @@ import java.util.Random;
 
 @Controller
 public class DiceController {
-    private static final Logger logger = LoggerFactory.getLogger(GameController.class);
+
     private final SimpMessagingTemplate messagingTemplate;
     private final SecureRandom random = new SecureRandom();
 
@@ -27,7 +27,7 @@ public class DiceController {
 
         DiceResult result = new DiceResult(diceOneValue, diceTwoValue);
         messagingTemplate.convertAndSend("/topic/diceResult", result);
-        logger.info("Hey würfel mich");
+
     }
 
 
