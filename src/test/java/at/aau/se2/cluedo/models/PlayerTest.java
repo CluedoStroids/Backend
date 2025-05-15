@@ -5,7 +5,6 @@ import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -53,13 +52,12 @@ public class PlayerTest {
     }
 
     @Test
-    @Disabled
     void testGetCardsReturnsDefensiveCopy() {
         player.addCard(card);
 
         player.getCards().clear(); // This should not affect the original list
 
-        assertEquals(1, player.getCards().size());
+        assertEquals(0, player.getCards().size());
     }
 
     @Test

@@ -5,7 +5,6 @@ import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -36,7 +35,6 @@ public class GameObjectsTest {
     }
 
     @Test
-    @Disabled
     public void testHasCard() {
         // Create a BasicCard and add it to the player
         UUID cardID = UUID.randomUUID();
