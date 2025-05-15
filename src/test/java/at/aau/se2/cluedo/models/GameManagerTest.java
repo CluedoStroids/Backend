@@ -351,7 +351,7 @@ public class GameManagerTest {
     void testMakeSuggestion(){
         Player player = gameManager.getPlayers().get(1);
         player.move(2,2);
-        assertTrue(gameManager.makeSuggestion(player,"Mr. White","Knife"));
+        assertTrue(gameManager.makeSuggestion(player,"Mrs. White","Knife"));
     }
 
     @Test
