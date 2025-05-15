@@ -2,19 +2,17 @@ package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.ActiveLobbiesResponse;
 import at.aau.se2.cluedo.dto.GetActiveLobbiesRequest;
+import at.aau.se2.cluedo.dto.SolveCaseRequest;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.lobby.Lobby;
+import at.aau.se2.cluedo.services.GameService;
 import at.aau.se2.cluedo.services.LobbyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import at.aau.se2.cluedo.services.GameService;
-import at.aau.se2.cluedo.dto.SolveCaseRequest;
-
-
 
 import java.util.Arrays;
 import java.util.List;
