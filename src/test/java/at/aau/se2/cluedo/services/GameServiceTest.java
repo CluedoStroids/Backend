@@ -95,6 +95,69 @@ class GameServiceTest {
         verify(lobbyService).getLobby(TEST_LOBBY_ID);
     }
 
+
+    @Test
+    void testStartGameThrowsWhenLobbyNotFound() {
+        GameService service = new GameService(new LobbyService(new LobbyRegistry()));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            service.startGameFromLobby("non-existent");
+        });
+
+        assertEquals("Lobby not found", exception.getMessage());
+    }
+
+    @Test
+    void startGameFromLobby_WithTooManyPlayers_ShouldTruncate() {
+        Player p1 = new Player("P1", "Char1", 0, 0, PlayerColor.RED);
+        Player p2 = new Player("P2", "Char2", 0, 0, PlayerColor.BLUE);
+        Player p3 = new Player("P3", "Char3", 0, 0, PlayerColor.GREEN);
+        Player p4 = new Player("P4", "Char4", 0, 0, PlayerColor.YELLOW);
+        Player p5 = new Player("P5", "Char5", 0, 0, PlayerColor.PURPLE);
+        Player p6 = new Player("P6", "Char6", 0, 0, PlayerColor.WHITE);
+        Player p7 = new Player("P7", "Char7", 0, 0, PlayerColor.RED); // doppelte Farbe nur für Test okay
+
+        Lobby overfilledLobby = new Lobby("overfilled-lobby", p1);
+        overfilledLobby.addPlayer(p2);
+        overfilledLobby.addPlayer(p3);
+        overfilledLobby.addPlayer(p4);
+        overfilledLobby.addPlayer(p5);
+        overfilledLobby.addPlayer(p6);
+        overfilledLobby.addPlayer(p7);
+
+        when(lobbyService.getLobby("overfilled-lobby")).thenReturn(overfilledLobby);
+
+        GameManager gameManager = gameService.startGameFromLobby("overfilled-lobby");
+
+        assertNotNull(gameManager);
+        assertEquals(6, gameManager.getPlayers().size(), "Player list should be truncated to MAX_PLAYERS = 6");
+    }
+
+
+    @Test
+    void canStartGame_LobbyIsNull_ShouldReturnFalse() {
+        when(lobbyService.getLobby("nonexistent-lobby")).thenReturn(null);
+
+        boolean result = gameService.canStartGame("nonexistent-lobby");
+
+        assertFalse(result);
+        verify(lobbyService).getLobby("nonexistent-lobby");
+    }
+
+    @Test
+    void canStartGame_NotEnoughPlayers_ShouldReturnFalse() {
+        Lobby smallLobby = new Lobby("small-lobby", player1);
+        smallLobby.addPlayer(player2);
+
+        when(lobbyService.getLobby("small-lobby")).thenReturn(smallLobby);
+
+        boolean result = gameService.canStartGame("small-lobby");
+
+        assertFalse(result);
+        verify(lobbyService).getLobby("small-lobby");
+    }
+
+
     @Test
     void testCorrectSolveCaseMarksPlayerAsWinner() {
         GameService simpleGameService = new GameService(new LobbyService(null));
@@ -107,6 +170,7 @@ class GameServiceTest {
         SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
         manager.setSecretFile(solution);
 
+
         simpleGameService.getActiveGames().put("test-lobby", manager);
         SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
         simpleGameService.processSolveCase(request);
@@ -115,6 +179,29 @@ class GameServiceTest {
         assertTrue(p.hasWon());
         assertTrue(p.isActive());
     }
+
+    @Test
+    void testSolveCase_RoomMismatch_PlayerEliminated() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
+        SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
+        manager.setSecretFile(solution);
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        // Room is incorrect here
+        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "WrongRoom", "Candlestick", "TestUser");
+        simpleGameService.processSolveCase(request);
+
+        Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
+        assertFalse(p.hasWon());
+        assertFalse(p.isActive());
+    }
+
 
     @Test
     void testWrongSolveCaseEliminatesPlayer() {
@@ -130,6 +217,57 @@ class GameServiceTest {
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
         SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Wrong", "Wrong", "Wrong", "TestUser");
+        simpleGameService.processSolveCase(request);
+
+        Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
+        assertFalse(p.hasWon());
+        assertFalse(p.isActive());
+    }
+
+    @Test
+    void testProcessSolveCase_GameIsNull() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        SolveCaseRequest request = new SolveCaseRequest("nonexistent-lobby", "Any", "Any", "Any", "Any");
+        assertDoesNotThrow(() -> simpleGameService.processSolveCase(request));
+    }
+
+    @Test
+    void testProcessSolveCase_PlayerNotFound() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("SomeoneElse", "Alias", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
+        assertDoesNotThrow(() -> simpleGameService.processSolveCase(request));
+    }
+
+    @Test
+    void testProcessSolveCase_PlayerAlreadyEliminated() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Alias", 0, 0, PlayerColor.RED);
+        player.setActive(false);
+        GameManager manager = new GameManager(List.of(player));
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
+        assertDoesNotThrow(() -> simpleGameService.processSolveCase(request));
+    }
+
+    @Test
+    void testSolveCase_WeaponMismatch_PlayerEliminated() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
+        SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
+        manager.setSecretFile(solution);
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "WrongWeapon", "TestUser");
         simpleGameService.processSolveCase(request);
 
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();

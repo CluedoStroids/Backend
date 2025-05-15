@@ -370,4 +370,21 @@ public class GameManagerTest {
         setUp();
         assertEquals(gameManager.getSecretFile().weapon().getCardName(),gameManager.getCorrectWeapon());
     }
+
+    @Test
+    void testEliminateCurrentPlayerAndGetCorrectCards() {
+        Player current = gameManager.getCurrentPlayer();
+
+
+        gameManager.eliminateCurrentPlayer();
+
+
+        assertFalse(current.isActive());
+
+
+        assertEquals(gameManager.getSecretFile().character().getCardName(), gameManager.getCorrectSuspect());
+        assertEquals(gameManager.getSecretFile().room().getCardName(), gameManager.getCorrectRoom());
+        assertEquals(gameManager.getSecretFile().weapon().getCardName(), gameManager.getCorrectWeapon());
+    }
+
 }
