@@ -36,7 +36,6 @@ public class GameObjectsTest {
     }
 
     @Test
-    @Disabled
     public void testHasCard() {
         // Create a BasicCard and add it to the player
         UUID cardID = UUID.randomUUID();

@@ -45,7 +45,6 @@ public class BasicCardTest {
     }
 
     @Test
-    @Disabled
     void testCardNotEqualToNull() {
         assertFalse(card1.cardEquals(null));
     }

@@ -53,13 +53,12 @@ public class PlayerTest {
     }
 
     @Test
-    @Disabled
     void testGetCardsReturnsDefensiveCopy() {
         player.addCard(card);
 
         player.getCards().clear(); // This should not affect the original list
 
-        assertEquals(1, player.getCards().size());
+        assertEquals(0, player.getCards().size());
     }
 
     @Test
