@@ -11,6 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import at.aau.se2.cluedo.services.GameService;
+import at.aau.se2.cluedo.dto.SolveCaseRequest;
+
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,8 +28,12 @@ class LobbyControllerTest {
     @Mock
     private LobbyService lobbyService;
 
+    @Mock
+    private GameService gameService;
+
     @InjectMocks
     private LobbyController lobbyController;
+
 
     private Player player1;
     private Player player2;
@@ -66,4 +74,14 @@ class LobbyControllerTest {
 
         verify(lobbyService, times(1)).getAllActiveLobbies();
     }
+    @Test
+    void solveCase_ShouldCallGameServiceWithCorrectRequest() {
+
+        SolveCaseRequest request = new SolveCaseRequest("lobby-id-1", "Scarlett", "Study", "Candlestick", "Player1");
+
+        lobbyController.solveCase(request);
+
+        verify(gameService, times(1)).processSolveCase(request);
+    }
+
 }

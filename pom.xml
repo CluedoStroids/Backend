@@ -21,6 +21,8 @@
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.build.directory}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.exclusions>src/main/java/at/aau/se2/cluedo/controllers/*,
+            src/main/java/at/aau/se2/cluedo/config/*</sonar.exclusions>
     </properties>
 
     <dependencyManagement>

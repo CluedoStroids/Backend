@@ -20,10 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameManagerTest {
 
     private GameManager gameManager;
+    Player player1;
 
     @BeforeEach
     void setUp() {
-        Player player1 = new Player("John","Mr. Green",0,0, PlayerColor.GREEN);
+        player1 = new Player("John","Mr. Green",0,0, PlayerColor.GREEN);
         Player player2 = new Player("Bob","Mrs. White",0,0, PlayerColor.WHITE);
         Player player3 = new Player("Foo","Colonel Mustard",0,0, PlayerColor.YELLOW);
         gameManager = new GameManager(List.of(player1, player2, player3));
@@ -45,6 +46,16 @@ public class GameManagerTest {
         assertEquals(3, gm.getPlayers().size());
         assertEquals(0, gm.getCurrentPlayerIndex());
         assertTrue(gm.getPlayers().get(0).isCurrentPlayer());
+    }
+    @Test
+    void testGetPlayer(){
+        setUp();
+        assertEquals(player1,gameManager.getPlayer(player1.getName()));
+    }
+    @Test
+    void testGetNullPlayer(){
+        setUp();
+        assertNull(gameManager.getPlayer("House"));
     }
 
     @Test
@@ -183,7 +194,11 @@ public class GameManagerTest {
         }
     }
 
-
+    @Test
+    void testInRoomFalse(){
+        setUp();
+        assertFalse(gameManager.inRoom(player1));
+    }
 
     @Test
     void testNextTurnAndTopOfRound() {
@@ -301,7 +316,7 @@ public class GameManagerTest {
     }
 
     @Test
-    public void testSkipInactivePlayers() {
+    void testSkipInactivePlayers() {
         // Make player 1 inactive
         gameManager.getPlayers().get(1).setActive(false);
 
@@ -316,9 +331,60 @@ public class GameManagerTest {
         assertEquals(2, gameManager.getCurrentPlayerIndex());
     }
     @Test
-    public void testMakeSuggestion(){
+    void testTopOftheRound(){
+        setUp();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+        gameManager.nextTurn();
+
+        assertEquals(1,gameManager.getCurrentPlayerIndex());
+    }
+
+    @Test
+    void testEliminatePlayer()
+    {
+        gameManager.eliminateCurrentPlayer();
+        assertFalse(gameManager.getPlayer(player1.getName()).isActive());
+    }
+    @Test
+    void testMakeSuggestion(){
         Player player = gameManager.getPlayers().get(1);
         player.move(2,2);
-        gameManager.makeSuggestion(player,"Mr. White","Knife");
+        assertTrue(gameManager.makeSuggestion(player,"Mrs. White","Knife"));
     }
+
+    @Test
+    void testGetCorrectSuspect(){
+        setUp();
+        assertEquals(gameManager.getSecretFile().character().getCardName(),gameManager.getCorrectSuspect());
+    }
+    @Test
+    void testGetCorrectRoom(){
+        setUp();
+        assertEquals(gameManager.getSecretFile().room().getCardName(),gameManager.getCorrectRoom());
+    }
+
+    @Test
+    void testGetCorrectWeapon(){
+        setUp();
+        assertEquals(gameManager.getSecretFile().weapon().getCardName(),gameManager.getCorrectWeapon());
+    }
+
+    @Test
+    void testEliminateCurrentPlayerAndGetCorrectCards() {
+        Player current = gameManager.getCurrentPlayer();
+
+
+        gameManager.eliminateCurrentPlayer();
+
+
+        assertFalse(current.isActive());
+
+
+        assertEquals(gameManager.getSecretFile().character().getCardName(), gameManager.getCorrectSuspect());
+        assertEquals(gameManager.getSecretFile().room().getCardName(), gameManager.getCorrectRoom());
+        assertEquals(gameManager.getSecretFile().weapon().getCardName(), gameManager.getCorrectWeapon());
+    }
+
 }

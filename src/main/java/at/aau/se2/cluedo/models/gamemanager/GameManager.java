@@ -2,6 +2,8 @@ package at.aau.se2.cluedo.models.gamemanager;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import at.aau.se2.cluedo.models.Random;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
@@ -15,7 +17,6 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.SecureRandom;
 import java.util.*;
 
 
@@ -143,7 +144,7 @@ public class GameManager {
     }
 
     public int rollDice() {
-        return (int) (Math.random() * 6) + 1;
+        return Random.rand(6,1);
     }
 
     /**
@@ -211,7 +212,7 @@ public class GameManager {
      * @param suspect suspected character
      * @param weapon suspected weapon
      */
-    public void makeSuggestion(Player player,String suspect, String weapon) {
+    public boolean makeSuggestion(Player player,String suspect, String weapon) {
 
         //todo implement actually suggest function with user interaction
         BasicCard room = getCardByName(gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
@@ -222,14 +223,15 @@ public class GameManager {
         for (Player p : this.players) {
             if (p != player) {
                 for (BasicCard card : p.getCards()) {
-                    if (card.equals(suspectCard) || card.equals(weaponCard) || card.equals(room)) {
+                    if (card.cardEquals(suspectCard) || card.cardEquals(weaponCard) || card.cardEquals(room)) {
                         System.out.println(p.getName() + " shows you: " + card);
-                        return;
+                        return true;
                     }
                 }
             }
         }
         System.out.println("No one could disprove your suggestion!");
+        return false;
     }
 
     /**
@@ -253,7 +255,7 @@ public class GameManager {
      */
     public void makeAccusation(Player player, SecretFile accusation) {
 
-        if (secretFile.room().equals(accusation.room()) && secretFile.character().equals(accusation.character()) && secretFile.weapon().equals(accusation.weapon())) {
+        if (secretFile.room().cardEquals(accusation.room()) && secretFile.character().cardEquals(accusation.character()) && secretFile.weapon().cardEquals(accusation.weapon())) {
             logger.info("Correct! {} has solved the crime!", player.getName());
             player.setHasWon(true);
             this.winner = player;

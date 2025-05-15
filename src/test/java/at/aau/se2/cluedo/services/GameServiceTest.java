@@ -222,7 +222,6 @@ class GameServiceTest {
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
         assertFalse(p.hasWon());
         assertFalse(p.isActive());
-
     }
 
     @Test
