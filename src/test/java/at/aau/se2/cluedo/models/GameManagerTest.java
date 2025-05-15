@@ -321,4 +321,21 @@ public class GameManagerTest {
         player.move(2,2);
         gameManager.makeSuggestion(player,"Mr. White","Knife");
     }
+
+    @Test
+    void testEliminateCurrentPlayerAndGetCorrectCards() {
+        Player current = gameManager.getCurrentPlayer();
+
+
+        gameManager.eliminateCurrentPlayer();
+
+
+        assertFalse(current.isActive());
+
+
+        assertEquals(gameManager.getSecretFile().character().getCardName(), gameManager.getCorrectSuspect());
+        assertEquals(gameManager.getSecretFile().room().getCardName(), gameManager.getCorrectRoom());
+        assertEquals(gameManager.getSecretFile().weapon().getCardName(), gameManager.getCorrectWeapon());
+    }
+
 }
