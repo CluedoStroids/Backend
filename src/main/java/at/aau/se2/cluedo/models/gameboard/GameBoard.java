@@ -194,7 +194,6 @@ public class GameBoard {
             return false;
         }
 
-
         if(targetCell.getCellType() != currCell.getCellType() && targetCell.getCellType() != CellType.DOOR && currCell.getCellType() != CellType.DOOR && targetCell.getCellType() != CellType.SECRET_PASSAGE && currCell.getCellType() != CellType.SECRET_PASSAGE && !teleport){
             return false;
         }
@@ -217,15 +216,14 @@ public class GameBoard {
                     }
                 }
             }else{
-                for (GameBoardCell targetCells: cells.reversed()) { //depends on Y
+                Collections.reverse(cells);
+                for (GameBoardCell targetCells: cells) { //depends on Y
                     if(currCell.getCellType() != targetCells.getCellType() && targetCells.getCellType() != CellType.DOOR ) {
                         player.move(targetCell.getX(), targetCell.getY());
 
                     }
                 }
             }
-
-
         }
 
         if(targetCell.getCellType() == CellType.SECRET_PASSAGE){
