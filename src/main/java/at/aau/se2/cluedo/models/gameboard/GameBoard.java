@@ -5,10 +5,7 @@ package at.aau.se2.cluedo.models.gameboard;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GameBoard {
     // ANSI color codes
@@ -204,42 +201,32 @@ public class GameBoard {
 
         if(targetCell.getCellType() == CellType.DOOR){
 
-            GameBoardCell targetCellUp = getCell(newX, Math.max(0,newY+1));
-            GameBoardCell targetCellDown = getCell(newX, Math.max(0,newY-1));
-            GameBoardCell targetCellLeft = getCell(Math.max(0,newX-1), newY);
-            GameBoardCell targetCellRight = getCell(Math.max(0,newX+1), newY);
+
+            ArrayList<GameBoardCell> cells = new ArrayList<>();
+
+            cells.add(getCell(newX,Math.max(0,newY+1))); //targetCellUp
+            cells.add(getCell(newX, Math.max(0,newY-1)));  //targetCellDown
+            cells.add(getCell(Math.max(0,newX-1), newY)); //targetCellLeft
+            cells.add(getCell(Math.max(0,newX+1), newY)); //targetCellRight
 
             if(currCell.getX()-targetCell.getX() != 0){
-                if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
-                    newX += 1;
-                }
-                else if(currCell.getCellType() != targetCellLeft.getCellType() && targetCellLeft.getCellType() != CellType.DOOR ){
-                    newX -= 1;
-                }
-                else if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
-                    newY -= 1;
-                }
-                else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
-                    newY += 1;
+                for (GameBoardCell targetCells: cells){ // //depends on X
+                    if(currCell.getCellType() != targetCells.getCellType() && targetCells.getCellType() != CellType.DOOR ) {
+                        player.move(targetCell.getX(), targetCell.getY());
+
+                    }
                 }
             }else{
-                if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
-                    newY -= 1;
-                }
-                else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
-                    newY += 1;
-                }
-                else if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
-                    newX += 1;
-                }
-                else if(currCell.getCellType() != targetCellLeft.getCellType() && targetCellLeft.getCellType() != CellType.DOOR ){
-                    newX -= 1;
+                for (GameBoardCell targetCells: cells.reversed()) { //depends on Y
+                    if(currCell.getCellType() != targetCells.getCellType() && targetCells.getCellType() != CellType.DOOR ) {
+                        player.move(targetCell.getX(), targetCell.getY());
+
+                    }
                 }
             }
 
+
         }
-        // Set new position
-        player.move(newX, newY);
 
         if(targetCell.getCellType() == CellType.SECRET_PASSAGE){
             if(!useSecretPassage(player)){
@@ -273,26 +260,36 @@ public class GameBoard {
 
         Room targetRoom = secretPassages.get(currentRoom);
 
+
+
         // Find secret passage cell in target room
+        GameBoardCell gateway = null;
+
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 GameBoardCell cell = grid[x][y];
                 if (cell.getCellType() == CellType.SECRET_PASSAGE &&  cell.getRoom() == targetRoom) {
+                    gateway = cell;
+                }
+            }
+        }
+        if(gateway != null){
 
-                        GameBoardCell targetCellUp = getCell(x,Math.max(0,y+1));
-                        GameBoardCell targetCellDown = getCell(x, Math.max(0,y-1));
-                        GameBoardCell targetCellLeft = getCell(Math.max(0,x-1), y);
-                        GameBoardCell targetCellRight = getCell(Math.max(0,x+1), y);
+            int x = gateway.getX();
+            int y = gateway.getY();
 
-                        if(targetCellUp != null && targetCellUp.isAccessible() && cell.getRoom() == currentRoom)
-                            player.move(targetCellUp.getX(),targetCellUp.getY());
-                        else if(targetCellDown != null &&targetCellDown.isAccessible()&& cell.getRoom() == currentRoom)
-                            player.move(targetCellDown.getX(),targetCellDown.getY());
-                        else if(targetCellLeft != null && targetCellLeft.isAccessible()&& cell.getRoom() == currentRoom)
-                            player.move(targetCellLeft.getX(),targetCellLeft.getY());
-                        else if(targetCellRight != null && targetCellRight.isAccessible()&& cell.getRoom() == currentRoom)
-                            player.move(targetCellRight.getX(),targetCellRight.getY());
 
+            ArrayList<GameBoardCell> cells= new ArrayList<>();
+
+        cells.add(getCell(x,Math.max(0,y+1))); //targetCellUp
+        cells.add(getCell(x, Math.max(0,y-1)));  //targetCellDown
+        cells.add(getCell(Math.max(0,x-1), y)); //targetCellLeft
+        cells.add(getCell(Math.max(0,x+1), y)); //targetCellRight
+
+
+            for (GameBoardCell targetCell: cells){
+                if(targetCell != null && targetCell.isAccessible() && gateway.getRoom() == currentRoom) {
+                    player.move(targetCell.getX(), targetCell.getY());
                     return true;
                 }
             }
@@ -348,15 +345,13 @@ public class GameBoard {
     }
 
     private char getSymbol(GameBoardCell cell) {
-        char retChar;
+        char retChar = '?';
         switch (cell.getCellType()) {
             case HALLWAY -> retChar = '.';
             case ROOM -> retChar = cell.getRoom().getName().charAt(0);
             case WALL -> retChar = '|';
             case SECRET_PASSAGE -> retChar = 'G';
             case DOOR -> retChar = 'D';
-            default -> retChar = '?';
-
         }
 
         return retChar;
