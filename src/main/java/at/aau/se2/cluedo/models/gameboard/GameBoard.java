@@ -1,8 +1,8 @@
 package at.aau.se2.cluedo.models.gameboard;
-
-
-
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.util.ArrayList;
@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 public class GameBoard {
+    private static final Logger logger = LoggerFactory.getLogger(GameBoard.class);
+    
     // ANSI color codes
     public static final String RED = "\u001B[41m";
     public static final String YELLOW = "\u001B[43m";
@@ -62,7 +64,13 @@ public class GameBoard {
     }
 
     private void createRooms() {
-        // Definition of all 9 rooms as array with [Name, x, y, width, height]
+        defineRooms();
+        defineDoors();
+        defineHallways();
+    }
+
+    private void defineRooms() {
+        // Definition of all 9 rooms: [Name, x, y, width, height]
         String[][] roomDefinitions = {
                 {"Kitchen", "0", "1", "6", "6"},
                 {"Ballroom", "8", "1", "8", "7"},
@@ -75,69 +83,41 @@ public class GameBoard {
                 {"Study", "17", "21", "8", "4"},
         };
 
-        // Create rooms
-        for (String[] roomDef : roomDefinitions) {
-            createRoom(roomDef[0],
-                    Integer.parseInt(roomDef[1]),
-                    Integer.parseInt(roomDef[2]),
-                    Integer.parseInt(roomDef[3]),
-                    Integer.parseInt(roomDef[4]));
+        for (String[] def : roomDefinitions) {
+            createRoom(def[0],
+                    Integer.parseInt(def[1]),
+                    Integer.parseInt(def[2]),
+                    Integer.parseInt(def[3]),
+                    Integer.parseInt(def[4]));
         }
-
-        // Position doors
-        setDoor(4, 6);
-        setDoor(8, 5);
-        setDoor(9, 7);
-        setDoor(14, 7);
-        setDoor(15, 5);
-        setDoor(18, 5);
-        setDoor(7, 12);
-        setDoor(6, 15);
-        setDoor(18, 9);
-        setDoor(23, 12);
-        setDoor(21, 14);
-
-        setDoor(17, 16);
-        setDoor(5, 19);
-        setDoor(11, 18);
-        setDoor(12, 18);
-        setDoor(14, 20);
-        setDoor(17, 21);
-
-
-        //Test Door
-        setDoor(6, 24);
-
-
-        setHallway(9, 1);
-        setHallway(8, 1);
-
-        setHallway(14, 1);
-        setHallway(15, 1);
-
-        setHallway(6, 9);
-        setHallway(7, 9);
-
-        setHallway(17, 14);
-        setHallway(17, 18);
-
-        setHallway(7, 24);
-        setHallway(0, 17);
-
-
-        setHallway(9, 0);
-        setHallway(14, 0);
-
-
-        setHallway(24, 6);
-        setHallway(24, 19);
-
-
-
-
-
-
     }
+
+    private void defineDoors() {
+        int[][] doorPositions = {
+                {4, 6}, {8, 5}, {9, 7}, {14, 7}, {15, 5}, {18, 5},
+                {7, 12}, {6, 15}, {18, 9}, {23, 12}, {21, 14},
+                {17, 16}, {5, 19}, {11, 18}, {12, 18}, {14, 20},
+                {17, 21}, {6, 24}
+        };
+
+        for (int[] pos : doorPositions) {
+            setDoor(pos[0], pos[1]);
+        }
+    }
+
+    private void defineHallways() {
+        int[][] hallwayPositions = {
+                {9, 1}, {8, 1}, {14, 1}, {15, 1},
+                {6, 9}, {7, 9}, {17, 14}, {17, 18},
+                {7, 24}, {0, 17}, {9, 0}, {14, 0},
+                {24, 6}, {24, 19}
+        };
+
+        for (int[] pos : hallwayPositions) {
+            setHallway(pos[0], pos[1]);
+        }
+    }
+
 
     private void createRoom(String name, int startX, int startY, int width, int height) {
         Room room = new Room(name);
@@ -190,114 +170,98 @@ public class GameBoard {
     }
 
     public boolean movePlayer(Player player, int newX, int newY, boolean teleport) {
-        GameBoardCell targetCell = getCell(newX, newY);
-        GameBoardCell currCell = getCell(player.getX(), player.getY());
+        GameBoardCell target = getCell(newX, newY);
+        GameBoardCell current = getCell(player.getX(), player.getY());
 
-        if (targetCell == null || !targetCell.isAccessible()) {
-            return false;
+        if (!isMoveValid(current, target, teleport)) return false;
+
+        if (target.getCellType() == CellType.DOOR) {
+            int[] corrected = adjustPositionForDoor(current, target);
+            newX = corrected[0];
+            newY = corrected[1];
         }
 
-
-        if(targetCell.getCellType() != currCell.getCellType() && targetCell.getCellType() != CellType.DOOR && currCell.getCellType() != CellType.DOOR && targetCell.getCellType() != CellType.SECRET_PASSAGE && currCell.getCellType() != CellType.SECRET_PASSAGE && !teleport){
-            return false;
-        }
-
-        if(targetCell.getCellType() == CellType.DOOR){
-
-            GameBoardCell targetCellUp = getCell(newX, Math.max(0,newY+1));
-            GameBoardCell targetCellDown = getCell(newX, Math.max(0,newY-1));
-            GameBoardCell targetCellLeft = getCell(Math.max(0,newX-1), newY);
-            GameBoardCell targetCellRight = getCell(Math.max(0,newX+1), newY);
-
-            if(currCell.getX()-targetCell.getX() != 0){
-                if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
-                    newX += 1;
-                }
-                else if(currCell.getCellType() != targetCellLeft.getCellType() && targetCellLeft.getCellType() != CellType.DOOR ){
-                    newX -= 1;
-                }
-                else if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
-                    newY -= 1;
-                }
-                else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
-                    newY += 1;
-                }
-            }else{
-                if(currCell.getCellType() != targetCellDown.getCellType() && targetCellDown.getCellType() != CellType.DOOR ){
-                    newY -= 1;
-                }
-                else if(currCell.getCellType() != targetCellUp.getCellType() && targetCellUp.getCellType() != CellType.DOOR ){
-                    newY += 1;
-                }
-                else if(currCell.getCellType() != targetCellRight.getCellType() && targetCellRight.getCellType() != CellType.DOOR ){
-                    newX += 1;
-                }
-                else if(currCell.getCellType() != targetCellLeft.getCellType() && targetCellLeft.getCellType() != CellType.DOOR ){
-                    newX -= 1;
-                }
-            }
-
-        }
-        // Set new position
         player.move(newX, newY);
+        updateRoomPresence(current, target, player);
 
-        if(targetCell.getCellType() == CellType.SECRET_PASSAGE){
-            if(!useSecretPassage(player)){
-                return false;
-            }
-        }
-
-        // Room logic
-        if (currCell.getCellType() == CellType.ROOM) {
-            currCell.getRoom().playerLeavesRoom(player);
-        }
-
-        if (targetCell.getCellType() == CellType.ROOM) {
-            targetCell.getRoom().playerEntersRoom(player);
+        if (target.getCellType() == CellType.SECRET_PASSAGE) {
+            return useSecretPassage(player);
         }
 
         return true;
     }
 
+    private boolean isMoveValid(GameBoardCell from, GameBoardCell to, boolean teleport) {
+        return to != null && to.isAccessible() && (
+                teleport ||
+                from.getCellType() == to.getCellType() ||
+                from.getCellType() == CellType.DOOR ||
+                to.getCellType() == CellType.DOOR ||
+                from.getCellType() == CellType.SECRET_PASSAGE ||
+                to.getCellType() == CellType.SECRET_PASSAGE
+        );
+    }
+
+    private int[] adjustPositionForDoor(GameBoardCell from, GameBoardCell door) {
+        int[][] directions = {{0,1}, {0,-1}, {1,0}, {-1,0}};
+        for (int[] dir : directions) {
+            GameBoardCell neighbor = getCell(door.getX() + dir[0], door.getY() + dir[1]);
+            if (neighbor != null && neighbor.getCellType() != CellType.DOOR &&
+                    from.getCellType() != neighbor.getCellType()) {
+                return new int[]{door.getX() + dir[0], door.getY() + dir[1]};
+            }
+        }
+        return new int[]{from.getX(), from.getY()};
+    }
+
+    private void updateRoomPresence(GameBoardCell from, GameBoardCell to, Player player) {
+        if (from.getCellType() == CellType.ROOM) from.getRoom().playerLeavesRoom(player);
+        if (to.getCellType() == CellType.ROOM) to.getRoom().playerEntersRoom(player);
+    }
+
     public boolean useSecretPassage(Player player) {
+        GameBoardCell current = getCell(player.getX(), player.getY());
+        if (current.getCellType() != CellType.SECRET_PASSAGE || current.getRoom() == null) return false;
 
-        GameBoardCell currentCell = getCell(player.getX(), player.getY());
-        if (currentCell.getCellType() != CellType.SECRET_PASSAGE) {
-            return false;
+        Room target = secretPassages.get(current.getRoom());
+        if (target == null) return false;
+
+        GameBoardCell targetCell = findPassageExitInRoom(target);
+        if (targetCell != null) {
+            player.move(targetCell.getX(), targetCell.getY());
+            return true;
         }
+        return false;
+    }
 
-        Room currentRoom = currentCell.getRoom();
-        if (currentRoom == null || !secretPassages.containsKey(currentRoom)) {
-            return false;
-        }
-
-        Room targetRoom = secretPassages.get(currentRoom);
-
-        // Find secret passage cell in target room
+    private GameBoardCell findPassageExitInRoom(Room room) {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 GameBoardCell cell = grid[x][y];
-                if (cell.getCellType() == CellType.SECRET_PASSAGE &&  cell.getRoom() == targetRoom) {
-
-                        GameBoardCell targetCellUp = getCell(x,Math.max(0,y+1));
-                        GameBoardCell targetCellDown = getCell(x, Math.max(0,y-1));
-                        GameBoardCell targetCellLeft = getCell(Math.max(0,x-1), y);
-                        GameBoardCell targetCellRight = getCell(Math.max(0,x+1), y);
-
-                        if(targetCellUp != null && targetCellUp.isAccessible() && cell.getRoom() == currentRoom)
-                            player.move(targetCellUp.getX(),targetCellUp.getY());
-                        else if(targetCellDown != null &&targetCellDown.isAccessible()&& cell.getRoom() == currentRoom)
-                            player.move(targetCellDown.getX(),targetCellDown.getY());
-                        else if(targetCellLeft != null && targetCellLeft.isAccessible()&& cell.getRoom() == currentRoom)
-                            player.move(targetCellLeft.getX(),targetCellLeft.getY());
-                        else if(targetCellRight != null && targetCellRight.isAccessible()&& cell.getRoom() == currentRoom)
-                            player.move(targetCellRight.getX(),targetCellRight.getY());
-
-                    return true;
+                if (isSecretPassageInRoom(cell, room)) {
+                    GameBoardCell exit = findAccessibleNeighbor(x, y);
+                    if (exit != null) {
+                        return exit;
+                    }
                 }
             }
         }
-        return false;
+        return null;
+    }
+
+    private boolean isSecretPassageInRoom(GameBoardCell cell, Room room) {
+        return cell.getRoom() == room && cell.getCellType() == CellType.SECRET_PASSAGE;
+    }
+
+    private GameBoardCell findAccessibleNeighbor(int x, int y) {
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        for (int[] d : directions) {
+            GameBoardCell neighbor = getCell(x + d[0], y + d[1]);
+            if (neighbor != null && neighbor.isAccessible()) {
+                return neighbor;
+            }
+        }
+        return null;
     }
     public void teleportPlayerToRoom(Player player, Room room){
         List<GameBoardCell> roomCells = new ArrayList<>();
@@ -321,29 +285,26 @@ public class GameBoard {
     }
 
     public void displayGameBoard(List<Player> players) {
-        System.out.println("\n=== CLUE GAME BOARD ===");
+        logger.debug("\n=== CLUE GAME BOARD ===");
 
 
-        System.out.print("  ");
+        logger.debug("  ");
         for (int i = 0; i < WIDTH; i++) {
-            System.out.print(i % 10 + " ");
+            logger.debug("{} ", i % 10);
 
         }
-        System.out.println();
 
         for (int y = 0; y < HEIGHT; y++) {
-            System.out.print(y % 10 + " ");
+            logger.debug("{} ", y % 10);
 
             for (int x = 0; x < WIDTH; x++) {
 
                 GameBoardCell cell = grid[x][y];
                 char symbol = getSymbol(cell);
-                String color = getColor(cell, players, x, y);
+                String color = getColor(players, x, y);
 
-                System.out.print(color + symbol + RESET + " ");
+                logger.debug("{}{}" + RESET + " ", color, symbol);
             }
-
-            System.out.println();
         }
     }
 
@@ -362,7 +323,7 @@ public class GameBoard {
         return retChar;
     }
 
-    public String getColor(GameBoardCell cell, List<Player> players, int x, int y) {
+    public String getColor(List<Player> players, int x, int y) {
         for (Player p : players) {
             if (p.getX() == x && p.getY() == y) {
                 return switch (p.getColor()) {

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameBoardCellTest {
+class GameBoardCellTest {
 
     private GameBoardCell hallwayCell;
     private GameBoardCell wallCell;
