@@ -1,7 +1,4 @@
 package at.aau.se2.cluedo.models.gameboard;
-
-
-
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import org.slf4j.Logger;
@@ -288,25 +285,25 @@ public class GameBoard {
     }
 
     public void displayGameBoard(List<Player> players) {
-        logger.info("\n=== CLUE GAME BOARD ===");
+        logger.debug("\n=== CLUE GAME BOARD ===");
 
 
-        logger.info("  ");
+        logger.debug("  ");
         for (int i = 0; i < WIDTH; i++) {
-            logger.info("{} ", i % 10);
+            logger.debug("{} ", i % 10);
 
         }
 
         for (int y = 0; y < HEIGHT; y++) {
-            logger.info("{} ", y % 10);
+            logger.debug("{} ", y % 10);
 
             for (int x = 0; x < WIDTH; x++) {
 
                 GameBoardCell cell = grid[x][y];
                 char symbol = getSymbol(cell);
-                String color = getColor(cell, players, x, y);
+                String color = getColor(players, x, y);
 
-                logger.info("{}{}" + RESET + " ", color, symbol);
+                logger.debug("{}{}" + RESET + " ", color, symbol);
             }
         }
     }
@@ -326,7 +323,7 @@ public class GameBoard {
         return retChar;
     }
 
-    public String getColor(GameBoardCell cell, List<Player> players, int x, int y) {
+    public String getColor(List<Player> players, int x, int y) {
         for (Player p : players) {
             if (p.getX() == x && p.getY() == y) {
                 return switch (p.getColor()) {

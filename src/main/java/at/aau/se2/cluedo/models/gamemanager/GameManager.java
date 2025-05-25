@@ -310,16 +310,6 @@ public class GameManager {
 
         players.get(currentPlayerIndex).setCurrentPlayer(true);
     }
-    /**
-     * This method is a placeholder for getting input in the WebSocket version.
-     * In a real implementation, this would be replaced with WebSocket communication.
-     */
-    private String getConsoleInputNextLine() {
-        // In a WebSocket environment, this would be handled differently
-        // For now, just return a default value
-        return "3"; // Default to "do nothing" for room actions
-    }
-
     public void eliminateCurrentPlayer() {
         Player current = getCurrentPlayer();
         current.setActive(false);
