@@ -190,13 +190,14 @@ public class GameBoard {
     }
 
     private boolean isMoveValid(GameBoardCell from, GameBoardCell to, boolean teleport) {
-        if (to == null || !to.isAccessible()) return false;
-        if (!teleport && from.getCellType() != to.getCellType()
-                && from.getCellType() != CellType.DOOR && to.getCellType() != CellType.DOOR
-                && from.getCellType() != CellType.SECRET_PASSAGE && to.getCellType() != CellType.SECRET_PASSAGE) {
-            return false;
-        }
-        return true;
+        return to != null && to.isAccessible() && (
+                teleport ||
+                from.getCellType() == to.getCellType() ||
+                from.getCellType() == CellType.DOOR ||
+                to.getCellType() == CellType.DOOR ||
+                from.getCellType() == CellType.SECRET_PASSAGE ||
+                to.getCellType() == CellType.SECRET_PASSAGE
+        );
     }
 
     private int[] adjustPositionForDoor(GameBoardCell from, GameBoardCell door) {
