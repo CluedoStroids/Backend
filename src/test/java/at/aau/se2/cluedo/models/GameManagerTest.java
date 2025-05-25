@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameManagerTest {
+class GameManagerTest {
 
     private GameManager gameManager;
     Player player1;

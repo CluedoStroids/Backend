@@ -219,7 +219,7 @@ public class GameManager {
             if (p != player) {
                 for (BasicCard card : p.getCards()) {
                     if (card.cardEquals(suspectCard) || card.cardEquals(weaponCard) || card.cardEquals(room)) {
-                        logger.info(p.getName() + " shows you: " + card);
+                        logger.info("{} shows you: {}", p.getName(), card);
                         return true;
                     }
                 }

@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameBoardTest {
+class GameBoardTest {
 
     private GameBoard gameBoard;
     private Player player;
@@ -28,7 +28,7 @@ public class GameBoardTest {
 
 
     @Test
-    public void testInitialization() {
+    void testInitialization() {
         // Check that the board is properly initialized
         assertNotNull(gameBoard);
 

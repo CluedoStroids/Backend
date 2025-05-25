@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BasicCardTest {
+class BasicCardTest {
 
     private BasicCard card1;
     private BasicCard card2;
