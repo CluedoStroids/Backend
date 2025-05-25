@@ -153,57 +153,52 @@ public class GameManager {
      * @param movement List of moves the player takes
      * @return recursive call
      */
-    public int performMovement(Player player,  List<String> movement) {
+    public int performMovement(Player player, List<String> movement) {
 
-        if(movement.isEmpty()){
+        // Prevent cheating by limiting moves to dice roll and check if there are no more moves
+        if (movement.isEmpty()||movement.size() > diceRollS) {
             return 0;
         }
 
-        //todo prevents from cheating.
-        if(movement.size() > diceRollS){
+        String currentMove = movement.get(0);
+
+        // Handle exit command
+        if (currentMove.equalsIgnoreCase("X")) {
             return 0;
         }
 
-        for (String input: movement) {
+        int newX = player.getX();
+        int newY = player.getY();
 
-            if (input.equalsIgnoreCase("X")) {
+        // Calculate new position based on input
+        switch (currentMove.toUpperCase()) {
+            case "W" -> newY--;
+            case "S" -> newY++;
+            case "A" -> newX--;
+            case "D" -> newX++;
+            default -> {
+                System.out.println("Invalid input!");
                 return 0;
             }
+        }
 
-            int newX = player.getX();
-            int newY = player.getY();
-
-            switch (input.toUpperCase()) {
-                case "W" -> newY--;
-                case "S" -> newY++;
-                case "A" -> newX--;
-                case "D" -> newX++;
-                default -> {
-                    System.out.println("Invalid input!");
-                    return 0;
-                }
-            }
-
-            for(Player p : players){
-                if(p.getX() == newX && p.getY() == newY){
-                    System.out.println("Invalid move!");
-                    return 0;
-                }
-            }
-
-            if (gameBoard.movePlayer(player, newX, newY,false)) {
-                if(!input.equals(movement.get(movement.size() - 1))){
-                    movement.subList(1,movement.size()-1);
-                    continue;
-                }
-                return performMovement(player, movement.subList(1,movement.size()-1));
-            } else {
-                System.out.println("Invalid move!");
-                return performMovement(player,movement);
+        // Check for collision with other players
+        for (Player p : players) {
+            if (p != player && p.getX() == newX && p.getY() == newY) {
+                System.out.println("Invalid move - position occupied!");
+                return 0;
             }
         }
-        System.out.println("Invalid move!");
-        return performMovement(player, movement);
+
+        // Attempt to move the player
+        if (gameBoard.movePlayer(player, newX, newY, false)) {
+            // Move successful, process remaining movements
+            return performMovement(player, movement.subList(1, movement.size()));
+        } else {
+            // Move failed (likely out of bounds or invalid position)
+            System.out.println("Invalid move - cannot move to that position!");
+            return 0;
+        }
     }
 
     /**
