@@ -35,7 +35,7 @@ public class GameObjectsTest {
     }
 
     @Test
-    public void testHasCard() {
+     void testHasCard() {
         // Create a BasicCard and add it to the player
         UUID cardID = UUID.randomUUID();
         BasicCard card = new BasicCard("Revolver", cardID, CardType.WEAPON);
