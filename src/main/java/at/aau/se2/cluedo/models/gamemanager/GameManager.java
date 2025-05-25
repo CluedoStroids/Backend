@@ -24,7 +24,7 @@ import java.util.*;
 @Setter
 public class GameManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(LobbyRegistry.class);
+    private static final Logger logger = LoggerFactory.getLogger(GameManager.class);
 
     private final GameBoard gameBoard;
     private final List<Player> players;
@@ -177,7 +177,7 @@ public class GameManager {
             case "A" -> newX--;
             case "D" -> newX++;
             default -> {
-                System.out.println("Invalid input!");
+                logger.info("Invalid input!");
                 return 0;
             }
         }
@@ -185,7 +185,7 @@ public class GameManager {
         // Check for collision with other players
         for (Player p : players) {
             if (p != player && p.getX() == newX && p.getY() == newY) {
-                System.out.println("Invalid move - position occupied!");
+                logger.info("Invalid move - position occupied!");
                 return 0;
             }
         }
@@ -196,7 +196,7 @@ public class GameManager {
             return performMovement(player, movement.subList(1, movement.size()));
         } else {
             // Move failed (likely out of bounds or invalid position)
-            System.out.println("Invalid move - cannot move to that position!");
+            logger.info("Invalid move - cannot move to that position!");
             return 0;
         }
     }
@@ -219,13 +219,13 @@ public class GameManager {
             if (p != player) {
                 for (BasicCard card : p.getCards()) {
                     if (card.cardEquals(suspectCard) || card.cardEquals(weaponCard) || card.cardEquals(room)) {
-                        System.out.println(p.getName() + " shows you: " + card);
+                        logger.info(p.getName() + " shows you: " + card);
                         return true;
                     }
                 }
             }
         }
-        System.out.println("No one could disprove your suggestion!");
+        logger.info("No one could disprove your suggestion!");
         return false;
     }
 

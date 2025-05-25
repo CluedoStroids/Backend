@@ -2,7 +2,10 @@ package at.aau.se2.cluedo.models.gameboard;
 
 
 
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.util.ArrayList;
@@ -11,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 public class GameBoard {
+    private static final Logger logger = LoggerFactory.getLogger(GameBoard.class);
+    
     // ANSI color codes
     public static final String RED = "\u001B[41m";
     public static final String YELLOW = "\u001B[43m";
@@ -283,18 +288,17 @@ public class GameBoard {
     }
 
     public void displayGameBoard(List<Player> players) {
-        System.out.println("\n=== CLUE GAME BOARD ===");
+        logger.info("\n=== CLUE GAME BOARD ===");
 
 
-        System.out.print("  ");
+        logger.info("  ");
         for (int i = 0; i < WIDTH; i++) {
-            System.out.print(i % 10 + " ");
+            logger.info("{} ", i % 10);
 
         }
-        System.out.println();
 
         for (int y = 0; y < HEIGHT; y++) {
-            System.out.print(y % 10 + " ");
+            logger.info("{} ", y % 10);
 
             for (int x = 0; x < WIDTH; x++) {
 
@@ -302,10 +306,8 @@ public class GameBoard {
                 char symbol = getSymbol(cell);
                 String color = getColor(cell, players, x, y);
 
-                System.out.print(color + symbol + RESET + " ");
+                logger.info("{}{}" + RESET + " ", color, symbol);
             }
-
-            System.out.println();
         }
     }
 
