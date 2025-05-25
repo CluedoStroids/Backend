@@ -235,14 +235,27 @@ public class GameBoard {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 GameBoardCell cell = grid[x][y];
-                if (cell.getRoom() == room && cell.getCellType() == CellType.SECRET_PASSAGE) {
-                    for (int[] d : new int[][]{{0,1},{0,-1},{1,0},{-1,0}}) {
-                        GameBoardCell neighbor = getCell(x + d[0], y + d[1]);
-                        if (neighbor != null && neighbor.isAccessible()) {
-                            return neighbor;
-                        }
+                if (isSecretPassageInRoom(cell, room)) {
+                    GameBoardCell exit = findAccessibleNeighbor(x, y);
+                    if (exit != null) {
+                        return exit;
                     }
                 }
+            }
+        }
+        return null;
+    }
+
+    private boolean isSecretPassageInRoom(GameBoardCell cell, Room room) {
+        return cell.getRoom() == room && cell.getCellType() == CellType.SECRET_PASSAGE;
+    }
+
+    private GameBoardCell findAccessibleNeighbor(int x, int y) {
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        for (int[] d : directions) {
+            GameBoardCell neighbor = getCell(x + d[0], y + d[1]);
+            if (neighbor != null && neighbor.isAccessible()) {
+                return neighbor;
             }
         }
         return null;

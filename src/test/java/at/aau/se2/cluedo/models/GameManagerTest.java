@@ -240,15 +240,6 @@ public class GameManagerTest {
     }
 
     @Test
-    @Disabled
-    void testCardsAreDistributedEvenlyAmongPlayers() {
-        int totalCards = gameManager.getCards().size();
-        gameManager.initilizeGame();
-        int distributed = gameManager.getPlayers().stream().mapToInt(p -> p.getCards().size()).sum();
-        assertEquals(totalCards, distributed);
-    }
-
-    @Test
     void testCorrectAccusationWinsGame() {
         SecretFile actual = gameManager.getSecretFile();
         Player player = gameManager.getPlayers().get(0);
