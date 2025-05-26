@@ -62,6 +62,7 @@ public class LobbyService {
     }
 
 
+    // fixme there is also a GameManager::performMovement, why?
     public void performMovement(Player player, List<String> movement, String lobbId) {
 
         int x = gameService.getGame(lobbId).getPlayer(player.getName()).getX();

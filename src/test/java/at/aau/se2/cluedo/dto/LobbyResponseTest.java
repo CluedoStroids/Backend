@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// fixme dont need to Lombok gen capabilities
 class LobbyResponseTest {
 
     private Lobby lobby;

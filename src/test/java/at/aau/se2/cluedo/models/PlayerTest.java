@@ -51,6 +51,7 @@ class PlayerTest {
         assertTrue(player.getCards().contains(card));
     }
 
+    // fixme reads like this test actually shouldnt clear the card list, but asserts size 0
     @Test
     void testGetCardsReturnsDefensiveCopy() {
         player.addCard(card);
