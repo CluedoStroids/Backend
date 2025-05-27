@@ -11,7 +11,6 @@ import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
-import at.aau.se2.cluedo.services.LobbyRegistry;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -99,7 +98,6 @@ public class GameManager {
     }
 
     private List<Player> initializeDefaultPlayers() {
-        //todo Players have to be initalized based on the color they picked?
         return Arrays.asList(
                 new Player("Miss Scarlet", "Scarlet", 7, 24, PlayerColor.RED),
                 new Player("Colonel Mustard", "Mustard", 0, 17, PlayerColor.YELLOW),
@@ -209,7 +207,6 @@ public class GameManager {
      */
     public boolean makeSuggestion(Player player,String suspect, String weapon) {
 
-        //todo implement actually suggest function with user interaction
         BasicCard room = getCardByName(gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
         BasicCard suspectCard = getCardByName(suspect);
         BasicCard weaponCard = getCardByName(weapon);
@@ -274,11 +271,7 @@ public class GameManager {
 
         // Check if only one player remains active
         long activePlayers = players.stream().filter(Player::isActive).count();
-        if (activePlayers == 1) {
-            return true;
-        }
-
-        return false;
+        return activePlayers == 1;
     }
 
     /**

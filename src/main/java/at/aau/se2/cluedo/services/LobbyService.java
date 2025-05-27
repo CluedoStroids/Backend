@@ -4,6 +4,7 @@ import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.models.lobby.Lobby;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,20 +17,13 @@ public class LobbyService {
 
     private final LobbyRegistry lobbyRegistry;
 
-    public LobbyRegistry getLobbyRegistry() {
-        return lobbyRegistry;
-    }
-
     @Autowired
     public LobbyService(LobbyRegistry lobbyRegistry) {
         this.lobbyRegistry = lobbyRegistry;
     }
 
+    @Setter
     public GameService gameService;
-
-    public void setGameService(GameService gameService) {
-        this.gameService = gameService;
-    }
 
     public String createLobby(Player host) {
         Lobby lobby = lobbyRegistry.createLobby(host);

@@ -1,15 +1,12 @@
 package at.aau.se2.cluedo.models.cards;
-
-import at.aau.se2.cluedo.models.gameobjects.GameObject;
 import lombok.Getter;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-public class BasicCard extends GameObject {
+public class BasicCard{
 
     //Variables
     private final String cardName;

@@ -10,11 +10,14 @@ import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
@@ -274,5 +277,41 @@ class GameServiceTest {
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
         assertFalse(p.hasWon());
         assertFalse(p.isActive());
+    }
+
+    static Stream<SolveCaseRequest> provideWrongSolveCases() {
+        return Stream.of(
+                new SolveCaseRequest("test-lobby", "Miss Scarlett", "WrongRoom", "Candlestick", "TestUser"),
+                new SolveCaseRequest("test-lobby", "WrongCharacter", "Study", "Candlestick", "TestUser"),
+                new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "WrongWeapon", "TestUser")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideWrongSolveCases")
+    void testSolveCase_PlayerEliminatedOnMismatch(SolveCaseRequest request) {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+
+        GameManager manager = getGameManager();
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+
+        simpleGameService.processSolveCase(request);
+
+        Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
+        assertFalse(p.hasWon());
+        assertFalse(p.isActive());
+    }
+
+    private static GameManager getGameManager() {
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
+        SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
+        manager.setSecretFile(solution);
+        return manager;
     }
 }
