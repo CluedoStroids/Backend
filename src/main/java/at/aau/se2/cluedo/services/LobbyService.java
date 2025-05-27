@@ -1,8 +1,6 @@
 package at.aau.se2.cluedo.services;
 
-import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameobjects.Player;
-import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
