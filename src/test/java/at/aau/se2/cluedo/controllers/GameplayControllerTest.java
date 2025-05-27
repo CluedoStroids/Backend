@@ -71,14 +71,14 @@ class GameplayControllerTest {
     @Test
     void testMakeAccusation() {
         // Arrange
-        when(lobbyService.makeAccusation(testPlayer, testSecretFile)).thenReturn("Wrong! testPlayer is out of the game!");
+        when(gameService.makeAccusation(testPlayer, testSecretFile,lobbyId)).thenReturn("Wrong! testPlayer is out of the game!");
 
         // Act
         String result = gameplayController.makeAccusation(lobbyId, testPlayer, testSecretFile);
 
         // Assert
         assertEquals("Wrong! testPlayer is out of the game!", result);
-        verify(lobbyService, times(1)).makeAccusation(testPlayer, testSecretFile);
+        verify(gameService, times(1)).makeAccusation(testPlayer, testSecretFile,lobbyId);
     }
 
     @Test

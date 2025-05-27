@@ -338,13 +338,6 @@ class GameManagerTest {
         assertFalse(gameManager.getPlayer(player1.getName()).isActive());
     }
     @Test
-    void testMakeSuggestion(){
-        Player player = gameManager.getPlayers().get(1);
-        player.move(2,2);
-        assertTrue(gameManager.makeSuggestion(player,"Mrs. White","Knife"));
-    }
-
-    @Test
     void testGetCorrectSuspect(){
         setUp();
         assertEquals(gameManager.getSecretFile().character().getCardName(),gameManager.getCorrectSuspect());

@@ -38,10 +38,8 @@ public class GameplayController {
     @MessageMapping("/makeAccusation/{lobbyId}")
     @SendTo("/topic/madeAccusation/{lobbyId}")
     public String makeAccusation(@DestinationVariable String lobbyId, Player player, SecretFile accusation) {
-        return lobbyService.makeAccusation(player, accusation);
+        return gameService.makeAccusation(player, accusation,lobbyId);
     }
-
-
 
     @MessageMapping("/displayGameBoard/{lobbyId}")
     @SendTo("/topic/displayedGameBoard/{lobbyId}")

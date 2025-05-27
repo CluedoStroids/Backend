@@ -44,57 +44,6 @@ public class LobbyService {
         return lobbyRegistry.getLobby(lobbyId);
     }
 
-    public String makeSuggestion(Player player, String suspect, String weapon) {
-
-        return "No one could disprove your suggestion!";
-
-    }
-
-    public String makeAccusation(Player player, SecretFile acusation) {
-
-        return "Wrong! " + player.getName() + " is out of the game!";
-    }
-
-
-    public void performMovement(Player player, List<String> movement, String lobbId) {
-
-        int x = gameService.getGame(lobbId).getPlayer(player.getName()).getX();
-        int y = gameService.getGame(lobbId).getPlayer(player.getName()).getY();
-
-        for (String move : movement) {
-            switch (move) {
-                case "W":
-                    y--;
-                    if (y > GameBoard.HEIGHT) {
-                        y = GameBoard.HEIGHT;
-                    }
-                    break;
-                case "D":
-                    x++;
-                    if (x > GameBoard.WIDTH) {
-                        x = GameBoard.WIDTH;
-                    }
-                    break;
-                case "A":
-                    x--;
-                    if (x < 0) {
-                        x = 0;
-                    }
-                    break;
-                case "S":
-                    y++;
-                    if (y < 0) {
-                        y = 0;
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-        }
-        gameService.getGame(lobbId).getPlayer(player.getName()).move(x,y);
-    }
-
     public List<Lobby> getAllActiveLobbies() {
         return lobbyRegistry.getAllLobbies();
     }

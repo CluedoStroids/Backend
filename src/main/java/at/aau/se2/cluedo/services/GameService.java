@@ -101,6 +101,20 @@ public class GameService {
             logger.info("Player {} guessed wrong and has been eliminated.", player.getName());
         }
     }
+    public void performMovement(Player player, List<String> movement, String lobbId) {
+        getGame(lobbId).performMovement(player,movement);
+    }
+    public String makeAccusation(Player player, SecretFile accusation,String lobbyId) {
+
+        getGame(lobbyId).makeAccusation(player,accusation);
+        return "Wrong! " + player.getName() + " is out of the game!";
+    }
+    public String makeSuggestion(Player player, String suspect, String weapon,String lobbyId) {
+
+        getGame(lobbyId).makeSuggestion(player,suspect, weapon);
+        return "Nobody has any cards for " + player.getName() + " " + suspect + " " + weapon;
+    }
+
 
     // For test access only
     protected Map<String, GameManager> getActiveGames() {
