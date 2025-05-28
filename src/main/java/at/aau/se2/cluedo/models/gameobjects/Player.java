@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 @Getter
 @Setter
-public class Player extends GameObject {
+public class Player{
 
     private final String name;
     private final String character;

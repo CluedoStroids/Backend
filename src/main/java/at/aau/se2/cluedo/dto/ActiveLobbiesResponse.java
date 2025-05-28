@@ -29,7 +29,7 @@ public class ActiveLobbiesResponse {
                         lobby.getId(),
                         lobby.getHost().getName(),
                         lobby.getPlayers().size()))
-                .collect(Collectors.toList());
+                .toList();
         
         return new ActiveLobbiesResponse(lobbyInfos);
     }

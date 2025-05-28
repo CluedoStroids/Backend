@@ -11,18 +11,18 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameObjectsTest {
+ class GameObjectsTest {
 
     private Player player;
 
     @BeforeEach
-    public void setUp() {
+     void setUp() {
         // Create a new Player for each test
         player = new Player("John", "Scarlett", 0, 0, PlayerColor.RED);
     }
 
     @Test
-    public void testAddCard() {
+     void testAddCard() {
         // Create a BasicCard with a unique UUID and add it to the player
         UUID cardID = UUID.randomUUID();
         BasicCard card = new BasicCard("Revolver", cardID, CardType.WEAPON);
@@ -46,7 +46,7 @@ public class GameObjectsTest {
     }
 
     @Test
-    public void testHasCardReturnsFalseWhenCardNotPresent() {
+     void testHasCardReturnsFalseWhenCardNotPresent() {
         // Create a card but don't add it to the player
         BasicCard card = new BasicCard("Candlestick", UUID.randomUUID(), CardType.WEAPON);
 
@@ -55,7 +55,7 @@ public class GameObjectsTest {
     }
 
     @Test
-    public void testMovePlayer() {
+     void testMovePlayer() {
         // Move the player to new coordinates
         player.move(5, 5);
 
@@ -65,7 +65,7 @@ public class GameObjectsTest {
     }
 
     @Test
-    public void testSetCurrentPlayer() {
+     void testSetCurrentPlayer() {
         // Set the player as the current player
         player.setCurrentPlayer(true);
 
@@ -74,7 +74,7 @@ public class GameObjectsTest {
     }
 
     @Test
-    public void testPlayerHasWon() {
+     void testPlayerHasWon() {
         // Set the player as having won
         player.setHasWon(true);
 
@@ -83,7 +83,7 @@ public class GameObjectsTest {
     }
 
     @Test
-    public void testSetActive() {
+     void testSetActive() {
         // Set the player to inactive
         player.setActive(false);
 
