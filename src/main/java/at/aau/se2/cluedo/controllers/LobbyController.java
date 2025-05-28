@@ -48,7 +48,6 @@ public class LobbyController {
     public String createLobby(CreateLobbyRequest request) {
         Player player = request.getPlayer();
 
-        lobbyService.setGameService(gameService);
         return lobbyService.createLobby(player);
     }
 
@@ -59,7 +58,6 @@ public class LobbyController {
 
         lobbyService.joinLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        lobbyService.setGameService(gameService);
         return LobbyResponse.fromLobby(lobby);
     }
 
