@@ -1,8 +1,5 @@
 package at.aau.se2.cluedo.models.gamemanager;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import at.aau.se2.cluedo.models.Random;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
@@ -16,7 +13,10 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 
 @Getter

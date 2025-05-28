@@ -4,10 +4,7 @@ import at.aau.se2.cluedo.dto.*;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.services.GameService;
-import at.aau.se2.cluedo.services.LobbyRegistry;
 import at.aau.se2.cluedo.services.LobbyService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -48,7 +45,6 @@ public class LobbyController {
     public String createLobby(CreateLobbyRequest request) {
         Player player = request.getPlayer();
 
-        lobbyService.setGameService(gameService);
         return lobbyService.createLobby(player);
     }
 
@@ -59,7 +55,6 @@ public class LobbyController {
 
         lobbyService.joinLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        lobbyService.setGameService(gameService);
         return LobbyResponse.fromLobby(lobby);
     }
 
