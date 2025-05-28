@@ -7,15 +7,13 @@ import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.services.GameService;
 import at.aau.se2.cluedo.services.LobbyService;
-
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+
+import java.util.List;
 
 @Controller
 public class GameController {

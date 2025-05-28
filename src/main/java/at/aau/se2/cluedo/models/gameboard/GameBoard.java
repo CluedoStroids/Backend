@@ -1,9 +1,8 @@
 package at.aau.se2.cluedo.models.gameboard;
-import at.aau.se2.cluedo.models.gamemanager.GameManager;
+
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.util.ArrayList;
 import java.util.HashMap;
