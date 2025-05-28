@@ -11,17 +11,12 @@ import java.util.List;
 @Service
 public class LobbyService {
 
-
-
     private final LobbyRegistry lobbyRegistry;
 
     @Autowired
     public LobbyService(LobbyRegistry lobbyRegistry) {
         this.lobbyRegistry = lobbyRegistry;
     }
-
-    @Setter
-    public GameService gameService;
 
     public String createLobby(Player host) {
         Lobby lobby = lobbyRegistry.createLobby(host);
