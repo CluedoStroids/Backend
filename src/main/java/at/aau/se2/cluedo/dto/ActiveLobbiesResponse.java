@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// fixme if there are multiple lobbies why are some requests are without lobbyId?
+// fixme superclasses for requests / responses with unified names (eg, id -> lobby id)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

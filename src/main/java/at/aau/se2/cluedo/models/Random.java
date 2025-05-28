@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.models;
 
+// fixme use java's randoms
 public class Random {
     private Random() {
     }

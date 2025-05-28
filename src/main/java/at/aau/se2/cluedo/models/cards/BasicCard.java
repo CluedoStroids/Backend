@@ -22,7 +22,7 @@ public class BasicCard extends GameObject {
         this.type = type;
     }
 
-
+    // fixme override equals (and hashCode)
     public boolean cardEquals(BasicCard card){
         if(card == null){
             return false;
