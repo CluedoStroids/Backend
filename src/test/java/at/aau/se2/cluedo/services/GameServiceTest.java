@@ -314,4 +314,78 @@ class GameServiceTest {
         manager.setSecretFile(solution);
         return manager;
     }
+    @Test
+    void testPerformMovement_ValidGame_CallsGameManagerMethod() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        List<String> movement = List.of("north", "east");
+
+        // This should not throw an exception if the method is properly delegated
+        assertDoesNotThrow(() -> simpleGameService.performMovement(player, movement, "test-lobby"));
+    }
+
+    @Test
+    void testPerformMovement_NonExistentGame_ShouldThrowException() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        List<String> movement = List.of("north", "east");
+
+        // Should throw NullPointerException when trying to access non-existent game
+        assertThrows(NullPointerException.class, () -> {
+            simpleGameService.performMovement(player, movement, "non-existent-lobby");
+        });
+    }
+
+    @Test
+    void testPerformMovement_EmptyMovementList() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        List<String> emptyMovement = List.of();
+
+        assertDoesNotThrow(() -> simpleGameService.performMovement(player, emptyMovement, "test-lobby"));
+    }
+
+    // Tests for makeAccusation method
+    @Test
+    void testMakeAccusation_ValidGame_ReturnsExpectedMessage() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        BasicCard charCard = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard roomCard = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard weaponCard = new BasicCard("Candlestick", null, CardType.WEAPON);
+        SecretFile accusation = new SecretFile(roomCard, weaponCard, charCard);
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+
+        String result = simpleGameService.makeAccusation(player, accusation, "test-lobby");
+
+        assertEquals("Wrong! TestUser is out of the game!", result);
+    }
+
+    @Test
+    void testMakeAccusation_NonExistentGame_ShouldThrowException() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+
+        BasicCard charCard = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard roomCard = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard weaponCard = new BasicCard("Candlestick", null, CardType.WEAPON);
+        SecretFile accusation = new SecretFile(roomCard, weaponCard, charCard);
+
+        assertThrows(NullPointerException.class, () -> {
+            simpleGameService.makeAccusation(player, accusation, "non-existent-lobby");
+        });
+    }
+
+
+
+
 }
