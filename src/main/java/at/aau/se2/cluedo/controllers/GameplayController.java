@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.controllers;
 
+import at.aau.se2.cluedo.dto.SolveCaseRequest;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -49,4 +50,11 @@ public class GameplayController {
     public GameBoard getGameBoard(@DestinationVariable String lobbyId) {
         return gameService.getGame(lobbyId).getGameBoard();
     }
+
+    @MessageMapping("/solveCase")
+    public void solveCase(SolveCaseRequest request) {
+
+        gameService.processSolveCase(request);
+    }
+
 }

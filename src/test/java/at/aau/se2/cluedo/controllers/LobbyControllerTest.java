@@ -72,14 +72,5 @@ class LobbyControllerTest {
 
         verify(lobbyService, times(1)).getAllActiveLobbies();
     }
-    @Test
-    void solveCase_ShouldCallGameServiceWithCorrectRequest() {
-
-        SolveCaseRequest request = new SolveCaseRequest("lobby-id-1", "Scarlett", "Study", "Candlestick", "Player1");
-
-        lobbyController.solveCase(request);
-
-        verify(gameService, times(1)).processSolveCase(request);
-    }
 
 }

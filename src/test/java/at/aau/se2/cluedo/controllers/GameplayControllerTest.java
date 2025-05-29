@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.controllers;
 
+import at.aau.se2.cluedo.dto.SolveCaseRequest;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
@@ -103,5 +104,15 @@ class GameplayControllerTest {
         // Assert
         assertSame(gameBoard, result);
         verify(gameManager, times(1)).getGameBoard();
+    }
+
+    @Test
+    void solveCase_ShouldCallGameServiceWithCorrectRequest() {
+
+        SolveCaseRequest request = new SolveCaseRequest("lobby-id-1", "Scarlett", "Study", "Candlestick", "Player1");
+
+        gameplayController.solveCase(request);
+
+        verify(gameService, times(1)).processSolveCase(request);
     }
 }
