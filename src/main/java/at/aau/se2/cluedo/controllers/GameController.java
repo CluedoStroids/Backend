@@ -2,6 +2,7 @@ package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.GameStartedResponse;
 import at.aau.se2.cluedo.dto.StartGameRequest;
+import at.aau.se2.cluedo.dto.SuggestionRequest;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
@@ -64,4 +65,12 @@ public class GameController {
             throw new IllegalStateException("Failed to start game: " + e.getMessage());
         }
     }
+
+    @MessageMapping("/suggestion")
+    public void handleSuggestion(SuggestionRequest request) {
+        gameService.processSuggestion(request);
+    }
+
 }
+
+

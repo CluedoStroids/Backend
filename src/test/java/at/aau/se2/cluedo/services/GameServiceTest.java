@@ -1,6 +1,7 @@
 package at.aau.se2.cluedo.services;
 
 import at.aau.se2.cluedo.dto.SolveCaseRequest;
+import at.aau.se2.cluedo.dto.SuggestionRequest;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
@@ -15,6 +16,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import static org.mockito.Mockito.*;
+
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -385,7 +388,61 @@ class GameServiceTest {
         });
     }
 
+    @Test
+    void testProcessSuggestion_Disproved() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 1, 1, PlayerColor.RED);
+        GameManager manager = spy(new GameManager(List.of(player)));
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+
+        SuggestionRequest request = new SuggestionRequest("test-lobby", "Scarlet", "Rope", "Kitchen", "TestUser");
 
 
+        doReturn(true).when(manager).makeSuggestion(player, "Scarlet", "Rope");
+
+        simpleGameService.processSuggestion(request);
+
+        verify(manager).makeSuggestion(player, "Scarlet", "Rope");
+    }
+
+    @Test
+    void testProcessSuggestion_NotDisproved() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 1, 1, PlayerColor.RED);
+        GameManager manager = spy(new GameManager(List.of(player)));
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+
+        SuggestionRequest request = new SuggestionRequest("test-lobby", "Scarlet", "Knife", "Kitchen", "TestUser");
+
+        doReturn(false).when(manager).makeSuggestion(player, "Scarlet", "Knife");
+
+        simpleGameService.processSuggestion(request);
+
+        verify(manager).makeSuggestion(player, "Scarlet", "Knife");
+    }
+
+    @Test
+    void testProcessSuggestion_GameNotFound() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+
+        SuggestionRequest request = new SuggestionRequest("invalid-lobby", "Scarlet", "Knife", "Kitchen", "TestUser");
+
+        assertDoesNotThrow(() -> simpleGameService.processSuggestion(request));
+    }
+
+    @Test
+    void testProcessSuggestion_PlayerNotFound() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player otherPlayer = new Player("SomeoneElse", "Plum", 1, 1, PlayerColor.PURPLE);
+        GameManager manager = new GameManager(List.of(otherPlayer));
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+
+        SuggestionRequest request = new SuggestionRequest("test-lobby", "Scarlet", "Knife", "Kitchen", "TestUser");
+
+        assertDoesNotThrow(() -> simpleGameService.processSuggestion(request));
+    }
 
 }
