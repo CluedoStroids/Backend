@@ -11,5 +11,5 @@ public class SuggestionRequest {
     private String playerName;
     private String suspect;
     private String weapon;
-    private String room; // Current room where suggestion is made
+    private String room;
 }

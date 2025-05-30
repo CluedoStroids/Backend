@@ -47,9 +47,7 @@ public class GameplayController {
         return gameService.getGame(lobbyId).getGameBoard();
     }
 
-    /**
-     * Handle suggestion action with turn validation
-     */
+
     @MessageMapping("/makeSuggestion/{lobbyId}")
     @SendTo("/topic/suggestionMade/{lobbyId}")
     public Map<String, Object> makeSuggestion(@DestinationVariable String lobbyId, SuggestionRequest request) {
@@ -105,9 +103,7 @@ public class GameplayController {
         }
     }
 
-    /**
-     * Handle accusation action with turn validation
-     */
+
     @MessageMapping("/makeAccusation/{lobbyId}")
     @SendTo("/topic/accusationMade/{lobbyId}")
     public Map<String, Object> makeAccusation(@DestinationVariable String lobbyId, AccusationRequest request) {

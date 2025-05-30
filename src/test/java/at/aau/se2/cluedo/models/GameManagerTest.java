@@ -350,7 +350,17 @@ public class GameManagerTest {
     @Test
     void testMakeSuggestion(){
         Player player = gameManager.getPlayers().get(1);
-        player.move(2,2);
+        // Move player to a room (Kitchen is at position 1,1)
+        player.move(1,1);
+
+        // Ensure another player has one of the cards we're suggesting
+        Player otherPlayer = gameManager.getPlayers().get(0);
+        BasicCard weaponCard = gameManager.getCardByName("Knife");
+        if (weaponCard != null) {
+            otherPlayer.addCard(weaponCard);
+        }
+
+        // Now the suggestion should be disproved (return true)
         assertTrue(gameManager.makeSuggestion(player,"Mrs. White","Knife"));
     }
 

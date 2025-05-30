@@ -30,8 +30,8 @@ public class TurnService {
         WAITING_FOR_START,          // At least 3 players, waiting for host to start
         PLAYERS_TURN_ROLL_DICE,     // Current player needs to roll dice
         PLAYERS_TURN_MOVE,          // Current player needs to move
-        PLAYERS_TURN_SUSPECT,       // Current player can make a suggestion (optional, only if in room)
-        PLAYERS_TURN_SOLVE,         // Current player can make an accusation (optional, anytime during turn)
+        PLAYERS_TURN_SUGGEST,     // Current player can make a suggestion (if in room) or accusation
+        PLAYERS_TURN_SOLVE,         // Current player can make a solve case attempt (optional, anytime during turn)
         PLAYERS_TURN_END,           // Current player's turn is ending
         PLAYER_HAS_WON              // Game finished, someone won
     }
@@ -135,10 +135,10 @@ public class TurnService {
 
         // Check if player is in a room after movement
         if (game.inRoom(currentPlayer)) {
-            // Player can make a suggestion
-            lobbyTurnStates.put(lobbyId, TurnState.PLAYERS_TURN_SUSPECT);
+            // Player can make a suspicion
+            lobbyTurnStates.put(lobbyId, TurnState.PLAYERS_TURN_SUGGEST);
             messagingTemplate.convertAndSend("/topic/turnStateChanged/" + lobbyId,
-                    Map.of("turnState", TurnState.PLAYERS_TURN_SUSPECT, "currentPlayer", currentPlayer.getName()));
+                    Map.of("turnState", TurnState.PLAYERS_TURN_SUGGEST, "currentPlayer", currentPlayer.getName()));
         } else {
             // End turn if not in room
             endTurn(lobbyId);
@@ -148,11 +148,15 @@ public class TurnService {
     }
 
     /**
-     * Process suggestion and end turn
+     * Process suggestion and handle turn logic
      */
     public boolean processSuggestion(String lobbyId, String playerName, String suspect, String weapon) {
+        if (!isPlayerTurn(lobbyId, playerName)) {
+            return false;
+        }
+
         TurnState currentState = getTurnState(lobbyId);
-        if (currentState != TurnState.PLAYERS_TURN_SUSPECT) {
+        if (currentState != TurnState.PLAYERS_TURN_SUGGEST) {
             logger.warn("Invalid turn state for suggestion in lobby {}: {}", lobbyId, currentState);
             return false;
         }
@@ -160,12 +164,16 @@ public class TurnService {
         GameManager game = gameService.getGame(lobbyId);
         Player currentPlayer = game.getCurrentPlayer();
 
-        // Make the suggestion
+        // Make the suggestion using GameManager's makeSuggestion method
         boolean suggestionDisproved = game.makeSuggestion(currentPlayer, suspect, weapon);
+
+        // Get the room name from player's current position
+        String room = game.getGameBoard().getCell(currentPlayer.getX(), currentPlayer.getY()).getRoom().getName();
 
         // Notify all players about the suggestion
         messagingTemplate.convertAndSend("/topic/suggestionMade/" + lobbyId,
-                Map.of("player", playerName, "suspect", suspect, "weapon", weapon, "disproved", suggestionDisproved));
+                Map.of("player", playerName, "suspect", suspect, "weapon", weapon, "room", room,
+                       "disproved", suggestionDisproved, "success", true));
 
         // End turn after suggestion
         endTurn(lobbyId);
@@ -175,23 +183,23 @@ public class TurnService {
     }
 
     /**
-     * Process accusation and potentially end game
+     * Process accusation and handle turn logic
      */
     public boolean processAccusation(String lobbyId, String playerName, String suspect, String weapon, String room) {
         if (!isPlayerTurn(lobbyId, playerName)) {
             return false;
         }
 
-        // Can make accusation during any turn phase except PLAYERS_TURN_END
         TurnState currentState = getTurnState(lobbyId);
         if (currentState == TurnState.PLAYERS_TURN_END || currentState == TurnState.PLAYER_HAS_WON) {
+            logger.warn("Invalid turn state for accusation in lobby {}: {}", lobbyId, currentState);
             return false;
         }
 
         GameManager game = gameService.getGame(lobbyId);
         Player currentPlayer = game.getCurrentPlayer();
 
-        // Check if accusation is correct
+        // Check if accusation is correct using direct comparison
         boolean isCorrect = game.getCorrectSuspect().equals(suspect) &&
                 game.getCorrectWeapon().equals(weapon) &&
                 game.getCorrectRoom().equals(room);
@@ -202,32 +210,36 @@ public class TurnService {
             game.setState(GameState.ENDED);
             lobbyTurnStates.put(lobbyId, TurnState.PLAYER_HAS_WON);
 
-            messagingTemplate.convertAndSend("/topic/gameWon/" + lobbyId,
-                    Map.of("winner", playerName, "suspect", suspect, "weapon", weapon, "room", room));
+            // Notify all players about the win
+            messagingTemplate.convertAndSend("/topic/accusationMade/" + lobbyId,
+                    Map.of("player", playerName, "suspect", suspect, "weapon", weapon, "room", room,
+                           "correct", true, "gameWon", true, "success", true));
 
-            logger.info("Player {} won the game in lobby {} with correct accusation", playerName, lobbyId);
+            logger.info("Player {} won the game in lobby {} with correct accusation!", playerName, lobbyId);
         } else {
-            // Player is eliminated
+            // Eliminate player
             currentPlayer.setActive(false);
 
-            messagingTemplate.convertAndSend("/topic/playerEliminated/" + lobbyId,
-                    Map.of("player", playerName, "suspect", suspect, "weapon", weapon, "room", room));
+            // Notify all players about the failed accusation
+            messagingTemplate.convertAndSend("/topic/accusationMade/" + lobbyId,
+                    Map.of("player", playerName, "suspect", suspect, "weapon", weapon, "room", room,
+                           "correct", false, "playerEliminated", true, "success", true));
 
             // Check if game should end (only one player left)
             if (game.checkGameEnd()) {
                 lobbyTurnStates.put(lobbyId, TurnState.PLAYER_HAS_WON);
-                messagingTemplate.convertAndSend("/topic/gameEnded/" + lobbyId,
-                        Map.of("reason", "Only one player remaining"));
             } else {
-                // Continue to next player
-                nextTurn(lobbyId);
+                // End turn and move to next player
+                endTurn(lobbyId);
             }
 
-            logger.info("Player {} was eliminated in lobby {} with wrong accusation", playerName, lobbyId);
+            logger.info("Player {} eliminated in lobby {} with incorrect accusation", playerName, lobbyId);
         }
 
         return true;
     }
+
+
 
     /**
      * End current turn and move to next player
@@ -272,20 +284,7 @@ public class TurnService {
         nextTurn(lobbyId);
     }
 
-    /**
-     * Skip suggestion phase and end turn
-     */
-    public void skipSuggestion(String lobbyId, String playerName) {
-        if (!isPlayerTurn(lobbyId, playerName)) {
-            return;
-        }
 
-        TurnState currentState = getTurnState(lobbyId);
-        if (currentState == TurnState.PLAYERS_TURN_SUSPECT) {
-            endTurn(lobbyId);
-            logger.info("Player {} skipped suggestion in lobby {}", playerName, lobbyId);
-        }
-    }
 
     /**
      * Get current player for a lobby
@@ -293,6 +292,17 @@ public class TurnService {
     public Player getCurrentPlayer(String lobbyId) {
         GameManager game = gameService.getGame(lobbyId);
         return game != null ? game.getCurrentPlayer() : null;
+    }
+
+    /**
+     * Check if player can make a suggestion
+     */
+    public boolean canMakeSuggestion(String lobbyId, String playerName) {
+        if (!isPlayerTurn(lobbyId, playerName)) {
+            return false;
+        }
+
+        return getTurnState(lobbyId) == TurnState.PLAYERS_TURN_SUGGEST;
     }
 
     /**
@@ -304,21 +314,12 @@ public class TurnService {
         }
 
         TurnState state = getTurnState(lobbyId);
-        return state == TurnState.PLAYERS_TURN_ROLL_DICE || 
-               state == TurnState.PLAYERS_TURN_MOVE || 
-               state == TurnState.PLAYERS_TURN_SUSPECT;
+        return state == TurnState.PLAYERS_TURN_ROLL_DICE ||
+               state == TurnState.PLAYERS_TURN_MOVE ||
+               state == TurnState.PLAYERS_TURN_SUGGEST;
     }
 
-    /**
-     * Check if player can make a suggestion
-     */
-    public boolean canMakeSuggestion(String lobbyId, String playerName) {
-        if (!isPlayerTurn(lobbyId, playerName)) {
-            return false;
-        }
 
-        return getTurnState(lobbyId) == TurnState.PLAYERS_TURN_SUSPECT;
-    }
 
     /**
      * Force end game (for admin purposes)

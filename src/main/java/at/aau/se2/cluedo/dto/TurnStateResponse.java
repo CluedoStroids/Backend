@@ -13,8 +13,8 @@ public class TurnStateResponse {
     private String currentPlayerName;
     private int currentPlayerIndex;
     private TurnState turnState;
-    private boolean canMakeAccusation;
     private boolean canMakeSuggestion;
+    private boolean canMakeAccusation;
     private int diceValue;
     private String message;
 }

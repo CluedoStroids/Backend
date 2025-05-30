@@ -66,9 +66,7 @@ public class GameBoardController {
         return gameData(lobbyId,response);
     }
 
-    /**
-     * Complete movement and advance turn state
-     */
+
     @MessageMapping("/completeMovement/{lobbyId}")
     @SendTo("/topic/movementCompleted/{lobbyId}")
     public TurnStateResponse completeMovement(@DestinationVariable String lobbyId, TurnActionRequest request) {
@@ -84,11 +82,12 @@ public class GameBoardController {
             TurnService.TurnState currentState = turnService.getTurnState(lobbyId);
 
             String message;
-            boolean canSuggest = false;
+            boolean canMakeSuggestion = false;
+            boolean canMakeAccusation = turnService.canMakeAccusation(lobbyId, currentPlayer.getName());
 
-            if (currentState == TurnService.TurnState.PLAYERS_TURN_SUSPECT) {
+            if (currentState == TurnService.TurnState.PLAYERS_TURN_SUGGEST) {
                 message = currentPlayer.getName() + " is in a room and can make a suggestion!";
-                canSuggest = true;
+                canMakeSuggestion = true;
             } else {
                 message = currentPlayer.getName() + "'s turn ended. Moving to next player.";
             }
@@ -98,8 +97,8 @@ public class GameBoardController {
                     currentPlayer.getName(),
                     game.getCurrentPlayerIndex(),
                     currentState,
-                    true,
-                    canSuggest,
+                    canMakeSuggestion,
+                    canMakeAccusation,
                     game.getDiceRollS(),
                     message
             );

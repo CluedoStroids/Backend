@@ -5,7 +5,6 @@ import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.services.GameService;
-import at.aau.se2.cluedo.services.LobbyRegistry;
 import at.aau.se2.cluedo.services.LobbyService;
 import at.aau.se2.cluedo.services.TurnService;
 
@@ -119,9 +118,6 @@ public class LobbyController {
         gameService.processSolveCase(request);
     }
 
-    /**
-     * Skip current player's turn (for timeouts or admin actions)
-     */
     @MessageMapping("/skipTurn/{lobbyId}")
     @SendTo("/topic/turnSkipped/{lobbyId}")
     public TurnStateResponse skipTurn(@DestinationVariable String lobbyId, Map<String, String> request) {
@@ -137,8 +133,8 @@ public class LobbyController {
                 currentPlayer.getName(),
                 game.getCurrentPlayerIndex(),
                 TurnService.TurnState.PLAYERS_TURN_ROLL_DICE,
-                true,
-                false,
+                false, // Cannot make suggestion at start of turn
+                true,  // Can make accusation during turn
                 0,
                 "Turn skipped. " + currentPlayer.getName() + "'s turn to roll dice."
             );
@@ -148,9 +144,6 @@ public class LobbyController {
         }
     }
 
-    /**
-     * Check if it's a specific player's turn
-     */
     @MessageMapping("/checkPlayerTurn/{lobbyId}")
     @SendTo("/topic/playerTurnCheck/{lobbyId}")
     public Map<String, Object> checkPlayerTurn(@DestinationVariable String lobbyId, Map<String, String> request) {
@@ -164,6 +157,7 @@ public class LobbyController {
                 "playerName", playerName,
                 "isPlayerTurn", isPlayerTurn,
                 "turnState", currentState,
+                "canMakeSuggestion", currentState == TurnService.TurnState.PLAYERS_TURN_SUGGEST,
                 "canMakeAccusation", turnService.canMakeAccusation(lobbyId, playerName)
             );
         } catch (Exception e) {
@@ -175,9 +169,6 @@ public class LobbyController {
         }
     }
 
-    /**
-     * Helper method to create error responses
-     */
     private TurnStateResponse createErrorResponse(String lobbyId, String message) {
         return new TurnStateResponse(
             lobbyId,

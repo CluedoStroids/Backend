@@ -44,11 +44,8 @@ public class DiceController {
         messagingTemplate.convertAndSend("/topic/diceResult", result);
     }
 
-    /**
-     * Handle turn-based dice roll action
-     */
+
     @MessageMapping("/rollDice/{lobbyId}")
-    //@SendTo("/topic/diceRolled/{lobbyId}")
     public TurnStateResponse rollDiceForTurn(@DestinationVariable String lobbyId, TurnActionRequest request) {
         try {
             if (turnService.getTurnState(lobbyId) != TurnState.PLAYERS_TURN_ROLL_DICE) {
@@ -73,8 +70,8 @@ public class DiceController {
                 currentPlayer.getName(),
                 game.getCurrentPlayerIndex(),
                 TurnState.PLAYERS_TURN_MOVE,
-                true,
-                false,
+                false, // Cannot make suggestion while moving
+                true,  // Can make accusation during turn
                 diceValue,
                 currentPlayer.getName() + " rolled " + diceValue + ". Time to move!"
             );
@@ -84,9 +81,6 @@ public class DiceController {
         }
     }
 
-    /**
-     * Helper method to create error responses
-     */
     private TurnStateResponse createErrorResponse(String lobbyId, String message) {
         return new TurnStateResponse(
             lobbyId,

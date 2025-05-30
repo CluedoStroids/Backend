@@ -77,9 +77,6 @@ public class GameController {
         }
     }
 
-    /**
-     * Initialize turn-based gameplay when game starts
-     */
     @MessageMapping("/initializeTurns/{lobbyId}")
     @SendTo("/topic/turnsInitialized/{lobbyId}")
     public TurnStateResponse initializeTurns(@DestinationVariable String lobbyId) {
@@ -94,8 +91,8 @@ public class GameController {
                 currentPlayer.getName(),
                 game.getCurrentPlayerIndex(),
                 TurnState.PLAYERS_TURN_ROLL_DICE,
-                true, // Can always make accusation during turn
                 false, // Cannot make suggestion until in room
+                true,  // Can make accusation during turn
                 0,
                 "Game started! " + currentPlayer.getName() + "'s turn to roll dice."
             );
@@ -105,9 +102,6 @@ public class GameController {
         }
     }
 
-    /**
-     * Get current turn state
-     */
     @MessageMapping("/getTurnState/{lobbyId}")
     @SendTo("/topic/currentTurnState/{lobbyId}")
     public TurnStateResponse getTurnState(@DestinationVariable String lobbyId) {
@@ -120,8 +114,8 @@ public class GameController {
             Player currentPlayer = game.getCurrentPlayer();
             TurnState currentState = turnService.getTurnState(lobbyId);
 
-            boolean canSuggest = currentState == TurnState.PLAYERS_TURN_SUSPECT;
-            boolean canAccuse = turnService.canMakeAccusation(lobbyId, currentPlayer.getName());
+            boolean canMakeSuggestion = currentState == TurnState.PLAYERS_TURN_SUGGEST;
+            boolean canMakeAccusation = turnService.canMakeAccusation(lobbyId, currentPlayer.getName());
 
             String message = generateTurnMessage(currentPlayer.getName(), currentState);
 
@@ -130,8 +124,8 @@ public class GameController {
                 currentPlayer.getName(),
                 game.getCurrentPlayerIndex(),
                 currentState,
-                canAccuse,
-                canSuggest,
+                canMakeSuggestion,
+                canMakeAccusation,
                 game.getDiceRollS(),
                 message
             );
@@ -141,32 +135,6 @@ public class GameController {
         }
     }
 
-    /**
-     * End game (admin action)
-     */
-    @MessageMapping("/endGame/{lobbyId}")
-    @SendTo("/topic/gameEnded/{lobbyId}")
-    public Map<String, Object> endGame(@DestinationVariable String lobbyId) {
-        try {
-            turnService.forceEndGame(lobbyId);
-            return Map.of(
-                "lobbyId", lobbyId,
-                "message", "Game ended by admin",
-                "reason", "ADMIN_ACTION"
-            );
-        } catch (Exception e) {
-            logger.error("Error ending game in lobby {}: {}", lobbyId, e.getMessage());
-            return Map.of(
-                "lobbyId", lobbyId,
-                "message", "Error ending game",
-                "reason", "ERROR"
-            );
-        }
-    }
-
-    /**
-     * Helper method to create error responses
-     */
     private TurnStateResponse createErrorResponse(String lobbyId, String message) {
         return new TurnStateResponse(
             lobbyId,
@@ -180,16 +148,13 @@ public class GameController {
         );
     }
 
-    /**
-     * Helper method to generate appropriate turn messages
-     */
     private String generateTurnMessage(String playerName, TurnState state) {
         return switch (state) {
             case WAITING_FOR_PLAYERS -> "Waiting for more players to join...";
             case WAITING_FOR_START -> "Waiting for host to start the game...";
             case PLAYERS_TURN_ROLL_DICE -> playerName + "'s turn - Roll the dice to start your turn!";
             case PLAYERS_TURN_MOVE -> playerName + "'s turn - Move your piece on the board!";
-            case PLAYERS_TURN_SUSPECT -> playerName + " is in a room - Make a suggestion!";
+            case PLAYERS_TURN_SUGGEST -> playerName + " is in a room - Make a suggestion or accusation!";
             case PLAYERS_TURN_SOLVE -> playerName + " can make an accusation!";
             case PLAYERS_TURN_END -> "Turn ending, moving to next player...";
             case PLAYER_HAS_WON -> "Game has ended!";
