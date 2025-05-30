@@ -1,11 +1,15 @@
 package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.*;
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.services.GameService;
 import at.aau.se2.cluedo.services.LobbyRegistry;
 import at.aau.se2.cluedo.services.LobbyService;
+import at.aau.se2.cluedo.services.TurnService;
+
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,7 @@ import java.util.List;
 @Controller
 public class LobbyController {
 
+    private static final Logger logger = LoggerFactory.getLogger(LobbyController.class);
 
     private static LobbyController instance = null;
 
@@ -42,6 +47,9 @@ public class LobbyController {
 
     @Autowired
     private GameService gameService;
+    
+    @Autowired
+    private TurnService turnService;
 
     @MessageMapping("/createLobby")
     @SendTo("/topic/lobbyCreated")
@@ -49,7 +57,12 @@ public class LobbyController {
         Player player = request.getPlayer();
 
         lobbyService.setGameService(gameService);
-        return lobbyService.createLobby(player);
+        String lobbyId = lobbyService.createLobby(player);
+        
+        // Initialize lobby state
+        turnService.initializeLobbyState(lobbyId);
+        
+        return lobbyId;
     }
 
     @MessageMapping("/joinLobby/{lobbyId}")
@@ -60,6 +73,12 @@ public class LobbyController {
         lobbyService.joinLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
         lobbyService.setGameService(gameService);
+        
+        // Check if we now have enough players to start
+        if (lobby.getPlayers().size() >= 3) {
+            turnService.setWaitingForStart(lobbyId);
+        }
+        
         return LobbyResponse.fromLobby(lobby);
     }
 
@@ -70,6 +89,12 @@ public class LobbyController {
 
         lobbyService.leaveLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
+        
+        // Check if we no longer have enough players to start
+        if (lobby.getPlayers().size() < 3) {
+            turnService.setWaitingForPlayers(lobbyId);
+        }
+        
         return LobbyResponse.fromLobby(lobby);
     }
 
@@ -91,8 +116,78 @@ public class LobbyController {
 
     @MessageMapping("/solveCase")
     public void solveCase(SolveCaseRequest request) {
-
         gameService.processSolveCase(request);
     }
 
+    /**
+     * Skip current player's turn (for timeouts or admin actions)
+     */
+    @MessageMapping("/skipTurn/{lobbyId}")
+    @SendTo("/topic/turnSkipped/{lobbyId}")
+    public TurnStateResponse skipTurn(@DestinationVariable String lobbyId, Map<String, String> request) {
+        try {
+            String reason = request.getOrDefault("reason", "Turn skipped");
+            turnService.skipTurn(lobbyId, reason);
+
+            GameManager game = gameService.getGame(lobbyId);
+            Player currentPlayer = game.getCurrentPlayer();
+
+            return new TurnStateResponse(
+                lobbyId,
+                currentPlayer.getName(),
+                game.getCurrentPlayerIndex(),
+                TurnService.TurnState.PLAYERS_TURN_ROLL_DICE,
+                true,
+                false,
+                0,
+                "Turn skipped. " + currentPlayer.getName() + "'s turn to roll dice."
+            );
+        } catch (Exception e) {
+            logger.error("Error skipping turn in lobby {}: {}", lobbyId, e.getMessage());
+            return createErrorResponse(lobbyId, "Error skipping turn");
+        }
+    }
+
+    /**
+     * Check if it's a specific player's turn
+     */
+    @MessageMapping("/checkPlayerTurn/{lobbyId}")
+    @SendTo("/topic/playerTurnCheck/{lobbyId}")
+    public Map<String, Object> checkPlayerTurn(@DestinationVariable String lobbyId, Map<String, String> request) {
+        try {
+            String playerName = request.get("playerName");
+            boolean isPlayerTurn = turnService.isPlayerTurn(lobbyId, playerName);
+            TurnService.TurnState currentState = turnService.getTurnState(lobbyId);
+
+            return Map.of(
+                "lobbyId", lobbyId,
+                "playerName", playerName,
+                "isPlayerTurn", isPlayerTurn,
+                "turnState", currentState,
+                "canMakeAccusation", turnService.canMakeAccusation(lobbyId, playerName)
+            );
+        } catch (Exception e) {
+            logger.error("Error checking player turn in lobby {}: {}", lobbyId, e.getMessage());
+            return Map.of(
+                "lobbyId", lobbyId,
+                "error", "Error checking player turn"
+            );
+        }
+    }
+
+    /**
+     * Helper method to create error responses
+     */
+    private TurnStateResponse createErrorResponse(String lobbyId, String message) {
+        return new TurnStateResponse(
+            lobbyId,
+            "",
+            -1,
+            TurnService.TurnState.PLAYER_HAS_WON,
+            false,
+            false,
+            0,
+            message
+        );
+    }
 }

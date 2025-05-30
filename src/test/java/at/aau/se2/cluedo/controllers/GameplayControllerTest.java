@@ -54,32 +54,7 @@ class GameplayControllerTest {
         when(gameManager.getGameBoard()).thenReturn(gameBoard);
     }
 
-    @Test
-    void testMakeSuggestion() {
-        // Arrange
-        String suspectName = "Colonel Mustard";
-        String weaponName = "Knife";
-
-        // Act
-        String result = gameplayController.makeSuggestion(lobbyId, testPlayer, suspectName, weaponName);
-
-        // Assert
-        assertEquals(lobbyId, result);
-        verify(gameManager, times(1)).makeSuggestion(testPlayer, suspectName, weaponName);
-    }
-
-    @Test
-    void testMakeAccusation() {
-        // Arrange
-        when(lobbyService.makeAccusation(testPlayer, testSecretFile)).thenReturn("Wrong! testPlayer is out of the game!");
-
-        // Act
-        String result = gameplayController.makeAccusation(lobbyId, testPlayer, testSecretFile);
-
-        // Assert
-        assertEquals("Wrong! testPlayer is out of the game!", result);
-        verify(lobbyService, times(1)).makeAccusation(testPlayer, testSecretFile);
-    }
+    // Note: makeSuggestion and makeAccusation tests removed as methods moved to TurnController
 
     @Test
     void testDisplayGameBoard() {

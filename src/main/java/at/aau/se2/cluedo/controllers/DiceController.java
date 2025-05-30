@@ -1,8 +1,20 @@
 package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.DiceResult;
+import at.aau.se2.cluedo.dto.TurnActionRequest;
+import at.aau.se2.cluedo.dto.TurnStateResponse;
 import at.aau.se2.cluedo.models.Random;
+import at.aau.se2.cluedo.models.gamemanager.GameManager;
+import at.aau.se2.cluedo.models.gameobjects.Player;
+import at.aau.se2.cluedo.services.GameService;
+import at.aau.se2.cluedo.services.TurnService;
+import at.aau.se2.cluedo.services.TurnService.TurnState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -10,7 +22,14 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class DiceController {
 
+    private static final Logger logger = LoggerFactory.getLogger(DiceController.class);
     private final SimpMessagingTemplate messagingTemplate;
+
+    @Autowired
+    private TurnService turnService;
+
+    @Autowired
+    private GameService gameService;
 
     public DiceController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
@@ -23,8 +42,61 @@ public class DiceController {
 
         DiceResult result = new DiceResult(diceOneValue, diceTwoValue);
         messagingTemplate.convertAndSend("/topic/diceResult", result);
-
     }
 
+    /**
+     * Handle turn-based dice roll action
+     */
+    @MessageMapping("/rollDice/{lobbyId}")
+    //@SendTo("/topic/diceRolled/{lobbyId}")
+    public TurnStateResponse rollDiceForTurn(@DestinationVariable String lobbyId, TurnActionRequest request) {
+        try {
+            if (turnService.getTurnState(lobbyId) != TurnState.PLAYERS_TURN_ROLL_DICE) {
+                return createErrorResponse(lobbyId, "Invalid turn state for dice roll");
+            }
 
+            // Generate dice value if not provided
+            int diceValue = request.getDiceValue() > 0 ? request.getDiceValue() :
+                           Random.rand(6, 1) + Random.rand(6, 1);
+
+            boolean success = turnService.processDiceRoll(lobbyId, request.getPlayerName(), diceValue);
+
+            if (!success) {
+                return createErrorResponse(lobbyId, "Invalid dice roll attempt");
+            }
+
+            GameManager game = gameService.getGame(lobbyId);
+            Player currentPlayer = game.getCurrentPlayer();
+
+            return new TurnStateResponse(
+                lobbyId,
+                currentPlayer.getName(),
+                game.getCurrentPlayerIndex(),
+                TurnState.PLAYERS_TURN_MOVE,
+                true,
+                false,
+                diceValue,
+                currentPlayer.getName() + " rolled " + diceValue + ". Time to move!"
+            );
+        } catch (Exception e) {
+            logger.error("Error processing dice roll in lobby {}: {}", lobbyId, e.getMessage());
+            return createErrorResponse(lobbyId, "Error processing dice roll");
+        }
+    }
+
+    /**
+     * Helper method to create error responses
+     */
+    private TurnStateResponse createErrorResponse(String lobbyId, String message) {
+        return new TurnStateResponse(
+            lobbyId,
+            "",
+            -1,
+            TurnState.PLAYER_HAS_WON,
+            false,
+            false,
+            0,
+            message
+        );
+    }
 }
