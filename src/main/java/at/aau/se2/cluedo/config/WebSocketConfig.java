@@ -1,5 +1,4 @@
-package at.aau.se2.cluedo.config;
-
+package at.aau.serg.websocketdemoserver.websocket.broker;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -13,20 +12,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // Broadcasting messages to subscribers
-        config.enableSimpleBroker("/topic");
-        // Messages getting sent to the app
-        config.setApplicationDestinationPrefixes("/app");
+        config.enableSimpleBroker("/topic");    //Server broadcasts messages to this destination (send)
+        config.setApplicationDestinationPrefixes("/app");        //Clients send messages to this destination (received)
+        //config.setUserDestinationPrefix("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // WebSocket endpoint
-        registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("10.0.2.2:*\", http://localhost:8000");
-                //.withSockJS();
-
-
-
+        registry.addEndpoint("/cluedo")
+                .setAllowedOrigins("*");
+                //.withSockJS(); try if websockets are not supported.
     }
 }
+
