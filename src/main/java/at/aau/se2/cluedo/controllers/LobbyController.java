@@ -55,7 +55,7 @@ public class LobbyController {
     public String createLobby(CreateLobbyRequest request) {
         Player player = request.getPlayer();
 
-        lobbyService.setGameService(gameService);
+        //lobbyService.setGameService(gameService);
         String lobbyId = lobbyService.createLobby(player);
 
         // Initialize lobby state
@@ -71,7 +71,7 @@ public class LobbyController {
 
         lobbyService.joinLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        lobbyService.setGameService(gameService);
+        //lobbyService.setGameService(gameService);
 
         // Check if we now have enough players to start
         if (lobby.getPlayers().size() >= 3) {

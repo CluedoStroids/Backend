@@ -55,7 +55,7 @@ public class GameBoardController {
     @SendTo("/topic/performMovement/{lobbyId}")
     public GameDataResponse performMovement( @DestinationVariable String lobbyId, PerformMoveRequest request){
 
-        lobbyService.performMovement(request.getPlayer(),request.getMoves(),lobbyId);
+        gameService.performMovement(request.getPlayer(),request.getMoves(),lobbyId);
 
         //gameService.getGame(lobbyId).nextTurn();
         StartGameRequest response = new StartGameRequest();
