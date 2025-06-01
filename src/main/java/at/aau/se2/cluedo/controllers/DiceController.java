@@ -17,12 +17,13 @@ public class DiceController {
     }
 
     @MessageMapping("/rollDice")
-    public void rollDice() {
-        int diceOneValue = ThreadLocalRandom.current().nextInt(1, 7);
-        int diceTwoValue = ThreadLocalRandom.current().nextInt(1, 7);
-
-        DiceResult result = new DiceResult(diceOneValue, diceTwoValue);
+    public void rollDice(DiceResult result) {
+        if (result == null || result.getDiceOne() == 0 || result.getDiceTwo() == 0) {
+            int diceOneValue = ThreadLocalRandom.current().nextInt(1, 7);
+            int diceTwoValue = ThreadLocalRandom.current().nextInt(1, 7);
+            result = new DiceResult(diceOneValue, diceTwoValue);
+        }
+        
         messagingTemplate.convertAndSend("/topic/diceResult", result);
-
     }
 }
