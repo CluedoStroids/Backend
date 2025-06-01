@@ -8,6 +8,7 @@ import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GameManagerTest {
+public class GameManagerTest {
 
     private GameManager gameManager;
     Player player1;
@@ -92,8 +93,7 @@ class GameManagerTest {
         GameManager gm = new GameManager(2);
         SecretFile correct = gm.getSecretFile();
         Player p = gm.getPlayers().get(0);
-        gm.makeAccusation(p, correct);
-        assertTrue(p.hasWon());
+        assertTrue(gm.makeAccusation(p, correct));
     }
 
     @Test
@@ -106,8 +106,7 @@ class GameManagerTest {
         BasicCard wrongCharacter = new BasicCard("WrongChar", UUID.randomUUID(), CardType.CHARACTER);
 
         SecretFile wrong = new SecretFile(wrongRoom, wrongWeapon, wrongCharacter);
-        gm.makeAccusation(p, wrong);
-        assertFalse(p.isActive());
+        assertFalse(gm.makeAccusation(p, wrong));
     }
 
     @Test
@@ -242,8 +241,7 @@ class GameManagerTest {
     void testCorrectAccusationWinsGame() {
         SecretFile actual = gameManager.getSecretFile();
         Player player = gameManager.getPlayers().get(0);
-        gameManager.makeAccusation(player, actual);
-        assertTrue(player.hasWon());
+        assertTrue(gameManager.makeAccusation(player, actual));
     }
 
     @Test
@@ -337,6 +335,23 @@ class GameManagerTest {
         gameManager.eliminateCurrentPlayer();
         assertFalse(gameManager.getPlayer(player1.getName()).isActive());
     }
+    @Test
+    void testMakeSuggestion(){
+        Player player = gameManager.getPlayers().get(1);
+        // Move player to a room (Kitchen is at position 1,1)
+        player.move(1,1);
+
+        // Ensure another player has one of the cards we're suggesting
+        Player otherPlayer = gameManager.getPlayers().get(0);
+        BasicCard weaponCard = gameManager.getCardByName("Knife");
+        if (weaponCard != null) {
+            otherPlayer.addCard(weaponCard);
+        }
+
+        // Now the suggestion should be disproved (return true)
+        assertTrue(gameManager.makeSuggestion(player,"Mrs. White","Knife"));
+    }
+
     @Test
     void testGetCorrectSuspect(){
         setUp();
