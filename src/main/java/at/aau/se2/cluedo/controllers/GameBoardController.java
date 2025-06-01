@@ -9,7 +9,6 @@ import at.aau.se2.cluedo.dto.TurnStateResponse;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
-
 import at.aau.se2.cluedo.services.GameService;
 import at.aau.se2.cluedo.services.LobbyService;
 

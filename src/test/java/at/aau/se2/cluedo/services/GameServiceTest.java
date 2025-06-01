@@ -10,11 +10,14 @@ import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
@@ -275,4 +278,114 @@ class GameServiceTest {
         assertFalse(p.hasWon());
         assertFalse(p.isActive());
     }
+
+    static Stream<SolveCaseRequest> provideWrongSolveCases() {
+        return Stream.of(
+                new SolveCaseRequest("test-lobby", "Miss Scarlett", "WrongRoom", "Candlestick", "TestUser"),
+                new SolveCaseRequest("test-lobby", "WrongCharacter", "Study", "Candlestick", "TestUser"),
+                new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "WrongWeapon", "TestUser")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideWrongSolveCases")
+    void testSolveCase_PlayerEliminatedOnMismatch(SolveCaseRequest request) {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+
+        GameManager manager = getGameManager();
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+
+        simpleGameService.processSolveCase(request);
+
+        Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
+        assertFalse(p.hasWon());
+        assertFalse(p.isActive());
+    }
+
+    private static GameManager getGameManager() {
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
+        SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
+        manager.setSecretFile(solution);
+        return manager;
+    }
+    @Test
+    void testPerformMovement_ValidGame_CallsGameManagerMethod() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        List<String> movement = List.of("north", "east");
+
+        // This should not throw an exception if the method is properly delegated
+        assertDoesNotThrow(() -> simpleGameService.performMovement(player, movement, "test-lobby"));
+    }
+
+    @Test
+    void testPerformMovement_NonExistentGame_ShouldThrowException() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        List<String> movement = List.of("north", "east");
+
+        // Should throw NullPointerException when trying to access non-existent game
+        assertThrows(NullPointerException.class, () -> {
+            simpleGameService.performMovement(player, movement, "non-existent-lobby");
+        });
+    }
+
+    @Test
+    void testPerformMovement_EmptyMovementList() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        List<String> emptyMovement = List.of();
+
+        assertDoesNotThrow(() -> simpleGameService.performMovement(player, emptyMovement, "test-lobby"));
+    }
+
+    // Tests for makeAccusation method
+    @Test
+    void testMakeAccusation_ValidGame_ReturnsExpectedMessage() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        BasicCard charCard = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard roomCard = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard weaponCard = new BasicCard("Candlestick", null, CardType.WEAPON);
+        SecretFile accusation = new SecretFile(roomCard, weaponCard, charCard);
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+
+        String result = simpleGameService.makeAccusation(player, accusation, "test-lobby");
+
+        assertEquals("Wrong! TestUser is out of the game!", result);
+    }
+
+    @Test
+    void testMakeAccusation_NonExistentGame_ShouldThrowException() {
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+
+        BasicCard charCard = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
+        BasicCard roomCard = new BasicCard("Study", null, CardType.ROOM);
+        BasicCard weaponCard = new BasicCard("Candlestick", null, CardType.WEAPON);
+        SecretFile accusation = new SecretFile(roomCard, weaponCard, charCard);
+
+        assertThrows(NullPointerException.class, () -> {
+            simpleGameService.makeAccusation(player, accusation, "non-existent-lobby");
+        });
+    }
+
+
+
+
 }

@@ -46,7 +46,7 @@ public class LobbyController {
 
     @Autowired
     private GameService gameService;
-    
+
     @Autowired
     private TurnService turnService;
 
@@ -57,10 +57,10 @@ public class LobbyController {
 
         lobbyService.setGameService(gameService);
         String lobbyId = lobbyService.createLobby(player);
-        
+
         // Initialize lobby state
         turnService.initializeLobbyState(lobbyId);
-        
+
         return lobbyId;
     }
 
@@ -72,12 +72,12 @@ public class LobbyController {
         lobbyService.joinLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
         lobbyService.setGameService(gameService);
-        
+
         // Check if we now have enough players to start
         if (lobby.getPlayers().size() >= 3) {
             turnService.setWaitingForStart(lobbyId);
         }
-        
+
         return LobbyResponse.fromLobby(lobby);
     }
 
@@ -88,12 +88,12 @@ public class LobbyController {
 
         lobbyService.leaveLobby(lobbyId, player);
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        
+
         // Check if we no longer have enough players to start
         if (lobby.getPlayers().size() < 3) {
             turnService.setWaitingForPlayers(lobbyId);
         }
-        
+
         return LobbyResponse.fromLobby(lobby);
     }
 

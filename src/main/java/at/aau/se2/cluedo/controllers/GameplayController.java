@@ -3,7 +3,6 @@ package at.aau.se2.cluedo.controllers;
 import at.aau.se2.cluedo.dto.*;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameobjects.Player;
-import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.services.GameService;
 import at.aau.se2.cluedo.services.LobbyService;
 import at.aau.se2.cluedo.services.TurnService;

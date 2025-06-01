@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameBoardTest {
+class GameBoardTest {
 
     private GameBoard gameBoard;
     private Player player;
@@ -28,7 +28,7 @@ public class GameBoardTest {
 
 
     @Test
-    public void testInitialization() {
+    void testInitialization() {
         // Check that the board is properly initialized
         assertNotNull(gameBoard);
 
@@ -104,24 +104,6 @@ public class GameBoardTest {
     }
 
     @Test
-    public void testSecretPassage() {
-        // Place player at secret passage in kitchen
-        player.move(5, 1);
-
-        // Use secret passage
-        assertTrue(gameBoard.useSecretPassage(player));
-
-        // Player should now be in study or near it
-        GameBoardCell currentCell = gameBoard.getCell(player.getX(), player.getY());
-        assertTrue(currentCell.isAccessible());
-
-        // The closest room should be Study
-        if (currentCell.getCellType() == CellType.ROOM) {
-            assertTrue(currentCell.getRoom().getName().equals("Study"));
-        }
-    }
-
-    @Test
     void testUseSecretPassage() {
         player.move(5, 1);
 
@@ -134,7 +116,7 @@ public class GameBoardTest {
 
         // The closest room should be Study
         if (currentCell.getCellType() == CellType.ROOM) {
-            assertTrue(currentCell.getRoom().getName().equals("Study"));
+            assertEquals("Study", currentCell.getRoom().getName());
         }
     }
     @Test
@@ -148,17 +130,7 @@ public class GameBoardTest {
         assertEquals(CellType.ROOM, cell.getCellType());
         assertEquals(targetRoom, cell.getRoom());
     }
-    // Helper to access private method
-    private char invokePrivateSymbolMethod(GameBoardCell cell) {
-        try {
-            java.lang.reflect.Method method = GameBoard.class.getDeclaredMethod("getSymbol", GameBoardCell.class);
-            method.setAccessible(true);
-            return (char) method.invoke(gameBoard, cell);
-        } catch (Exception e) {
-            fail("Reflection failed");
-            return '?';
-        }
-    }
+
     @Test
     void testDisplayGameBoard() {
         List<Player> players = new ArrayList<>();
@@ -176,9 +148,7 @@ public class GameBoardTest {
         for (PlayerColor color : PlayerColor.values()) {
             Player testPlayer = new Player("Player", "Character", 10, 10, color);
             List<Player> players = List.of(testPlayer);
-            GameBoardCell cell = gameBoard.getCell(10, 10);
-
-            String colorStr = gameBoard.getColor(cell, players, 10, 10);
+            String colorStr = gameBoard.getColor(players, 10, 10);
             assertNotNull(colorStr, "Color string should not be null for " + color);
         }
     }

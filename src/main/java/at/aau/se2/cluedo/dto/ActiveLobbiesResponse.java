@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -29,7 +28,7 @@ public class ActiveLobbiesResponse {
                         lobby.getId(),
                         lobby.getHost().getName(),
                         lobby.getPlayers().size()))
-                .collect(Collectors.toList());
+                .toList();
         
         return new ActiveLobbiesResponse(lobbyInfos);
     }

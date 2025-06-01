@@ -18,6 +18,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.util.concurrent.ThreadLocalRandom;
 
 @Controller
 public class DiceController {
@@ -37,8 +38,8 @@ public class DiceController {
 
     @MessageMapping("/rollDice")
     public void rollDice() {
-        int diceOneValue = Random.rand(6,1);
-        int diceTwoValue = Random.rand(6,1);
+        int diceOneValue = ThreadLocalRandom.current().nextInt(1, 7);
+        int diceTwoValue = ThreadLocalRandom.current().nextInt(1, 7);
 
         DiceResult result = new DiceResult(diceOneValue, diceTwoValue);
         messagingTemplate.convertAndSend("/topic/diceResult", result);
@@ -59,7 +60,7 @@ public class DiceController {
 
             // generate dice value if not provided
             int diceValue = request.getDiceValue() > 0 ? request.getDiceValue() :
-                           Random.rand(6, 1) + Random.rand(6, 1);
+                    ThreadLocalRandom.current().nextInt(1, 7) + ThreadLocalRandom.current().nextInt(1, 7);
 
             boolean success = turnService.processDiceRoll(lobbyId, request.getPlayerName(), diceValue);
 

@@ -177,8 +177,8 @@ public class GameManagerTest {
 
 
     @Test
-    void testAddAndGetPlayers() {
-        Player player = new Player("Markus","Markus",2,5, PlayerColor.GREEN);
+    void testGetPlayers() {
+
         assertEquals(3, gameManager.getPlayers().size());
         assertEquals(0, gameManager.getCurrentPlayerIndex());
         assertTrue(gameManager.getPlayers().get(0).isCurrentPlayer());
@@ -238,15 +238,6 @@ public class GameManagerTest {
     }
 
     @Test
-    @Disabled
-    void testCardsAreDistributedEvenlyAmongPlayers() {
-        int totalCards = gameManager.getCards().size();
-        gameManager.initilizeGame();
-        int distributed = gameManager.getPlayers().stream().mapToInt(p -> p.getCards().size()).sum();
-        assertEquals(totalCards, distributed);
-    }
-
-    @Test
     void testCorrectAccusationWinsGame() {
         SecretFile actual = gameManager.getSecretFile();
         Player player = gameManager.getPlayers().get(0);
@@ -255,13 +246,13 @@ public class GameManagerTest {
 
     @Test
     void testIncorrectAccusationRemovesPlayer() {
-        Player player = gameManager.getPlayers().get(0);
         SecretFile wrong = new SecretFile(
                 new BasicCard("FakeRoom", UUID.randomUUID(), CardType.ROOM),
                 new BasicCard("FakeWeapon", UUID.randomUUID(), CardType.WEAPON),
                 new BasicCard("FakeChar", UUID.randomUUID(), CardType.CHARACTER)
         );
         gameManager.makeAccusation(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()),wrong);
+
         assertFalse(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).isActive());
     }
 
