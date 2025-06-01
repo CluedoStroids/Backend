@@ -44,7 +44,12 @@ public class DiceController {
         messagingTemplate.convertAndSend("/topic/diceResult", result);
     }
 
-
+    /**
+     * Roll dice for a player's turn
+     * @param lobbyId
+     * @param request
+     * @return TurnStateResponse
+     */
     @MessageMapping("/rollDice/{lobbyId}")
     public TurnStateResponse rollDiceForTurn(@DestinationVariable String lobbyId, TurnActionRequest request) {
         try {
@@ -52,7 +57,7 @@ public class DiceController {
                 return createErrorResponse(lobbyId, "Invalid turn state for dice roll");
             }
 
-            // Generate dice value if not provided
+            // generate dice value if not provided
             int diceValue = request.getDiceValue() > 0 ? request.getDiceValue() :
                            Random.rand(6, 1) + Random.rand(6, 1);
 

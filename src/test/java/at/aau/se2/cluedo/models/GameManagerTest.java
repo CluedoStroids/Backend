@@ -93,8 +93,7 @@ public class GameManagerTest {
         GameManager gm = new GameManager(2);
         SecretFile correct = gm.getSecretFile();
         Player p = gm.getPlayers().get(0);
-        gm.makeAccusation(p, correct);
-        assertTrue(p.hasWon());
+        assertTrue(gm.makeAccusation(p, correct));
     }
 
     @Test
@@ -107,8 +106,7 @@ public class GameManagerTest {
         BasicCard wrongCharacter = new BasicCard("WrongChar", UUID.randomUUID(), CardType.CHARACTER);
 
         SecretFile wrong = new SecretFile(wrongRoom, wrongWeapon, wrongCharacter);
-        gm.makeAccusation(p, wrong);
-        assertFalse(p.isActive());
+        assertFalse(gm.makeAccusation(p, wrong));
     }
 
     @Test
@@ -252,8 +250,7 @@ public class GameManagerTest {
     void testCorrectAccusationWinsGame() {
         SecretFile actual = gameManager.getSecretFile();
         Player player = gameManager.getPlayers().get(0);
-        gameManager.makeAccusation(player, actual);
-        assertTrue(player.hasWon());
+        assertTrue(gameManager.makeAccusation(player, actual));
     }
 
     @Test
@@ -263,8 +260,8 @@ public class GameManagerTest {
                 new BasicCard("FakeRoom", UUID.randomUUID(), CardType.ROOM),
                 new BasicCard("FakeWeapon", UUID.randomUUID(), CardType.WEAPON),
                 new BasicCard("FakeChar", UUID.randomUUID(), CardType.CHARACTER)
-        );gameManager.makeAccusation(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()),wrong);
-
+        );
+        gameManager.makeAccusation(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()),wrong);
         assertFalse(gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()).isActive());
     }
 
