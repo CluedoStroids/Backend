@@ -1,8 +1,5 @@
 package at.aau.se2.cluedo.models.gamemanager;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import at.aau.se2.cluedo.models.Random;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
@@ -11,20 +8,22 @@ import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
-import at.aau.se2.cluedo.services.LobbyRegistry;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 
 @Getter
 @Setter
 public class GameManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(LobbyRegistry.class);
+    private static final Logger logger = LoggerFactory.getLogger(GameManager.class);
 
     private final GameBoard gameBoard;
     private final List<Player> players;
@@ -99,7 +98,6 @@ public class GameManager {
     }
 
     private List<Player> initializeDefaultPlayers() {
-        //todo Players have to be initalized based on the color they picked?
         return Arrays.asList(
                 new Player("Miss Scarlet", "Scarlet", 7, 24, PlayerColor.RED),
                 new Player("Colonel Mustard", "Mustard", 0, 17, PlayerColor.YELLOW),
@@ -153,57 +151,52 @@ public class GameManager {
      * @param movement List of moves the player takes
      * @return recursive call
      */
-    public int performMovement(Player player,  List<String> movement) {
+    public int performMovement(Player player, List<String> movement) {
 
-        if(movement.isEmpty()){
+        // Prevent cheating by limiting moves to dice roll and check if there are no more moves
+        if (movement.isEmpty()||movement.size() > diceRollS) {
             return 0;
         }
 
-        //todo prevents from cheating.
-        if(movement.size() > diceRollS){
+        String currentMove = movement.get(0);
+
+        // Handle exit command
+        if (currentMove.equalsIgnoreCase("X")) {
             return 0;
         }
 
-        for (String input: movement) {
+        int newX = player.getX();
+        int newY = player.getY();
 
-            if (input.equalsIgnoreCase("X")) {
+        // Calculate new position based on input
+        switch (currentMove.toUpperCase()) {
+            case "W" -> newY--;
+            case "S" -> newY++;
+            case "A" -> newX--;
+            case "D" -> newX++;
+            default -> {
+                logger.info("Invalid input!");
                 return 0;
             }
+        }
 
-            int newX = player.getX();
-            int newY = player.getY();
-
-            switch (input.toUpperCase()) {
-                case "W" -> newY--;
-                case "S" -> newY++;
-                case "A" -> newX--;
-                case "D" -> newX++;
-                default -> {
-                    System.out.println("Invalid input!");
-                    return 0;
-                }
-            }
-
-            for(Player p : players){
-                if(p.getX() == newX && p.getY() == newY){
-                    System.out.println("Invalid move!");
-                    return 0;
-                }
-            }
-
-            if (gameBoard.movePlayer(player, newX, newY,false)) {
-                if(!input.equals(movement.get(movement.size() - 1))){
-                    movement.subList(1,movement.size()-1);
-                    continue;
-                }
-                return performMovement(player, movement.subList(1,movement.size()-1));
-            } else {
-                System.out.println("Invalid move!");
-                return performMovement(player,movement);
+        // Check for collision with other players
+        for (Player p : players) {
+            if (p != player && p.getX() == newX && p.getY() == newY) {
+                logger.info("Invalid move - position occupied!");
+                return 0;
             }
         }
-        System.out.println("Invalid move!");
-        return performMovement(player, movement);
+
+        // Attempt to move the player
+        if (gameBoard.movePlayer(player, newX, newY, false)) {
+            // Move successful, process remaining movements
+            return performMovement(player, movement.subList(1, movement.size()));
+        } else {
+            // Move failed (likely out of bounds or invalid position)
+            logger.info("Invalid move - cannot move to that position!");
+            return 0;
+        }
     }
 
     /**
@@ -214,7 +207,6 @@ public class GameManager {
      */
     public boolean makeSuggestion(Player player,String suspect, String weapon) {
 
-        //todo implement actually suggest function with user interaction
         BasicCard room = getCardByName(gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
         BasicCard suspectCard = getCardByName(suspect);
         BasicCard weaponCard = getCardByName(weapon);
@@ -224,13 +216,13 @@ public class GameManager {
             if (p != player) {
                 for (BasicCard card : p.getCards()) {
                     if (card.cardEquals(suspectCard) || card.cardEquals(weaponCard) || card.cardEquals(room)) {
-                        System.out.println(p.getName() + " shows you: " + card);
+                        logger.info("{} shows you: {}", p.getName(), card);
                         return true;
                     }
                 }
             }
         }
-        System.out.println("No one could disprove your suggestion!");
+        logger.info("No one could disprove your suggestion!");
         return false;
     }
 
@@ -253,16 +245,18 @@ public class GameManager {
      * @param player current player
      * @param accusation suspected secret file
      */
-    public void makeAccusation(Player player, SecretFile accusation) {
+    public boolean makeAccusation(Player player, SecretFile accusation) {
 
         if (secretFile.room().cardEquals(accusation.room()) && secretFile.character().cardEquals(accusation.character()) && secretFile.weapon().cardEquals(accusation.weapon())) {
             logger.info("Correct! {} has solved the crime!", player.getName());
             player.setHasWon(true);
             this.winner = player;
             this.state = GameState.ENDED;
+            return true;
         } else {
             logger.info("Wrong! {} is out of the game!", player.getName());
             player.setActive(false);
+            return false;
         }
     }
 
@@ -279,11 +273,7 @@ public class GameManager {
 
         // Check if only one player remains active
         long activePlayers = players.stream().filter(Player::isActive).count();
-        if (activePlayers == 1) {
-            return true;
-        }
-
-        return false;
+        return activePlayers == 1;
     }
 
     /**
@@ -312,19 +302,9 @@ public class GameManager {
 
         if (currentPlayerIndex >= players.size())
             this.currentPlayerIndex = 0;
-
+        logger.info("Next turn: " + players.get(currentPlayerIndex).getName());
         players.get(currentPlayerIndex).setCurrentPlayer(true);
     }
-    /**
-     * This method is a placeholder for getting input in the WebSocket version.
-     * In a real implementation, this would be replaced with WebSocket communication.
-     */
-    private String getConsoleInputNextLine() {
-        // In a WebSocket environment, this would be handled differently
-        // For now, just return a default value
-        return "3"; // Default to "do nothing" for room actions
-    }
-
     public void eliminateCurrentPlayer() {
         Player current = getCurrentPlayer();
         current.setActive(false);
