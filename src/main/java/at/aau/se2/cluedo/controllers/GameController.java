@@ -2,6 +2,7 @@ package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.GameStartedResponse;
 import at.aau.se2.cluedo.dto.StartGameRequest;
+import at.aau.se2.cluedo.dto.SuggestionRequest;
 import at.aau.se2.cluedo.dto.TurnStateResponse;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
@@ -84,14 +85,14 @@ public class GameController {
             Player currentPlayer = game.getCurrentPlayer();
 
             return new TurnStateResponse(
-                lobbyId,
-                currentPlayer.getName(),
-                game.getCurrentPlayerIndex(),
-                TurnState.PLAYERS_TURN_ROLL_DICE,
-                false, // Cannot make suggestion until in room
-                true,  // Can make accusation during turn
-                0,
-                "Game started! " + currentPlayer.getName() + "'s turn to roll dice."
+                    lobbyId,
+                    currentPlayer.getName(),
+                    game.getCurrentPlayerIndex(),
+                    TurnState.PLAYERS_TURN_ROLL_DICE,
+                    false, // Cannot make suggestion until in room
+                    true,  // Can make accusation during turn
+                    0,
+                    "Game started! " + currentPlayer.getName() + "'s turn to roll dice."
             );
         } catch (Exception e) {
             logger.error("Failed to initialize turns for lobby {}: {}", lobbyId, e.getMessage());
@@ -117,14 +118,14 @@ public class GameController {
             String message = generateTurnMessage(currentPlayer.getName(), currentState);
 
             return new TurnStateResponse(
-                lobbyId,
-                currentPlayer.getName(),
-                game.getCurrentPlayerIndex(),
-                currentState,
-                canMakeSuggestion,
-                canMakeAccusation,
-                game.getDiceRollS(),
-                message
+                    lobbyId,
+                    currentPlayer.getName(),
+                    game.getCurrentPlayerIndex(),
+                    currentState,
+                    canMakeSuggestion,
+                    canMakeAccusation,
+                    game.getDiceRollS(),
+                    message
             );
         } catch (Exception e) {
             logger.error("Error getting turn state for lobby {}: {}", lobbyId, e.getMessage());
@@ -134,14 +135,14 @@ public class GameController {
 
     private TurnStateResponse createErrorResponse(String lobbyId, String message) {
         return new TurnStateResponse(
-            lobbyId,
-            "",
-            -1,
-            TurnState.PLAYER_HAS_WON,
-            false,
-            false,
-            0,
-            message
+                lobbyId,
+                "",
+                -1,
+                TurnState.PLAYER_HAS_WON,
+                false,
+                false,
+                0,
+                message
         );
     }
 
@@ -157,4 +158,13 @@ public class GameController {
             case PLAYER_HAS_WON -> "Game has ended!";
         };
     }
+
+
+    @MessageMapping("/suggestion")
+    public void handleSuggestion(SuggestionRequest request) {
+        gameService.processSuggestion(request);
+    }
+
 }
+
+
