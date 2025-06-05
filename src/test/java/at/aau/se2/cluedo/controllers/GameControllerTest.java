@@ -8,6 +8,7 @@ import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.lobby.Lobby;
 import at.aau.se2.cluedo.services.GameService;
 import at.aau.se2.cluedo.services.LobbyService;
+import at.aau.se2.cluedo.services.TurnService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -30,6 +31,9 @@ class GameControllerTest {
 
     @Mock
     private GameManager gameManager;
+
+    @Mock
+    private TurnService turnService;
 
     @InjectMocks
     private GameController gameController;

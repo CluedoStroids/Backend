@@ -245,16 +245,18 @@ public class GameManager {
      * @param player current player
      * @param accusation suspected secret file
      */
-    public void makeAccusation(Player player, SecretFile accusation) {
+    public boolean makeAccusation(Player player, SecretFile accusation) {
 
         if (secretFile.room().cardEquals(accusation.room()) && secretFile.character().cardEquals(accusation.character()) && secretFile.weapon().cardEquals(accusation.weapon())) {
             logger.info("Correct! {} has solved the crime!", player.getName());
             player.setHasWon(true);
             this.winner = player;
             this.state = GameState.ENDED;
+            return true;
         } else {
             logger.info("Wrong! {} is out of the game!", player.getName());
             player.setActive(false);
+            return false;
         }
     }
 
@@ -300,7 +302,7 @@ public class GameManager {
 
         if (currentPlayerIndex >= players.size())
             this.currentPlayerIndex = 0;
-
+        logger.info("Next turn: " + players.get(currentPlayerIndex).getName());
         players.get(currentPlayerIndex).setCurrentPlayer(true);
     }
     public void eliminateCurrentPlayer() {
