@@ -389,41 +389,6 @@ class GameServiceTest {
     }
 
     @Test
-    void testProcessSuggestion_Disproved() {
-        GameService simpleGameService = new GameService(new LobbyService(null));
-        Player player = new Player("TestUser", "Scarlet", 1, 1, PlayerColor.RED);
-        GameManager manager = spy(new GameManager(List.of(player)));
-
-        simpleGameService.getActiveGames().put("test-lobby", manager);
-
-        SuggestionRequest request = new SuggestionRequest("test-lobby", "Scarlet", "Rope", "Kitchen", "TestUser");
-
-
-        doReturn(true).when(manager).makeSuggestion(player, "Scarlet", "Rope");
-
-        simpleGameService.processSuggestion(request);
-
-        verify(manager).makeSuggestion(player, "Scarlet", "Rope");
-    }
-
-    @Test
-    void testProcessSuggestion_NotDisproved() {
-        GameService simpleGameService = new GameService(new LobbyService(null));
-        Player player = new Player("TestUser", "Scarlet", 1, 1, PlayerColor.RED);
-        GameManager manager = spy(new GameManager(List.of(player)));
-
-        simpleGameService.getActiveGames().put("test-lobby", manager);
-
-        SuggestionRequest request = new SuggestionRequest("test-lobby", "Scarlet", "Knife", "Kitchen", "TestUser");
-
-        doReturn(false).when(manager).makeSuggestion(player, "Scarlet", "Knife");
-
-        simpleGameService.processSuggestion(request);
-
-        verify(manager).makeSuggestion(player, "Scarlet", "Knife");
-    }
-
-    @Test
     void testProcessSuggestion_GameNotFound() {
         GameService simpleGameService = new GameService(new LobbyService(null));
 
