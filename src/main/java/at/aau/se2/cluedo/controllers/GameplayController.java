@@ -40,11 +40,7 @@ public class GameplayController {
         gameService.getGame(lobbyId).getGameBoard().displayGameBoard(players);
         return lobbyId;
     }
-    @MessageMapping("/getGameBoard/{lobbyId}")
-    @SendTo("/topic/gotGameBoard/{lobbyId}")
-    public GameBoard getGameBoard(@DestinationVariable String lobbyId) {
-        return gameService.getGame(lobbyId).getGameBoard();
-    }
+
 
 
     @MessageMapping("/makeSuggestion/{lobbyId}")

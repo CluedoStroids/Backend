@@ -28,7 +28,7 @@ class WebSocketBrokerIntegrationTest {
     @LocalServerPort
     private int port;
 
-    private final String WEBSOCKET_URI = "ws://localhost:%d/cluedo";
+    private final String WEBSOCKET_URI = "ws://10.0.2.2:%d/cluedo";
     private final String WEBSOCKET_TOPIC = "/topic/";
 
     private StompSession session;

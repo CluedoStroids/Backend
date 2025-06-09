@@ -1,4 +1,4 @@
-package at.aau.serg.websocketdemoserver.websocket.broker;
+package at.aau.se2.cluedo.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

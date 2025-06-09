@@ -5,6 +5,7 @@ import at.aau.se2.cluedo.dto.SuggestionRequest;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
+import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
@@ -47,6 +48,8 @@ class GameplayControllerTest {
 
     @InjectMocks
     private GameplayController gameplayController;
+    @InjectMocks
+    private GameBoardController gameBoardController;
 
     private final String lobbyId = "test-lobby";
     private Player testPlayer;
@@ -133,11 +136,12 @@ class GameplayControllerTest {
 
     @Test
     void testGetGameBoard() {
+        setUp();
         // Act
-        GameBoard result = gameplayController.getGameBoard(lobbyId);
+        GameBoardCell[][] result = gameBoardController.getGameBoard(lobbyId);
 
         // Assert
-        assertSame(gameBoard, result);
-        verify(gameManager, times(1)).getGameBoard();
+        assertSame(gameBoard.getGrid(), result);
+        verify(gameManager, times(1)).getGameBoard().getGrid();
     }
 }
