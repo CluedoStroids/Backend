@@ -4,6 +4,7 @@ import at.aau.se2.cluedo.dto.DiceResult;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -17,7 +18,7 @@ public class DiceController {
     }
 
     @MessageMapping("/rollDice")
-    public void rollDice(DiceResult result) {
+    public void rollDice(@RequestBody(required = false) DiceResult result) {
         if (result == null || result.getDiceOne() == 0 || result.getDiceTwo() == 0) {
             int diceOneValue = ThreadLocalRandom.current().nextInt(1, 7);
             int diceTwoValue = ThreadLocalRandom.current().nextInt(1, 7);
