@@ -1,6 +1,7 @@
 package at.aau.se2.cluedo.services;
 
 import at.aau.se2.cluedo.dto.SolveCaseRequest;
+import at.aau.se2.cluedo.dto.SuggestionRequest;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -120,5 +121,29 @@ public class GameService {
     protected Map<String, GameManager> getActiveGames() {
         return activeGames;
     }
+
+    public void processSuggestion(SuggestionRequest request) {
+        GameManager game = activeGames.get(request.getLobbyId());
+        if (game == null) {
+            logger.warn("No active game found for lobby ID: {}", request.getLobbyId());
+            return;
+        }
+
+        Player player = game.getPlayer(request.getPlayerName());
+        if (player == null) {
+            logger.warn("Player {} not found in game.", request.getPlayerName());
+            return;
+        }
+
+        boolean disproved = game.makeSuggestion(player, request.getSuspect(), request.getWeapon());
+
+        logger.info("Suggestion by {}: {} in the {} with the {} — {}",
+                request.getPlayerName(),
+                request.getSuspect(),
+                request.getRoom(),
+                request.getWeapon(),
+                disproved ? "Disproved" : "No one could disprove");
+    }
+
 
 }
