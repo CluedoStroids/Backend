@@ -9,7 +9,6 @@ import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gamemanager.GameState;
 import at.aau.se2.cluedo.models.gameobjects.Player;
-import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import at.aau.se2.cluedo.services.TurnService.TurnState;
 import org.junit.jupiter.api.BeforeEach;
