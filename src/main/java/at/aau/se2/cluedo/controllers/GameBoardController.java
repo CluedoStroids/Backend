@@ -7,6 +7,7 @@ import at.aau.se2.cluedo.dto.StartGameRequest;
 import at.aau.se2.cluedo.dto.TurnActionRequest;
 import at.aau.se2.cluedo.dto.TurnStateResponse;
 import at.aau.se2.cluedo.models.gameboard.CellType;
+import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.services.GameService;
@@ -59,12 +60,12 @@ public class GameBoardController {
 
         //gameService.getGame(lobbyId).nextTurn();
         StartGameRequest response = new StartGameRequest();
-
+        System.out.println(request.getMoves());
         response.setPlayer(gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()));
-
+        System.out.println(response.getPlayer().getX());
+        System.out.println(response.getPlayer().getY());
         return gameData(lobbyId,response);
     }
-
 
     @MessageMapping("/completeMovement/{lobbyId}")
     @SendTo("/topic/movementCompleted/{lobbyId}")
@@ -106,31 +107,30 @@ public class GameBoardController {
             return createErrorResponse(lobbyId, "Error processing movement");
         }
     }
-    @MessageMapping("/isWall/{lobbyId}")
-    @SendTo("/topic/isWall/{lobbyId}")
-    public boolean isWall(@DestinationVariable String lobbyId, IsWallRequest request){
-
-        CellType temp = gameService.getGame(lobbyId).getGameBoard().getCell(request.x,request.y).getCellType();
-        return temp.equals(CellType.ROOM);
 
 
+    @MessageMapping("/getGameBoardGrid/{lobbyId}")
+    @SendTo("/topic/gameBoard/{lobbyId}")
+    public GameBoardCell[][] getGameBoard(@DestinationVariable String lobbyId){
+        System.out.println("GameBoard found");
+        System.out.println(gameService.getGame(lobbyId).getGameBoard().getGrid().length);
+        return gameService.getGame(lobbyId).getGameBoard().getGrid();
     }
+
     @MessageMapping("/getGameData/{lobbyId}")
     @SendTo("/topic/gameData/{lobbyId}")
     public GameDataResponse gameData(@DestinationVariable String lobbyId, StartGameRequest request) {
-
-
         try {
             GameManager gameManager = gameService.getGame(lobbyId);
 
             List<Player> gamePlayers = gameManager.getPlayers();
             lobbyService.getLobby(lobbyId).setPlayers(gamePlayers);
 
-
             return new GameDataResponse(lobbyId, gamePlayers,gameManager.getPlayers().get(gameManager.getCurrentPlayerIndex()));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to get game Data: " + e.getMessage());
         }
+
     }
 
     /**
