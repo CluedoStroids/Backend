@@ -1,7 +1,7 @@
 package at.aau.se2.cluedo.services;
 
-import at.aau.se2.cluedo.dto.SolveCaseRequest;
 import at.aau.se2.cluedo.dto.SuggestionRequest;
+import at.aau.se2.cluedo.dto.AccusationRequest;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
@@ -16,7 +16,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import static org.mockito.Mockito.*;
 
 
 import java.util.List;
@@ -166,7 +165,7 @@ class GameServiceTest {
 
 
     @Test
-    void testCorrectSolveCaseMarksPlayerAsWinner() {
+    void testCorrectAccusationMarksPlayerAsWinner() {
         GameService simpleGameService = new GameService(new LobbyService(null));
         Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
         GameManager manager = new GameManager(List.of(player));
@@ -179,8 +178,8 @@ class GameServiceTest {
 
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
-        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
-        simpleGameService.processSolveCase(request);
+        AccusationRequest request = new AccusationRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
+        simpleGameService.processAccusation(request);
 
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
         assertTrue(p.hasWon());
@@ -188,7 +187,7 @@ class GameServiceTest {
     }
 
     @Test
-    void testSolveCase_RoomMismatch_PlayerEliminated() {
+    void testAccusation_RoomMismatch_PlayerEliminated() {
         GameService simpleGameService = new GameService(new LobbyService(null));
         Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
         GameManager manager = new GameManager(List.of(player));
@@ -201,8 +200,8 @@ class GameServiceTest {
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
         // Room is incorrect here
-        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "WrongRoom", "Candlestick", "TestUser");
-        simpleGameService.processSolveCase(request);
+        AccusationRequest request = new AccusationRequest("test-lobby", "Miss Scarlett", "WrongRoom", "Candlestick", "TestUser");
+        simpleGameService.processAccusation(request);
 
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
         assertFalse(p.hasWon());
@@ -211,7 +210,7 @@ class GameServiceTest {
 
 
     @Test
-    void testWrongSolveCaseEliminatesPlayer() {
+    void testWrongAccusationEliminatesPlayer() {
         GameService simpleGameService = new GameService(new LobbyService(null));
         Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
         GameManager manager = new GameManager(List.of(player));
@@ -223,8 +222,8 @@ class GameServiceTest {
         manager.setSecretFile(solution);
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
-        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Wrong", "Wrong", "Wrong", "TestUser");
-        simpleGameService.processSolveCase(request);
+        AccusationRequest request = new AccusationRequest("test-lobby", "Wrong", "Wrong", "Wrong", "TestUser");
+        simpleGameService.processAccusation(request);
 
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
         assertFalse(p.hasWon());
@@ -232,37 +231,37 @@ class GameServiceTest {
     }
 
     @Test
-    void testProcessSolveCase_GameIsNull() {
+    void testProcessAccusation_GameIsNull() {
         GameService simpleGameService = new GameService(new LobbyService(null));
-        SolveCaseRequest request = new SolveCaseRequest("nonexistent-lobby", "Any", "Any", "Any", "Any");
-        assertDoesNotThrow(() -> simpleGameService.processSolveCase(request));
+        AccusationRequest request = new AccusationRequest("nonexistent-lobby", "Any", "Any", "Any", "Any");
+        assertDoesNotThrow(() -> simpleGameService.processAccusation(request));
     }
 
     @Test
-    void testProcessSolveCase_PlayerNotFound() {
+    void testProcessAccusation_PlayerNotFound() {
         GameService simpleGameService = new GameService(new LobbyService(null));
         Player player = new Player("SomeoneElse", "Alias", 0, 0, PlayerColor.RED);
         GameManager manager = new GameManager(List.of(player));
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
-        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
-        assertDoesNotThrow(() -> simpleGameService.processSolveCase(request));
+        AccusationRequest request = new AccusationRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
+        assertDoesNotThrow(() -> simpleGameService.processAccusation(request));
     }
 
     @Test
-    void testProcessSolveCase_PlayerAlreadyEliminated() {
+    void testProcessAccusation_PlayerAlreadyEliminated() {
         GameService simpleGameService = new GameService(new LobbyService(null));
         Player player = new Player("TestUser", "Alias", 0, 0, PlayerColor.RED);
         player.setActive(false);
         GameManager manager = new GameManager(List.of(player));
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
-        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
-        assertDoesNotThrow(() -> simpleGameService.processSolveCase(request));
+        AccusationRequest request = new AccusationRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
+        assertDoesNotThrow(() -> simpleGameService.processAccusation(request));
     }
 
     @Test
-    void testSolveCase_WeaponMismatch_PlayerEliminated() {
+    void testAccusation_WeaponMismatch_PlayerEliminated() {
         GameService simpleGameService = new GameService(new LobbyService(null));
         Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
         GameManager manager = new GameManager(List.of(player));
@@ -274,32 +273,32 @@ class GameServiceTest {
         manager.setSecretFile(solution);
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
-        SolveCaseRequest request = new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "WrongWeapon", "TestUser");
-        simpleGameService.processSolveCase(request);
+        AccusationRequest request = new AccusationRequest("test-lobby", "Miss Scarlett", "Study", "WrongWeapon", "TestUser");
+        simpleGameService.processAccusation(request);
 
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
         assertFalse(p.hasWon());
         assertFalse(p.isActive());
     }
 
-    static Stream<SolveCaseRequest> provideWrongSolveCases() {
+    static Stream<AccusationRequest> provideWrongAccusations() {
         return Stream.of(
-                new SolveCaseRequest("test-lobby", "Miss Scarlett", "WrongRoom", "Candlestick", "TestUser"),
-                new SolveCaseRequest("test-lobby", "WrongCharacter", "Study", "Candlestick", "TestUser"),
-                new SolveCaseRequest("test-lobby", "Miss Scarlett", "Study", "WrongWeapon", "TestUser")
+                new AccusationRequest("test-lobby", "Miss Scarlett", "WrongRoom", "Candlestick", "TestUser"),
+                new AccusationRequest("test-lobby", "WrongCharacter", "Study", "Candlestick", "TestUser"),
+                new AccusationRequest("test-lobby", "Miss Scarlett", "Study", "WrongWeapon", "TestUser")
         );
     }
 
     @ParameterizedTest
-    @MethodSource("provideWrongSolveCases")
-    void testSolveCase_PlayerEliminatedOnMismatch(SolveCaseRequest request) {
+    @MethodSource("provideWrongAccusations")
+    void testAccusation_PlayerEliminatedOnMismatch(AccusationRequest request) {
         GameService simpleGameService = new GameService(new LobbyService(null));
 
         GameManager manager = getGameManager();
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
 
-        simpleGameService.processSolveCase(request);
+        simpleGameService.processAccusation(request);
 
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
         assertFalse(p.hasWon());
