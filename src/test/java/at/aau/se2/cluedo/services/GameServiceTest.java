@@ -186,50 +186,7 @@ class GameServiceTest {
         assertTrue(p.isActive());
     }
 
-   /* @Test
-    void testAccusation_RoomMismatch_PlayerEliminated() {
-        GameService simpleGameService = new GameService(new LobbyService(null));
-        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
-        GameManager manager = new GameManager(List.of(player));
 
-        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
-        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
-        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
-        SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
-        manager.setSecretFile(solution);
-
-        simpleGameService.getActiveGames().put("test-lobby", manager);
-        // Room is incorrect here
-        AccusationRequest request = new AccusationRequest("test-lobby", "TestUser", "Miss Scarlett", "WrongRoom", "Candlestick");
-        simpleGameService.processAccusation(request);
-
-        Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
-        assertFalse(p.hasWon());
-        assertFalse(p.isActive());
-    }
-*/
-
-    /* @Test
-    void testWrongAccusationEliminatesPlayer() {
-        GameService simpleGameService = new GameService(new LobbyService(null));
-        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
-        GameManager manager = new GameManager(List.of(player));
-
-        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
-        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
-        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
-        SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
-        manager.setSecretFile(solution);
-
-        simpleGameService.getActiveGames().put("test-lobby", manager);
-        AccusationRequest request = new AccusationRequest("test-lobby", "TestUser", "Wrong", "Wrong", "Wrong");
-        simpleGameService.processAccusation(request);
-
-        Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
-        assertFalse(p.hasWon());
-        assertFalse(p.isActive());
-    }
-*/
     @Test
     void testProcessAccusation_GameIsNull() {
         GameService simpleGameService = new GameService(new LobbyService(null));
@@ -259,29 +216,7 @@ class GameServiceTest {
         AccusationRequest request = new AccusationRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
         assertDoesNotThrow(() -> simpleGameService.processAccusation(request));
     }
-/*
-    @Test
-    void testAccusation_WeaponMismatch_PlayerEliminated() {
-        GameService simpleGameService = new GameService(new LobbyService(null));
-        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
-        GameManager manager = new GameManager(List.of(player));
 
-        BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
-        BasicCard correctRoom = new BasicCard("Study", null, CardType.ROOM);
-        BasicCard correctWeapon = new BasicCard("Candlestick", null, CardType.WEAPON);
-        SecretFile solution = new SecretFile(correctRoom, correctWeapon, correctChar);
-        manager.setSecretFile(solution);
-
-        simpleGameService.getActiveGames().put("test-lobby", manager);
-        AccusationRequest request = new AccusationRequest("test-lobby", "TestUser", "Miss Scarlett", "Study", "WrongWeapon");
-        simpleGameService.processAccusation(request);
-
-        Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
-        assertFalse(p.hasWon());
-        assertFalse(p.isActive());
-    }
-
- */
 
     static Stream<AccusationRequest> provideWrongAccusations() {
         return Stream.of(
