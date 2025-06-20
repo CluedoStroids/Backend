@@ -167,7 +167,7 @@ class GameServiceTest {
     @Test
     void testCorrectAccusationMarksPlayerAsWinner() {
         GameService simpleGameService = new GameService(new LobbyService(null));
-        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
+        Player player = new Player("TestUser", "Miss Scarlett", 0, 0, PlayerColor.RED);
         GameManager manager = new GameManager(List.of(player));
 
         BasicCard correctChar = new BasicCard("Miss Scarlett", null, CardType.CHARACTER);
@@ -178,7 +178,7 @@ class GameServiceTest {
 
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
-        AccusationRequest request = new AccusationRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
+        AccusationRequest request = new AccusationRequest("test-lobby", "TestUser", "Miss Scarlett", "Study", "Candlestick");
         simpleGameService.processAccusation(request);
 
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
@@ -200,7 +200,7 @@ class GameServiceTest {
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
         // Room is incorrect here
-        AccusationRequest request = new AccusationRequest("test-lobby", "Miss Scarlett", "WrongRoom", "Candlestick", "TestUser");
+        AccusationRequest request = new AccusationRequest("test-lobby", "TestUser", "Miss Scarlett", "WrongRoom", "Candlestick");
         simpleGameService.processAccusation(request);
 
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
@@ -222,7 +222,7 @@ class GameServiceTest {
         manager.setSecretFile(solution);
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
-        AccusationRequest request = new AccusationRequest("test-lobby", "Wrong", "Wrong", "Wrong", "TestUser");
+        AccusationRequest request = new AccusationRequest("test-lobby", "TestUser", "Wrong", "Wrong", "Wrong");
         simpleGameService.processAccusation(request);
 
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
@@ -273,7 +273,7 @@ class GameServiceTest {
         manager.setSecretFile(solution);
 
         simpleGameService.getActiveGames().put("test-lobby", manager);
-        AccusationRequest request = new AccusationRequest("test-lobby", "Miss Scarlett", "Study", "WrongWeapon", "TestUser");
+        AccusationRequest request = new AccusationRequest("test-lobby", "TestUser", "Miss Scarlett", "Study", "WrongWeapon");
         simpleGameService.processAccusation(request);
 
         Player p = simpleGameService.getGame("test-lobby").getCurrentPlayer();
@@ -283,9 +283,9 @@ class GameServiceTest {
 
     static Stream<AccusationRequest> provideWrongAccusations() {
         return Stream.of(
-                new AccusationRequest("test-lobby", "Miss Scarlett", "WrongRoom", "Candlestick", "TestUser"),
-                new AccusationRequest("test-lobby", "WrongCharacter", "Study", "Candlestick", "TestUser"),
-                new AccusationRequest("test-lobby", "Miss Scarlett", "Study", "WrongWeapon", "TestUser")
+                new AccusationRequest("test-lobby", "TestUser", "WrongCharacter", "Study", "Candlestick"),
+                new AccusationRequest("test-lobby", "TestUser", "Miss Scarlett", "WrongRoom", "Candlestick"),
+                new AccusationRequest("test-lobby", "TestUser", "Miss Scarlett", "Study", "WrongWeapon")
         );
     }
 
@@ -316,6 +316,7 @@ class GameServiceTest {
         manager.setSecretFile(solution);
         return manager;
     }
+
     @Test
     void testPerformMovement_ValidGame_CallsGameManagerMethod() {
         GameService simpleGameService = new GameService(new LobbyService(null));
