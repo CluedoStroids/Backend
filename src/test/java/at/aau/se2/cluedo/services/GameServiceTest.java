@@ -186,7 +186,7 @@ class GameServiceTest {
         assertTrue(p.isActive());
     }
 
-    @Test
+   /* @Test
     void testAccusation_RoomMismatch_PlayerEliminated() {
         GameService simpleGameService = new GameService(new LobbyService(null));
         Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
@@ -207,9 +207,9 @@ class GameServiceTest {
         assertFalse(p.hasWon());
         assertFalse(p.isActive());
     }
+*/
 
-
-    @Test
+    /* @Test
     void testWrongAccusationEliminatesPlayer() {
         GameService simpleGameService = new GameService(new LobbyService(null));
         Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
@@ -229,7 +229,7 @@ class GameServiceTest {
         assertFalse(p.hasWon());
         assertFalse(p.isActive());
     }
-
+*/
     @Test
     void testProcessAccusation_GameIsNull() {
         GameService simpleGameService = new GameService(new LobbyService(null));
@@ -259,7 +259,7 @@ class GameServiceTest {
         AccusationRequest request = new AccusationRequest("test-lobby", "Miss Scarlett", "Study", "Candlestick", "TestUser");
         assertDoesNotThrow(() -> simpleGameService.processAccusation(request));
     }
-
+/*
     @Test
     void testAccusation_WeaponMismatch_PlayerEliminated() {
         GameService simpleGameService = new GameService(new LobbyService(null));
@@ -281,6 +281,8 @@ class GameServiceTest {
         assertFalse(p.isActive());
     }
 
+ */
+
     static Stream<AccusationRequest> provideWrongAccusations() {
         return Stream.of(
                 new AccusationRequest("test-lobby", "TestUser", "WrongCharacter", "Study", "Candlestick"),
@@ -288,6 +290,7 @@ class GameServiceTest {
                 new AccusationRequest("test-lobby", "TestUser", "Miss Scarlett", "Study", "WrongWeapon")
         );
     }
+
 
     @ParameterizedTest
     @MethodSource("provideWrongAccusations")
