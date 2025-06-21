@@ -18,7 +18,7 @@ import java.util.Map;
 @Service
 public class GameService {
     private static final Logger logger = LoggerFactory.getLogger(GameService.class);
-    private static final int MIN_PLAYERS = 3;
+    private static final int MIN_PLAYERS = 2;
     private static final int MAX_PLAYERS = 6;
 
     private final LobbyService lobbyService;
@@ -103,7 +103,9 @@ public class GameService {
         }
     }
     public void performMovement(Player player, List<String> movement, String lobbId) {
-        getGame(lobbId).performMovement(player,movement);
+        if(!movement.isEmpty()) {
+            getGame(lobbId).performMovement(player, movement.get(0));
+        }
     }
     public String makeAccusation(Player player, SecretFile accusation,String lobbyId) {
 

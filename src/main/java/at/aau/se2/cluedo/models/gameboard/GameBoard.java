@@ -1,6 +1,10 @@
 package at.aau.se2.cluedo.models.gameboard;
 
+
+
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import lombok.Getter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +15,7 @@ import java.util.Map;
 
 public class GameBoard {
     private static final Logger logger = LoggerFactory.getLogger(GameBoard.class);
-    
+
     // ANSI color codes
     public static final String RED = "\u001B[41m";
     public static final String YELLOW = "\u001B[43m";
@@ -22,6 +26,7 @@ public class GameBoard {
     public static final String RESET = "\u001B[0m";
     public static final int WIDTH = 25;
     public static final int HEIGHT = 25;
+    @Getter
     private final GameBoardCell[][] grid;
     private final Map<String, Room> rooms;
     private final Map<Room, Room> secretPassages;

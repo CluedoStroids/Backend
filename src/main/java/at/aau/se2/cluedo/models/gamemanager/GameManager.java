@@ -5,6 +5,7 @@ import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
+import at.aau.se2.cluedo.models.gameboard.Room;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -179,14 +180,16 @@ public class GameManager {
                 return 0;
             }
         }
+        getPlayer(player.getName()).setX(newX);
+        getPlayer(player.getName()).setY(newY);
 
         // Check for collision with other players
-        for (Player p : players) {
+        /*for (Player p : players) {
             if (p != player && p.getX() == newX && p.getY() == newY) {
                 logger.info("Invalid move - position occupied!");
                 return 0;
             }
-        }
+        }*/
 
         // Attempt to move the player
         if (gameBoard.movePlayer(player, newX, newY, false)) {
@@ -198,6 +201,34 @@ public class GameManager {
             return 0;
         }
     }
+public void performMovement(Player player, String movement) {
+
+
+    String currentMove = movement;
+    // Handle exit command
+    int newX = getPlayer(player.getName()).getX();
+    int newY = getPlayer(player.getName()).getY();
+    switch (currentMove.toUpperCase()) {
+        case "W" -> newY--;
+        case "S" -> newY++;
+        case "A" -> newX--;
+        case "D" -> newX++;
+        default -> {
+            logger.info("Invalid input!");
+        }
+
+    }
+
+    getPlayer(player.getName()).setX(newX);
+    getPlayer(player.getName()).setY(newY);
+    if(gameBoard.getCell(newX,newY).getCellType().equals(CellType.DOOR)) {
+        Room room = gameBoard.getCell(newX,newY).getRoom();
+        room.playerEntersRoom(player);
+        room.getPlayersInRoom().size();
+    }
+
+
+}
 
     /**
      * Suggestion happening every round. Player suggest/accuses a character with a weapon in the current room pt gather intel/evidence

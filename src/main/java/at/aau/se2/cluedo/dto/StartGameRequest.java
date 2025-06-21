@@ -1,5 +1,6 @@
 package at.aau.se2.cluedo.dto;
 
+import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,6 @@ public class StartGameRequest {
 
     @NotNull(message = "Player information cannot be null")
     private Player player;
-
     public Player getPlayer() {
         return player;
     }

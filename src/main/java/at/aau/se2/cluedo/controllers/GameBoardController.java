@@ -1,12 +1,11 @@
 package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.GameDataResponse;
-import at.aau.se2.cluedo.dto.IsWallRequest;
 import at.aau.se2.cluedo.dto.PerformMoveRequest;
 import at.aau.se2.cluedo.dto.StartGameRequest;
 import at.aau.se2.cluedo.dto.TurnActionRequest;
 import at.aau.se2.cluedo.dto.TurnStateResponse;
-import at.aau.se2.cluedo.models.gameboard.CellType;
+import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.services.GameService;
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
+@SuppressWarnings("ALL")
 @Controller
 public class GameBoardController {
 
@@ -106,14 +106,12 @@ public class GameBoardController {
             return createErrorResponse(lobbyId, "Error processing movement");
         }
     }
-    @MessageMapping("/isWall/{lobbyId}")
-    @SendTo("/topic/isWall/{lobbyId}")
-    public boolean isWall(@DestinationVariable String lobbyId, IsWallRequest request){
-
-        CellType temp = gameService.getGame(lobbyId).getGameBoard().getCell(request.x,request.y).getCellType();
-        return temp.equals(CellType.ROOM);
-
-
+    @MessageMapping("/getGameBoard/{lobbyId}")
+    @SendTo("/topic/gameBoard/{lobbyId}")
+    public GameBoardCell[][] getGameBoard(@DestinationVariable String lobbyId){
+        System.out.println("GameBoard found");
+        //System.out.println(gameService.getGame(lobbyId).getGameBoard().getGrid());
+        return gameService.getGame(lobbyId).getGameBoard().getGrid();
     }
     @MessageMapping("/getGameData/{lobbyId}")
     @SendTo("/topic/gameData/{lobbyId}")
