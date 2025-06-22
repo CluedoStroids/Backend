@@ -19,6 +19,8 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import at.aau.se2.cluedo.dto.AccusationRequest;
+
 
 @Controller
 public class GameController {
@@ -165,6 +167,11 @@ public class GameController {
         gameService.processSuggestion(request);
     }
 
+    @MessageMapping("/accusation")
+    public void handleAccusation(AccusationRequest request) {
+        gameService.processAccusation(request);
+    }
 }
+
 
 
