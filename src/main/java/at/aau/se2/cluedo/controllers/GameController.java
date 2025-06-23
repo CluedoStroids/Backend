@@ -161,7 +161,6 @@ public class GameController {
         };
     }
 
-
     @MessageMapping("/suggestion")
     public void handleSuggestion(SuggestionRequest request) {
         gameService.processSuggestion(request);
@@ -170,6 +169,7 @@ public class GameController {
     @MessageMapping("/accusation")
     public void handleAccusation(AccusationRequest request) {
         gameService.processAccusation(request);
+
     }
 }
 
