@@ -107,22 +107,7 @@ public class GameplayController {
     @SendTo("/topic/accusationMade/{lobbyId}")
     public Map<String, Object> makeAccusation(@DestinationVariable String lobbyId, AccusationRequest request) {
         try {
-            // Validate turn
-            if (!turnService.isPlayerTurn(lobbyId, request.getUsername())) {
-                return Map.of(
-                    "success", false,
-                    "message", "It's not your turn",
-                    "lobbyId", lobbyId
-                );
-            }
-
-            if (!turnService.canMakeAccusation(lobbyId, request.getUsername())) {
-                return Map.of(
-                    "success", false,
-                    "message", "Cannot make accusation at this time",
-                    "lobbyId", lobbyId
-                );
-            }
+            logger.info("Accusation made in {} from user: {}", lobbyId, request.getLobbyId());
 
             boolean success = turnService.processAccusation(
                 lobbyId,

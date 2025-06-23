@@ -207,9 +207,6 @@ public class TurnService {
      */
     public boolean processAccusation(String lobbyId, String playerName, String suspect, String weapon, String room) {
         logger.info("Player {} made accusation in lobby {}: {} with {} in {}", playerName, lobbyId, suspect, weapon, room);
-        if (!isPlayerTurn(lobbyId, playerName)) {
-            return false;
-        }
 
         TurnState currentState = getTurnState(lobbyId);
         if (currentState == TurnState.PLAYERS_TURN_END || currentState == TurnState.PLAYER_HAS_WON) {

@@ -99,6 +99,7 @@ public class GameService {
             logger.info("Player {} made a correct accusation and won!", player.getName());
         } else {
             player.setActive(false);
+            game.nextTurn();
             logger.info("Player {} guessed wrong and has been eliminated.", player.getName());
         }
     }
