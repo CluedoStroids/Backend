@@ -296,8 +296,16 @@ public class GameManager {
     public void nextTurn() {
         players.get(currentPlayerIndex).setCurrentPlayer(false);
 
+        int attempts = 0;
         do {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+            attempts++;
+            
+            // Prevent infinite loop if no active players remain
+            if (attempts >= players.size()) {
+                logger.warn("No active players found, game should end");
+                return;
+            }
         } while (!players.get(currentPlayerIndex).isActive());
 
         if (currentPlayerIndex >= players.size())

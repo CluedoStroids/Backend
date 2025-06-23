@@ -104,50 +104,19 @@ public class GameplayController {
 
 
     @MessageMapping("/makeAccusation/{lobbyId}")
-    @SendTo("/topic/accusationMade/{lobbyId}")
-    public Map<String, Object> makeAccusation(@DestinationVariable String lobbyId, AccusationRequest request) {
+    public void makeAccusation(@DestinationVariable String lobbyId, AccusationRequest request) {
         try {
-            // Validate turn
-            if (!turnService.isPlayerTurn(lobbyId, request.getUsername())) {
-                return Map.of(
-                    "success", false,
-                    "message", "It's not your turn",
-                    "lobbyId", lobbyId
-                );
-            }
+            logger.info("Accusation made in {} from user: {}", lobbyId, request.getLobbyId());
 
-            if (!turnService.canMakeAccusation(lobbyId, request.getUsername())) {
-                return Map.of(
-                    "success", false,
-                    "message", "Cannot make accusation at this time",
-                    "lobbyId", lobbyId
-                );
-            }
-
-            boolean success = turnService.processAccusation(
+            turnService.processAccusation(
                 lobbyId,
                 request.getUsername(),
                 request.getSuspect(),
                 request.getWeapon(),
                 request.getRoom()
             );
-
-            return Map.of(
-                "success", success,
-                "player", request.getUsername(),
-                "suspect", request.getSuspect(),
-                "weapon", request.getWeapon(),
-                "room", request.getRoom(),
-                "message", request.getUsername() + " accuses " + request.getSuspect() + " with " + request.getWeapon() + " in " + request.getRoom(),
-                "lobbyId", lobbyId
-            );
         } catch (Exception e) {
             logger.error("Error processing accusation in lobby {}: {}", lobbyId, e.getMessage());
-            return Map.of(
-                "success", false,
-                "message", "Error processing accusation",
-                "lobbyId", lobbyId
-            );
         }
     }
 }
