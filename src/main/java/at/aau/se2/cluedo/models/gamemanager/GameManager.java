@@ -216,17 +216,13 @@ public void performMovement(Player player, String movement) {
         default -> {
             logger.info("Invalid input!");
         }
-
     }
-
     getPlayer(player.getName()).setX(newX);
     getPlayer(player.getName()).setY(newY);
-    if(gameBoard.getCell(newX,newY).getCellType().equals(CellType.DOOR)) {
-        Room room = gameBoard.getCell(newX,newY).getRoom();
-        room.playerEntersRoom(player);
-        room.getPlayersInRoom().size();
-    }
 
+    if(gameBoard.getCell(newX,newY).getCellType().equals(CellType.DOOR)) {
+        gameBoard.teleportPlayerToRoom(getPlayer(player.getName()),gameBoard.getCell(newX,newY).getRoom());
+    }
 
 }
 
@@ -336,6 +332,7 @@ public void performMovement(Player player, String movement) {
         logger.info("Next turn: " + players.get(currentPlayerIndex).getName());
         players.get(currentPlayerIndex).setCurrentPlayer(true);
     }
+
     public void eliminateCurrentPlayer() {
         Player current = getCurrentPlayer();
         current.setActive(false);
@@ -356,7 +353,4 @@ public void performMovement(Player player, String movement) {
     public List<Player> getPlayerList() {
         return new ArrayList<>(players);
     }
-
-
-
 }
