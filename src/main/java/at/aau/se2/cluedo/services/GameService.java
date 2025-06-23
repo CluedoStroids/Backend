@@ -1,6 +1,6 @@
 package at.aau.se2.cluedo.services;
 
-import at.aau.se2.cluedo.dto.SolveCaseRequest;
+import at.aau.se2.cluedo.dto.AccusationRequest;
 import at.aau.se2.cluedo.dto.SuggestionRequest;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
@@ -66,7 +66,7 @@ public class GameService {
         return lobby != null && lobby.getPlayers().size() >= MIN_PLAYERS;
     }
 
-    public void processSolveCase(SolveCaseRequest request) {
+    public void processAccusation(AccusationRequest request) {
         GameManager game = activeGames.get(request.getLobbyId());
         if (game == null) {
             logger.warn("No active game found for lobby ID: {}", request.getLobbyId());

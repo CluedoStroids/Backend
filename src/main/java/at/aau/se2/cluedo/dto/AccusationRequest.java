@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccusationRequest {
-    private String playerName;
+    private String lobbyId;
+    private String username;
     private String suspect;
-    private String weapon;
     private String room;
+    private String weapon;
 }

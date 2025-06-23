@@ -104,7 +104,7 @@ public class GameplayController {
     public Map<String, Object> makeAccusation(@DestinationVariable String lobbyId, AccusationRequest request) {
         try {
             // Validate turn
-            if (!turnService.isPlayerTurn(lobbyId, request.getPlayerName())) {
+            if (!turnService.isPlayerTurn(lobbyId, request.getUsername())) {
                 return Map.of(
                     "success", false,
                     "message", "It's not your turn",
@@ -112,7 +112,7 @@ public class GameplayController {
                 );
             }
 
-            if (!turnService.canMakeAccusation(lobbyId, request.getPlayerName())) {
+            if (!turnService.canMakeAccusation(lobbyId, request.getUsername())) {
                 return Map.of(
                     "success", false,
                     "message", "Cannot make accusation at this time",
@@ -122,7 +122,7 @@ public class GameplayController {
 
             boolean success = turnService.processAccusation(
                 lobbyId,
-                request.getPlayerName(),
+                request.getUsername(),
                 request.getSuspect(),
                 request.getWeapon(),
                 request.getRoom()
@@ -130,11 +130,11 @@ public class GameplayController {
 
             return Map.of(
                 "success", success,
-                "player", request.getPlayerName(),
+                "player", request.getUsername(),
                 "suspect", request.getSuspect(),
                 "weapon", request.getWeapon(),
                 "room", request.getRoom(),
-                "message", request.getPlayerName() + " accuses " + request.getSuspect() + " with " + request.getWeapon() + " in " + request.getRoom(),
+                "message", request.getUsername() + " accuses " + request.getSuspect() + " with " + request.getWeapon() + " in " + request.getRoom(),
                 "lobbyId", lobbyId
             );
         } catch (Exception e) {

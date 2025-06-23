@@ -3,7 +3,6 @@ package at.aau.se2.cluedo.controllers;
 import at.aau.se2.cluedo.dto.DiceResult;
 import at.aau.se2.cluedo.dto.TurnActionRequest;
 import at.aau.se2.cluedo.dto.TurnStateResponse;
-import at.aau.se2.cluedo.models.Random;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.services.GameService;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 

@@ -95,10 +95,11 @@ class GameplayControllerTest {
     @Test
     void testMakeAccusation() {
         // Arrange
+        String testlobbyId = "lobby-id-1";
         String suspectName = "Colonel Mustard";
         String weaponName = "Knife";
         String roomName = "Kitchen";
-        AccusationRequest request = new AccusationRequest(testPlayer.getName(), suspectName, weaponName, roomName);
+        AccusationRequest request = new AccusationRequest(testlobbyId, testPlayer.getName(), suspectName, roomName, weaponName);
 
         // Mock turn service methods
         when(turnService.isPlayerTurn(lobbyId, testPlayer.getName())).thenReturn(true);

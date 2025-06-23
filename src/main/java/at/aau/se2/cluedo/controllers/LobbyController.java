@@ -113,9 +113,9 @@ public class LobbyController {
         return new CanStartGameResponse(canStart);
     }
 
-    @MessageMapping("/solveCase")
-    public void solveCase(SolveCaseRequest request) {
-        gameService.processSolveCase(request);
+    @MessageMapping("/accusation")
+    public void accusation(AccusationRequest request) {
+        gameService.processAccusation(request);
     }
 
     @MessageMapping("/skipTurn/{lobbyId}")

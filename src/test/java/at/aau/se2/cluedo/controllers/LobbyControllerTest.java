@@ -1,8 +1,8 @@
 package at.aau.se2.cluedo.controllers;
 
+import at.aau.se2.cluedo.dto.AccusationRequest;
 import at.aau.se2.cluedo.dto.ActiveLobbiesResponse;
 import at.aau.se2.cluedo.dto.GetActiveLobbiesRequest;
-import at.aau.se2.cluedo.dto.SolveCaseRequest;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.lobby.Lobby;
@@ -73,13 +73,13 @@ class LobbyControllerTest {
         verify(lobbyService, times(1)).getAllActiveLobbies();
     }
     @Test
-    void solveCase_ShouldCallGameServiceWithCorrectRequest() {
+    void accusation_ShouldCallGameServiceWithCorrectRequest() {
 
-        SolveCaseRequest request = new SolveCaseRequest("lobby-id-1", "Scarlett", "Study", "Candlestick", "Player1");
+        AccusationRequest request = new AccusationRequest("lobby-id-1", "Scarlett", "Study", "Candlestick", "Player1");
 
-        lobbyController.solveCase(request);
+        lobbyController.accusation(request);
 
-        verify(gameService, times(1)).processSolveCase(request);
+        verify(gameService, times(1)).processAccusation(request);
     }
 
 }
