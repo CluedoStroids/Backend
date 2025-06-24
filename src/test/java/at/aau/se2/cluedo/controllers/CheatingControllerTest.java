@@ -41,8 +41,8 @@ class CheatingControllerTest {
 
         verify(mockGameManager).reportCheating("Professor Plum", "Colonel Mustard");
         verify(messagingTemplate).convertAndSend(
-                eq("/topic/cheating/2131230973"),
-                eq(Map.of(
+                ("/topic/cheating/2131230973"),
+                (Map.of(
                         "type", "CHEATING_REPORT",
                         "suspect", "Colonel Mustard",
                         "accuser", "Professor Plum"
@@ -68,8 +68,8 @@ class CheatingControllerTest {
 
         verify(mockPlayer).setActive(false);
         verify(messagingTemplate).convertAndSend(
-                eq("/topic/elimination/2131230973"),
-                eq(Map.of("player", "Red", "reason", "CHEATING"))
+                ("/topic/elimination/2131230973"),
+                (Map.of("player", "Red", "reason", "CHEATING"))
         );
     }
     @Test

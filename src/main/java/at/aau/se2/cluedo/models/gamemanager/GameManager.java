@@ -127,7 +127,8 @@ public class GameManager {
         String move = movement.get(0);
         if (move.equalsIgnoreCase("X")) return 0;
 
-        int newX = player.getX(), newY = player.getY();
+        int newX = player.getX();
+        int   newY = player.getY();
 
         switch (move.toUpperCase()) {
             case "W" -> newY--;
