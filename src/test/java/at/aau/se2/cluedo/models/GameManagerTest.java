@@ -385,4 +385,20 @@ public class GameManagerTest {
         assertEquals(gameManager.getSecretFile().weapon().getCardName(), gameManager.getCorrectWeapon());
     }
 
+    @Test
+    void testReportCheatingAddsAndCountsCorrectly() {
+        gameManager.reportCheating("Ela", "Colonel Mustard");
+        assertEquals(1, gameManager.getCheatingReportsCount("Colonel Mustard"));
+
+        gameManager.reportCheating("Tim", "Colonel Mustard");
+        assertEquals(2, gameManager.getCheatingReportsCount("Colonel Mustard"));
+
+        gameManager.reportCheating("Ela", "Colonel Mustard");
+        assertEquals(2, gameManager.getCheatingReportsCount("Colonel Mustard"));
+    }
+    @Test
+    void testGetCheatingReportsCountReturnsZeroIfNone() {
+        assertEquals(0, gameManager.getCheatingReportsCount("UnknownPlayer"));
+    }
+
 }

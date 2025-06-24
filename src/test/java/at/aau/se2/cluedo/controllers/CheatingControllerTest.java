@@ -6,12 +6,10 @@ import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.services.GameService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class CheatingControllerTest {
@@ -31,48 +29,103 @@ class CheatingControllerTest {
 
     @Test
     void testHandleCheatingReport_sendsMessageAndRecordsReport() {
-        // Arrange
         CheatingReport report = new CheatingReport();
-        report.setLobbyId("lobby123");
-        report.setAccuser("Alice");
-        report.setSuspect("Bob");
+        report.setLobbyId("2131230973");
+        report.setAccuser("Professor Plum");
+        report.setSuspect("Colonel Mustard");
 
-        when(gameService.getGame("lobby123")).thenReturn(mockGameManager);
-        when(mockGameManager.getCheatingReportsCount("Bob")).thenReturn(1);
+        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
+        when(mockGameManager.getCheatingReportsCount("Colonel Mustard")).thenReturn(1);
 
-        // Act
         cheatingController.handleCheatingReport(report);
 
-        // Assert
-        verify(mockGameManager).reportCheating("Alice", "Bob");
+        verify(mockGameManager).reportCheating("Professor Plum", "Colonel Mustard");
         verify(messagingTemplate).convertAndSend(
-                eq("/topic/cheating/lobby123"),
-                eq(Map.of("type", "CHEATING_REPORT", "suspect", "Bob", "accuser", "Alice"))
+                eq("/topic/cheating/2131230973"),
+                eq(Map.of(
+                        "type", "CHEATING_REPORT",
+                        "suspect", "Colonel Mustard",
+                        "accuser", "Professor Plum"
+                ))
         );
     }
 
+
     @Test
-    void testManuallyEliminatePlayer_sendsEliminationMessage() {
-        // Arrange
+    void testManuallyEliminatePlayer_sendsEliminationMessage_withNumericLobbyId() {
         CheatingReport report = new CheatingReport();
-        report.setLobbyId("lobby123");
-        report.setSuspect("Bob");
+        report.setLobbyId("2131230973");
+        report.setSuspect("Red");
 
         Player mockPlayer = mock(Player.class);
         when(mockPlayer.isActive()).thenReturn(true);
 
-        when(gameService.getGame("lobby123")).thenReturn(mockGameManager);
-        when(mockGameManager.getPlayer("Bob")).thenReturn(mockPlayer);
+        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
+        when(mockGameManager.getPlayer("Red")).thenReturn(mockPlayer);
+        when(mockGameManager.getLobbyId()).thenReturn("2131230973");
 
-        // Act
         cheatingController.manuallyEliminatePlayer(report);
 
-        // Assert
         verify(mockPlayer).setActive(false);
         verify(messagingTemplate).convertAndSend(
-                eq("/topic/elimination/lobby123"),
-                eq(Map.of("player", "Bob", "reason", "CHEATING"))
+                eq("/topic/elimination/2131230973"),
+                eq(Map.of("player", "Red", "reason", "CHEATING"))
         );
     }
+    @Test
+    void testHandleCheatingReport_invalidReport_doesNothing() {
+        CheatingReport report = new CheatingReport();
+
+        cheatingController.handleCheatingReport(report);
+
+        verifyNoInteractions(gameService);
+        verifyNoInteractions(messagingTemplate);
+    }
+
+    @Test
+    void testHandleCheatingReport_gameNotFound_doesNothing() {
+        CheatingReport report = new CheatingReport();
+        report.setLobbyId("2131230973");
+        report.setAccuser("Plum");
+        report.setSuspect("Mustard");
+
+        when(gameService.getGame("2131230973")).thenReturn(null);
+
+        cheatingController.handleCheatingReport(report);
+
+        verifyNoInteractions(messagingTemplate);
+    }
+    @Test
+    void testManuallyEliminatePlayer_playerNotFound_doesNothing() {
+        CheatingReport report = new CheatingReport();
+        report.setLobbyId("2131230973");
+        report.setSuspect("Green");
+
+        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
+        when(mockGameManager.getPlayer("Green")).thenReturn(null);
+
+        cheatingController.manuallyEliminatePlayer(report);
+
+        verifyNoInteractions(messagingTemplate);
+    }
+    @Test
+    void testManuallyEliminatePlayer_playerAlreadyInactive_doesNothing() {
+        CheatingReport report = new CheatingReport();
+        report.setLobbyId("2131230973");
+        report.setSuspect("Peacock");
+
+        Player mockPlayer = mock(Player.class);
+        when(mockPlayer.isActive()).thenReturn(false);
+
+        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
+        when(mockGameManager.getPlayer("Peacock")).thenReturn(mockPlayer);
+
+        cheatingController.manuallyEliminatePlayer(report);
+
+        verify(mockPlayer, never()).setActive(false);
+        verifyNoInteractions(messagingTemplate);
+    }
+
 }
+
 
