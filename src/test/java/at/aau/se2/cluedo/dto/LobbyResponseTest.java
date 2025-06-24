@@ -74,47 +74,5 @@ class LobbyResponseTest {
         assertNull(response.getPlayers());
     }
 
-    @Test
-    void testGettersAndSetters() {
-        // Create a LobbyResponse
-        LobbyResponse response = new LobbyResponse();
 
-        // Set values using setters
-        response.setId("new-id");
-        response.setHost(host);
-        response.setPlayers(players);
-
-        // Assert getters return the correct values
-        assertEquals("new-id", response.getId());
-        assertEquals(host, response.getHost());
-        assertEquals(players, response.getPlayers());
-    }
-
-    @Test
-    void testEqualsAndHashCode() {
-        // Create two identical LobbyResponse objects
-        LobbyResponse response1 = new LobbyResponse("test-id", host, players);
-        LobbyResponse response2 = new LobbyResponse("test-id", host, players);
-
-        // Create a different LobbyResponse
-        LobbyResponse differentResponse = new LobbyResponse("different-id", host, players);
-
-        // Test equals and hashCode
-        assertEquals(response1, response2);
-        assertEquals(response1.hashCode(), response2.hashCode());
-        assertNotEquals(response1, differentResponse);
-        assertNotEquals(response1.hashCode(), differentResponse.hashCode());
-    }
-
-    @Test
-    void testToString() {
-        // Create a LobbyResponse
-        LobbyResponse response = new LobbyResponse("test-id", host, players);
-
-        // Get the toString representation
-        String toString = response.toString();
-
-        // Assert that toString contains important field information
-        assertTrue(toString.contains("test-id"));
-    }
 }

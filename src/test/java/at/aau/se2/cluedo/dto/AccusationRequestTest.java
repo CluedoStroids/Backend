@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class SolveCaseRequestTest {
+class AccusationRequestTest {
 
     @Test
-    void testSolveCaseRequestSettersAndDefaultConstructor() {
-        SolveCaseRequest request = new SolveCaseRequest();
+    void testAccusationRequestSettersAndDefaultConstructor() {
+        AccusationRequest request = new AccusationRequest();
 
         request.setLobbyId("lobby42");
         request.setUsername("Alice");

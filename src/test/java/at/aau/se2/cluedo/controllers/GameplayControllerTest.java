@@ -66,28 +66,19 @@ class GameplayControllerTest {
     @Test
     void testMakeAccusation() {
         // Arrange
+        String testlobbyId = "lobby-id-1";
         String suspectName = "Colonel Mustard";
         String weaponName = "Knife";
         String roomName = "Kitchen";
-        AccusationRequest request = new AccusationRequest(testPlayer.getName(), suspectName, weaponName, roomName);
+        AccusationRequest request = new AccusationRequest(testlobbyId, testPlayer.getName(), suspectName, roomName, weaponName);
 
         // Mock turn service methods
-        when(turnService.isPlayerTurn(lobbyId, testPlayer.getName())).thenReturn(true);
-        when(turnService.canMakeAccusation(lobbyId, testPlayer.getName())).thenReturn(true);
         when(turnService.processAccusation(lobbyId, testPlayer.getName(), suspectName, weaponName, roomName)).thenReturn(true);
 
         // Act
-        Map<String, Object> result = gameplayController.makeAccusation(lobbyId, request);
+        gameplayController.makeAccusation(lobbyId, request);
 
         // Assert
-        assertTrue((Boolean) result.get("success"));
-        assertEquals(lobbyId, result.get("lobbyId"));
-        assertEquals(testPlayer.getName(), result.get("player"));
-        assertEquals(suspectName, result.get("suspect"));
-        assertEquals(weaponName, result.get("weapon"));
-        assertEquals(roomName, result.get("room"));
-        verify(turnService, times(1)).isPlayerTurn(lobbyId, testPlayer.getName());
-        verify(turnService, times(1)).canMakeAccusation(lobbyId, testPlayer.getName());
         verify(turnService, times(1)).processAccusation(lobbyId, testPlayer.getName(), suspectName, weaponName, roomName);
     }
 
@@ -102,7 +93,8 @@ class GameplayControllerTest {
 
         // Assert
         assertEquals(lobbyId, result);
-        verify(gameManager.getGameBoard(), times(1)).displayGameBoard(players);
+        verify(gameManager, times(1)).getGameBoard();
+        verify(gameBoard, times(1)).displayGameBoard(players);
     }
 
     @Test

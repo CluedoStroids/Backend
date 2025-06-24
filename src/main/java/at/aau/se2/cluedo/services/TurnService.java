@@ -263,9 +263,6 @@ public class TurnService {
      */
     public boolean processAccusation(String lobbyId, String playerName, String suspect, String weapon, String room) {
         logger.info("Player {} made accusation in lobby {}: {} with {} in {}", playerName, lobbyId, suspect, weapon, room);
-        if (!isPlayerTurn(lobbyId, playerName)) {
-            return false;
-        }
 
         TurnState currentState = getTurnState(lobbyId);
         if (currentState == TurnState.PLAYERS_TURN_END || currentState == TurnState.PLAYER_HAS_WON) {
@@ -294,9 +291,8 @@ public class TurnService {
             logger.info("Player {} won the game in lobby {} with correct accusation!", playerName, lobbyId);
         } else {
             // eliminate player
+            logger.info("Player {} eliminated in the game in lobby {} with wrong accusation!", playerName, lobbyId);
             currentPlayer.setActive(false);
-            nextTurn(lobbyId);
-
             // notify all players about the failed accusation
             messagingTemplate.convertAndSend("/topic/accusationMade/" + lobbyId,
                     Map.of("player", playerName, "suspect", suspect, "weapon", weapon, "room", room,
@@ -309,8 +305,6 @@ public class TurnService {
                 // end turn and move to next player
                 endTurn(lobbyId);
             }
-
-            logger.info("Player {} eliminated in lobby {} with incorrect accusation", playerName, lobbyId);
         }
 
         return true;
