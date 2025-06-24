@@ -25,20 +25,46 @@ public class CheatingController {
 
     @MessageMapping("/cheating")
     public void handleCheatingReport(CheatingReport report) {
-        if (report.getLobbyId() == null || report.getSuspect() == null || report.getAccuser() == null) {
-            logger.warn("Invalid cheating report received");
-            return;
+        GameManager game = gameService.getGame(report.getLobbyId());
+        Player accuser = game.getPlayer(report.getAccuser());
+        Player suspect = game.getPlayer(report.getSuspect());
+
+        // Validate report
+        if (!accuser.isCanReport()) return;
+
+        GameManager.SuggestionRecord lastSuggestion = game.getLastSuggestion(suspect.getName());
+        boolean isCheating = lastSuggestion != null &&
+                lastSuggestion.suspect().equals(suspect.getCharacter());
+
+        if (isCheating) {
+            // Punish cheater
+            game.resetPlayer(suspect);
+            messagingTemplate.convertAndSend(
+                    "/topic/playerReset/" + report.getLobbyId(),
+                    Map.of("player", suspect.getName(), "x", suspect.getX(), "y", suspect.getY())
+            );
+        } else {
+            // Punish false accuser
+            game.resetPlayer(accuser);
+            accuser.setCanReport(false);
+            messagingTemplate.convertAndSend(
+                    "/topic/playerReset/" + report.getLobbyId(),
+                    Map.of("player", accuser.getName(), "x", accuser.getX(), "y", accuser.getY())
+            );
         }
 
-        GameManager gameManager = gameService.getGame(report.getLobbyId());
-        if (gameManager != null) {
-            gameManager.reportCheating(report.getAccuser(), report.getSuspect());
-            notifyPlayers(report);
-
-            logger.info("Cheating report recorded for {}, total: {}",
-                    report.getSuspect(), gameManager.getCheatingReportsCount(report.getSuspect()));
-        }
+        // Notify all players
+        messagingTemplate.convertAndSend(
+                "/topic/cheating/" + report.getLobbyId(),
+                Map.of(
+                        "type", "CHEATING_REPORT",
+                        "suspect", suspect.getName(),
+                        "accuser", accuser.getName(),
+                        "valid", isCheating
+                )
+        );
     }
+
 
     @MessageMapping("/cheating/eliminate")
     public void manuallyEliminatePlayer(CheatingReport report) {

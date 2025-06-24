@@ -31,6 +31,9 @@ public class GameManager {
     private int currentPlayerIndex;
     private int diceRollS;
     private final Map<String, Set<String>> cheatingReports = new HashMap<>();
+    private final Map<String, SuggestionRecord> lastSuggestions = new HashMap<>();
+
+    public record SuggestionRecord(String suspect, String weapon) {}
 
 
     private GameManager(String lobbyId, List<Player> inputPlayers, boolean fromLobby) {
@@ -267,4 +270,17 @@ public class GameManager {
     public int getCheatingReportsCount(String suspect) {
         return cheatingReports.getOrDefault(suspect, Set.of()).size();
     }
+
+    public void recordSuggestion(Player player, String suspect, String weapon) {
+        lastSuggestions.put(player.getName(), new SuggestionRecord(suspect, weapon));
+    }
+
+    public SuggestionRecord getLastSuggestion(String playerName) {
+        return lastSuggestions.get(playerName);
+    }
+
+    public void resetPlayer(Player player) {
+        gameBoard.movePlayer(player, player.getStartX(), player.getStartY(), true);
+    }
+
 }

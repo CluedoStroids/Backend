@@ -401,4 +401,12 @@ public class GameManagerTest {
         assertEquals(0, gameManager.getCheatingReportsCount("UnknownPlayer"));
     }
 
+    @Test
+    void testRecordAndGetLastSuggestion() {
+        gameManager.recordSuggestion(player1, "Mrs. White", "Candlestick");
+        GameManager.SuggestionRecord rec = gameManager.getLastSuggestion(player1.getName());
+        assertNotNull(rec);
+        assertEquals("Mrs. White", rec.suspect());
+    }
+
 }

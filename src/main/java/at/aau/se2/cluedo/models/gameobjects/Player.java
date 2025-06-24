@@ -16,11 +16,13 @@ public class Player{
     private final List<BasicCard> cards;
     private int x;
     private int y;
-    private boolean isCurrentPlayer;
-    private boolean isActive = true;
+    private final int startX;
+    private final int startY;
+    private boolean canReport = true;
     private boolean hasSuggestedInCurrentRoom = false;
     private String lastRoomName = null;
-
+    private boolean isCurrentPlayer;
+    private boolean isActive = true;
 
     public boolean hasWon() {
         return hasWon;
@@ -37,6 +39,8 @@ public class Player{
         this.name = name;
         this.playerID = UUID.randomUUID();
         this.character = character;
+        this.startX = startX;
+        this.startY = startY;
         this.x = startX;
         this.y = startY;
         this.cards = new ArrayList<>();
