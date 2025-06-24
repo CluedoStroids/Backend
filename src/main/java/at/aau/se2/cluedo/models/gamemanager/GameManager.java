@@ -1,5 +1,9 @@
 package at.aau.se2.cluedo.models.gamemanager;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import at.aau.se2.cluedo.models.Random;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
@@ -334,6 +338,11 @@ public class GameManager {
         return new ArrayList<>(players);
     }
 
+    private final Map<String, Set<String>> cheatingReports = new HashMap<>();
 
+    public void reportCheating(String accuser, String suspect) {
+        cheatingReports.putIfAbsent(suspect, new HashSet<>());
+        cheatingReports.get(suspect).add(accuser);
+    }
 
 }
