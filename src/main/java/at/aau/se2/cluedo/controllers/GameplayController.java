@@ -84,7 +84,7 @@ public class GameplayController {
             }
 
             Player player = gameService.getGame(lobbyId).getPlayer(request.getPlayerName());
-            gameService.getGame(lobbyId).recordSuggestion(player, request.getSuspect(), request.getWeapon());
+            gameService.getGame(lobbyId).recordSuggestion(player, request.getSuspect(), request.getRoom(), request.getWeapon());
 
             return Map.of(
                 "success", true,

@@ -28,23 +28,21 @@ public class CheatingController {
         GameManager game = gameService.getGame(report.getLobbyId());
         Player accuser = game.getPlayer(report.getAccuser());
         Player suspect = game.getPlayer(report.getSuspect());
-
-        // Validate report
+        if (accuser == null || suspect == null) return;
         if (!accuser.isCanReport()) return;
 
         GameManager.SuggestionRecord lastSuggestion = game.getLastSuggestion(suspect.getName());
-        boolean isCheating = lastSuggestion != null &&
-                lastSuggestion.suspect().equals(suspect.getCharacter());
+        boolean isCheating = lastSuggestion != null
+                && lastSuggestion.suspect().equals(suspect.getCharacter())
+                && lastSuggestion.room().equals(game.getCurrentRoom(suspect));
 
         if (isCheating) {
-            // Punish cheater
             game.resetPlayer(suspect);
             messagingTemplate.convertAndSend(
                     "/topic/playerReset/" + report.getLobbyId(),
                     Map.of("player", suspect.getName(), "x", suspect.getX(), "y", suspect.getY())
             );
         } else {
-            // Punish false accuser
             game.resetPlayer(accuser);
             accuser.setCanReport(false);
             messagingTemplate.convertAndSend(
@@ -53,7 +51,6 @@ public class CheatingController {
             );
         }
 
-        // Notify all players
         messagingTemplate.convertAndSend(
                 "/topic/cheating/" + report.getLobbyId(),
                 Map.of(

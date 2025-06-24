@@ -33,7 +33,7 @@ public class GameManager {
     private final Map<String, Set<String>> cheatingReports = new HashMap<>();
     private final Map<String, SuggestionRecord> lastSuggestions = new HashMap<>();
 
-    public record SuggestionRecord(String suspect, String weapon) {}
+    public record SuggestionRecord(String suspect, String room, String weapon) {}
 
 
     private GameManager(String lobbyId, List<Player> inputPlayers, boolean fromLobby) {
@@ -51,6 +51,8 @@ public class GameManager {
             this.players.get(0).setCurrentPlayer(true);
         }
     }
+
+
 
     public GameManager(int count) {
         this("LEGACY", initializeDefaultPlayers().subList(0, count), false);
@@ -213,6 +215,11 @@ public class GameManager {
         return cell != null && cell.getCellType() == CellType.ROOM;
     }
 
+    public String getCurrentRoom(Player player) {
+        GameBoardCell cell = gameBoard.getCell(player.getX(), player.getY());
+        return (cell != null && cell.getRoom() != null) ? cell.getRoom().getName() : null;
+    }
+
     public Player getCurrentPlayer() {
         return players.get(currentPlayerIndex);
     }
@@ -271,8 +278,8 @@ public class GameManager {
         return cheatingReports.getOrDefault(suspect, Set.of()).size();
     }
 
-    public void recordSuggestion(Player player, String suspect, String weapon) {
-        lastSuggestions.put(player.getName(), new SuggestionRecord(suspect, weapon));
+    public void recordSuggestion(Player player, String suspect, String room, String weapon) {
+        lastSuggestions.put(player.getName(), new SuggestionRecord(suspect, room, weapon));
     }
 
     public SuggestionRecord getLastSuggestion(String playerName) {
@@ -280,7 +287,6 @@ public class GameManager {
     }
 
     public void resetPlayer(Player player) {
-        gameBoard.movePlayer(player, player.getStartX(), player.getStartY(), true);
+        player.move(player.getStartX(), player.getStartY());
     }
-
 }
