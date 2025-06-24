@@ -18,6 +18,9 @@ public class Player{
     private int y;
     private boolean isCurrentPlayer;
     private boolean isActive = true;
+    private boolean hasSuggestedInCurrentRoom = false;
+    private String lastRoomName = null;
+
 
     public boolean hasWon() {
         return hasWon;
