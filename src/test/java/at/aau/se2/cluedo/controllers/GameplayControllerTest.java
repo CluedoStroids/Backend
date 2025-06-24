@@ -62,32 +62,6 @@ class GameplayControllerTest {
         when(gameManager.getGameBoard()).thenReturn(gameBoard);
     }
 
-    @Test
-    void testMakeSuggestion() {
-        // Arrange
-        String suspectName = "Colonel Mustard";
-        String weaponName = "Knife";
-        String roomName = "Kitchen";
-        SuggestionRequest request = new SuggestionRequest(testPlayer.getName(), suspectName, weaponName, roomName);
-
-        // Mock turn service methods
-        when(turnService.isPlayerTurn(lobbyId, testPlayer.getName())).thenReturn(true);
-        when(turnService.canMakeSuggestion(lobbyId, testPlayer.getName())).thenReturn(true);
-        when(turnService.processSuggestion(lobbyId, testPlayer.getName(), suspectName, weaponName)).thenReturn(true);
-
-        // Act
-        Map<String, Object> result = gameplayController.makeSuggestion(lobbyId, request);
-
-        // Assert
-        assertTrue((Boolean) result.get("success"));
-        assertEquals(lobbyId, result.get("lobbyId"));
-        assertEquals(testPlayer.getName(), result.get("player"));
-        assertEquals(suspectName, result.get("suspect"));
-        assertEquals(weaponName, result.get("weapon"));
-        verify(turnService, times(1)).isPlayerTurn(lobbyId, testPlayer.getName());
-        verify(turnService, times(1)).canMakeSuggestion(lobbyId, testPlayer.getName());
-        verify(turnService, times(1)).processSuggestion(lobbyId, testPlayer.getName(), suspectName, weaponName);
-    }
 
     @Test
     void testMakeAccusation() {

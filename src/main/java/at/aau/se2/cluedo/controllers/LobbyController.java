@@ -113,11 +113,6 @@ public class LobbyController {
         return new CanStartGameResponse(canStart);
     }
 
-    @MessageMapping("/solveCase")
-    public void solveCase(SolveCaseRequest request) {
-        gameService.processSolveCase(request);
-    }
-
     @MessageMapping("/skipTurn/{lobbyId}")
     @SendTo("/topic/turnSkipped/{lobbyId}")
     public TurnStateResponse skipTurn(@DestinationVariable String lobbyId, Map<String, String> request) {

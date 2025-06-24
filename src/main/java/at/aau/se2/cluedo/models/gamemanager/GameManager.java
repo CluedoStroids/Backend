@@ -93,6 +93,25 @@ public class GameManager {
         }
         return null;
     }
+
+    /**
+     * retrieve the next player thats follows on the given one (by username).
+     * @param username
+     * @return
+     */
+    public Player getNextPlayer(String username){
+
+        for (int playerIndex = 0; playerIndex<players.size(); playerIndex++) {
+            String playerName = players.get(playerIndex).getName();
+            if(playerName.equals(username)){
+                return players.get(playerIndex+1%players.size());
+
+            }
+        }
+
+        return null;
+    }
+
     private List<Player> initializePlayers(int count) {
         return initializeDefaultPlayers().subList(0, count);
     }
