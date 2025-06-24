@@ -145,6 +145,32 @@ public class GameManager {
         return Random.rand(6,1);
     }
 
+
+    public int performMovement(Player player,String movement){
+        // Handle exit command
+        if (movement.equalsIgnoreCase("X")) {
+            return 0;
+        }
+
+        int newX = getPlayer(player.getName()).getX();
+        int newY = getPlayer(player.getName()).getY();
+
+        // Calculate new position based on input
+        switch (movement.toUpperCase()) {
+            case "W" -> newY--;
+            case "S" -> newY++;
+            case "A" -> newX--;
+            case "D" -> newX++;
+            default -> {
+                logger.info("Invalid input!");
+                return 0;
+            }
+        }
+        getPlayer(player.getName()).setX(newX);
+        getPlayer(player.getName()).setY(newY);
+        //gameBoard.movePlayer(player, newX, newY, false);
+        return 0;
+    }
     /**
      * Recursive function to perform movement on the gameboard.
      * @param player current player who is moving
@@ -154,9 +180,9 @@ public class GameManager {
     public int performMovement(Player player, List<String> movement) {
 
         // Prevent cheating by limiting moves to dice roll and check if there are no more moves
-        if (movement.isEmpty()||movement.size() > diceRollS) {
+        /*if (movement.isEmpty()||movement.size() > diceRollS) {
             return 0;
-        }
+        }*/
 
         String currentMove = movement.get(0);
 

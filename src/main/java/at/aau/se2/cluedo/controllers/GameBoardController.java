@@ -7,6 +7,7 @@ import at.aau.se2.cluedo.dto.StartGameRequest;
 import at.aau.se2.cluedo.dto.TurnActionRequest;
 import at.aau.se2.cluedo.dto.TurnStateResponse;
 import at.aau.se2.cluedo.models.gameboard.CellType;
+import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.services.GameService;
@@ -49,14 +50,13 @@ public class GameBoardController {
     public void getPlayers() {
         List<Player> players = LobbyController.getInstance().getLobbyService().getAllActiveLobbies().get(0).getPlayers();
         messagingTemplate.convertAndSend("/topic/players",players);
-
     }
     @MessageMapping("/performMovement/{lobbyId}")
     @SendTo("/topic/performMovement/{lobbyId}")
     public GameDataResponse performMovement( @DestinationVariable String lobbyId, PerformMoveRequest request){
 
         gameService.performMovement(request.getPlayer(),request.getMoves(),lobbyId);
-
+        System.out.printf("Hovin %d %d",gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()).getX(),gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()).getY());
         //gameService.getGame(lobbyId).nextTurn();
         StartGameRequest response = new StartGameRequest();
 
@@ -106,14 +106,13 @@ public class GameBoardController {
             return createErrorResponse(lobbyId, "Error processing movement");
         }
     }
-    @MessageMapping("/isWall/{lobbyId}")
-    @SendTo("/topic/isWall/{lobbyId}")
-    public boolean isWall(@DestinationVariable String lobbyId, IsWallRequest request){
-
-        CellType temp = gameService.getGame(lobbyId).getGameBoard().getCell(request.x,request.y).getCellType();
-        return temp.equals(CellType.ROOM);
-
-
+    @MessageMapping("/getGameBoardGrid/{lobbyId}")
+    @SendTo("/topic/gameBoard/{lobbyId}")
+    public GameBoardCell[][] isWall(@DestinationVariable String lobbyId){
+        GameBoardCell[][] temp;
+        temp = gameService.getGame(lobbyId).getGameBoard().getGrid();
+        System.out.println("GameBoard found");
+        return temp;
     }
     @MessageMapping("/getGameData/{lobbyId}")
     @SendTo("/topic/gameData/{lobbyId}")
