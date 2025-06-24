@@ -25,10 +25,12 @@ import java.util.List;
 
 @Getter
 @Setter
+
 public class GameManager {
 
     private static final Logger logger = LoggerFactory.getLogger(GameManager.class);
 
+    private final String lobbyId;
     private final GameBoard gameBoard;
     private final List<Player> players;
     private List<BasicCard> cards;
@@ -41,6 +43,7 @@ public class GameManager {
     private int diceRollS;
 
     public GameManager(int count) {
+        this.lobbyId = "LEGACY";
         this.gameBoard = new GameBoard();
         this.players = initializePlayers(count);
         this.cards = new ArrayList<>();
@@ -57,6 +60,7 @@ public class GameManager {
 
     public GameManager(List<Player> lobbyPlayers) {
         this.gameBoard = new GameBoard();
+        this.lobbyId = "LEGACY";
 
         List<Player> defaultPlayers = initializeDefaultPlayers();
 
@@ -82,6 +86,34 @@ public class GameManager {
         initilizeGame();
         players.get(0).setCurrentPlayer(true);
     }
+
+    public GameManager(String lobbyId, List<Player> lobbyPlayers) {
+        this.lobbyId = lobbyId;
+        this.gameBoard = new GameBoard();
+
+        List<Player> defaultPlayers = initializeDefaultPlayers();
+        List<Player> updatedPlayers = new ArrayList<>();
+
+        for (Player player : lobbyPlayers) {
+            for (Player defaultPlayer : defaultPlayers) {
+                if (player.getColor() == defaultPlayer.getColor()) {
+                    player.move(defaultPlayer.getX(), defaultPlayer.getY());
+                    updatedPlayers.add(player);
+                }
+            }
+        }
+
+        this.players = updatedPlayers;
+        this.cards = new ArrayList<>();
+        this.secretFile = null;
+        this.winner = null;
+        this.state = GameState.NOT_INITIALIZED;
+        this.currentPlayerIndex = 0;
+
+        initilizeGame();
+        players.get(0).setCurrentPlayer(true);
+    }
+
 
     public void initilizeGame() {
         //Call GameBoard
@@ -343,6 +375,10 @@ public class GameManager {
     public void reportCheating(String accuser, String suspect) {
         cheatingReports.putIfAbsent(suspect, new HashSet<>());
         cheatingReports.get(suspect).add(accuser);
+    }
+
+    public int getCheatingReportsCount(String suspect) {
+        return cheatingReports.getOrDefault(suspect, Set.of()).size();
     }
 
 }

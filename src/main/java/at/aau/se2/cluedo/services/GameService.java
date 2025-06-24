@@ -49,7 +49,7 @@ public class GameService {
             players = players.subList(0, MAX_PLAYERS);
         }
 
-        GameManager gameManager = new GameManager(players);
+        GameManager gameManager = new GameManager(lobbyId, players);
 
         activeGames.put(lobbyId, gameManager);
 

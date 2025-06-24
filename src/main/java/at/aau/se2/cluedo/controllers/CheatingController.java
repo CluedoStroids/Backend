@@ -2,35 +2,60 @@ package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.CheatingReport;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
+import at.aau.se2.cluedo.services.GameService;
+import at.aau.se2.cluedo.models.gameobjects.Player;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 public class CheatingController {
 
-    private final Map<String, GameManager> gameManagers;
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CheatingController.class);
+    private static final int CHEATING_THRESHOLD = 3;
+
+    private final GameService gameService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public CheatingController(SimpMessagingTemplate messagingTemplate) {
+    public CheatingController(GameService gameService, SimpMessagingTemplate messagingTemplate) {
+        this.gameService = gameService;
         this.messagingTemplate = messagingTemplate;
-        this.gameManagers = new ConcurrentHashMap<>();
     }
 
     @MessageMapping("/cheating")
     public void handleCheatingReport(CheatingReport report) {
-        GameManager gameManager = gameManagers.get(report.getLobbyId());
+        if (report.getLobbyId() == null || report.getSuspect() == null || report.getAccuser() == null) {
+            logger.warn("Invalid cheating report received");
+            return;
+        }
+
+        GameManager gameManager = gameService.getGame(report.getLobbyId());
         if (gameManager != null) {
             gameManager.reportCheating(report.getAccuser(), report.getSuspect());
             notifyPlayers(report);
+
+            if (shouldEliminatePlayer(gameManager, report.getSuspect())) {
+                eliminatePlayer(gameManager, report.getSuspect());
+            }
         }
     }
 
-    public void registerGameManager(String lobbyId, GameManager gameManager) {
-        gameManagers.put(lobbyId, gameManager);
+    private boolean shouldEliminatePlayer(GameManager gameManager, String suspect) {
+        return gameManager.getCheatingReportsCount(suspect) >= CHEATING_THRESHOLD;
+    }
+
+    private void eliminatePlayer(GameManager gameManager, String suspect) {
+        Player player = gameManager.getPlayer(suspect);
+        if (player != null && player.isActive()) {
+            player.setActive(false);
+            logger.info("Player {} has been eliminated for cheating", suspect);
+            messagingTemplate.convertAndSend(
+                    "/topic/elimination/" + gameManager.getLobbyId(),
+                    Map.of("player", suspect, "reason", "CHEATING")
+            );
+        }
     }
 
     private void notifyPlayers(CheatingReport report) {
@@ -44,3 +69,4 @@ public class CheatingController {
         );
     }
 }
+
