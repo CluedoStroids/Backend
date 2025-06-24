@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
@@ -174,6 +175,22 @@ class CheatingControllerTest {
 
         verify(mockGameManager).resetPlayer(accuserPlayer);
         verify(accuserPlayer).setCanReport(false);
+    }
+    @Test
+    void testPlayerCannotReportThemselves() {
+        CheatingReport report = new CheatingReport();
+        report.setLobbyId("2131230973");
+        report.setAccuser("Scarlet");
+        report.setSuspect("Scarlet");
+
+        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
+        when(mockGameManager.getPlayer("Scarlet")).thenReturn(accuserPlayer);
+        when(accuserPlayer.isCanReport()).thenReturn(true);
+
+        cheatingController.handleCheatingReport(report);
+
+        verify(mockGameManager, never()).resetPlayer(any());
+        verify(messagingTemplate, never()).convertAndSend(anyString(), Optional.ofNullable(any()));
     }
 }
 

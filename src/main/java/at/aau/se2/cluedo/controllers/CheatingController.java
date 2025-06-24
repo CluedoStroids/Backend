@@ -25,7 +25,18 @@ public class CheatingController {
 
     @MessageMapping("/cheating")
     public void handleCheatingReport(CheatingReport report) {
+        if (report == null ||
+                report.getLobbyId() == null ||
+                report.getAccuser() == null ||
+                report.getSuspect() == null ||
+                report.getAccuser().equals(report.getSuspect())) {
+            logger.warn("Invalid cheating report received: {}", report);
+            return;
+        }
+
         GameManager game = gameService.getGame(report.getLobbyId());
+        if (game == null) return;
+
         Player accuser = game.getPlayer(report.getAccuser());
         Player suspect = game.getPlayer(report.getSuspect());
         if (accuser == null || suspect == null) return;
