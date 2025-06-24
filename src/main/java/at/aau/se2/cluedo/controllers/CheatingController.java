@@ -14,7 +14,6 @@ import java.util.Map;
 public class CheatingController {
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CheatingController.class);
-    private static final int CHEATING_THRESHOLD = 3;
 
     private final GameService gameService;
     private final SimpMessagingTemplate messagingTemplate;
@@ -36,14 +35,17 @@ public class CheatingController {
             gameManager.reportCheating(report.getAccuser(), report.getSuspect());
             notifyPlayers(report);
 
-            if (shouldEliminatePlayer(gameManager, report.getSuspect())) {
-                eliminatePlayer(gameManager, report.getSuspect());
-            }
+            logger.info("Cheating report recorded for {}, total: {}",
+                    report.getSuspect(), gameManager.getCheatingReportsCount(report.getSuspect()));
         }
     }
 
-    private boolean shouldEliminatePlayer(GameManager gameManager, String suspect) {
-        return gameManager.getCheatingReportsCount(suspect) >= CHEATING_THRESHOLD;
+    @MessageMapping("/cheating/eliminate")
+    public void manuallyEliminatePlayer(CheatingReport report) {
+        GameManager gameManager = gameService.getGame(report.getLobbyId());
+        if (gameManager != null) {
+            eliminatePlayer(gameManager, report.getSuspect());
+        }
     }
 
     private void eliminatePlayer(GameManager gameManager, String suspect) {
@@ -69,4 +71,6 @@ public class CheatingController {
         );
     }
 }
+
+
 
