@@ -1,9 +1,5 @@
 package at.aau.se2.cluedo.models.gamemanager;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import at.aau.se2.cluedo.models.Random;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
@@ -17,15 +13,10 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import java.util.*;
 
 @Getter
 @Setter
-
 public class GameManager {
 
     private static final Logger logger = LoggerFactory.getLogger(GameManager.class);
@@ -35,105 +26,56 @@ public class GameManager {
     private final List<Player> players;
     private List<BasicCard> cards;
     private SecretFile secretFile;
-
     private Player winner;
     private GameState state;
-
     private int currentPlayerIndex;
     private int diceRollS;
+    private final Map<String, Set<String>> cheatingReports = new HashMap<>();
 
-    public GameManager(int count) {
-        this.lobbyId = "LEGACY";
+
+    private GameManager(String lobbyId, List<Player> inputPlayers, boolean fromLobby) {
+        this.lobbyId = lobbyId;
         this.gameBoard = new GameBoard();
-        this.players = initializePlayers(count);
+        this.players = fromLobby ? mapLobbyPlayers(inputPlayers) : inputPlayers;
         this.cards = new ArrayList<>();
         this.secretFile = null;
         this.winner = null;
         this.state = GameState.NOT_INITIALIZED;
-
         this.currentPlayerIndex = 0;
 
-        initilizeGame();
-        players.get(0).setCurrentPlayer(true);
+        initializeGame();
+        if (!this.players.isEmpty()) {
+            this.players.get(0).setCurrentPlayer(true);
+        }
     }
 
+    public GameManager(int count) {
+        this("LEGACY", initializeDefaultPlayers().subList(0, count), false);
+    }
 
     public GameManager(List<Player> lobbyPlayers) {
-        this.gameBoard = new GameBoard();
-        this.lobbyId = "LEGACY";
-
-        List<Player> defaultPlayers = initializeDefaultPlayers();
-
-        List<Player> updatedPlayers = new ArrayList<>();
-
-        for (Player player: lobbyPlayers) {
-            for (Player defaultPlayer: defaultPlayers) {
-                if(player.getColor() == defaultPlayer.getColor()) {
-                    player.move(defaultPlayer.getX(), defaultPlayer.getY());
-                    updatedPlayers.add(player);
-                }
-            }
-        }
-
-        this.players = updatedPlayers;
-        this.cards = new ArrayList<>();
-        this.secretFile = null;
-        this.winner = null;
-        this.state = GameState.NOT_INITIALIZED;
-
-        this.currentPlayerIndex = 0;
-
-        initilizeGame();
-        players.get(0).setCurrentPlayer(true);
+        this("LEGACY", lobbyPlayers, true);
     }
 
     public GameManager(String lobbyId, List<Player> lobbyPlayers) {
-        this.lobbyId = lobbyId;
-        this.gameBoard = new GameBoard();
+        this(lobbyId, lobbyPlayers, true);
+    }
 
+    private List<Player> mapLobbyPlayers(List<Player> lobbyPlayers) {
         List<Player> defaultPlayers = initializeDefaultPlayers();
         List<Player> updatedPlayers = new ArrayList<>();
-
         for (Player player : lobbyPlayers) {
-            for (Player defaultPlayer : defaultPlayers) {
-                if (player.getColor() == defaultPlayer.getColor()) {
-                    player.move(defaultPlayer.getX(), defaultPlayer.getY());
+            for (Player def : defaultPlayers) {
+                if (player.getColor() == def.getColor()) {
+                    player.move(def.getX(), def.getY());
                     updatedPlayers.add(player);
                 }
             }
         }
-
-        this.players = updatedPlayers;
-        this.cards = new ArrayList<>();
-        this.secretFile = null;
-        this.winner = null;
-        this.state = GameState.NOT_INITIALIZED;
-        this.currentPlayerIndex = 0;
-
-        initilizeGame();
-        players.get(0).setCurrentPlayer(true);
+        return updatedPlayers;
     }
 
-
-    public void initilizeGame() {
-        //Call GameBoard
-        generateSecretFileAndCards();
-        distributeCards();
-        this.state = GameState.INITIALIZED;
-    }
-    public Player getPlayer(String username){
-        for (Player p: players) {
-            if(p.getName().equals(username)){
-                return p;
-            }
-        }
-        return null;
-    }
-    private List<Player> initializePlayers(int count) {
-        return initializeDefaultPlayers().subList(0, count);
-    }
-
-    private List<Player> initializeDefaultPlayers() {
+    private static List<Player> initializeDefaultPlayers() {
         return Arrays.asList(
                 new Player("Miss Scarlet", "Scarlet", 7, 24, PlayerColor.RED),
                 new Player("Colonel Mustard", "Mustard", 0, 17, PlayerColor.YELLOW),
@@ -144,10 +86,12 @@ public class GameManager {
         );
     }
 
-    /**
-     * Generate the SecretFile containing 1 room, 1 weapon and 1 character.
-     * Add all remaining cards and store them in the instnace variable cards.
-     */
+    private void initializeGame() {
+        generateSecretFileAndCards();
+        distributeCards();
+        this.state = GameState.INITIALIZED;
+    }
+
     private void generateSecretFileAndCards() {
         cards.clear();
         List<BasicCard> rooms = BasicCard.getRooms();
@@ -164,12 +108,8 @@ public class GameManager {
         cards.addAll(characters);
     }
 
-    /**
-     * Shuffle the remaining cards and distribute them evenly to each player.
-     */
     private void distributeCards() {
         Collections.shuffle(cards);
-
         int playerIndex = 0;
         for (BasicCard card : cards) {
             players.get(playerIndex).addCard(card);
@@ -178,34 +118,18 @@ public class GameManager {
     }
 
     public int rollDice() {
-        return Random.rand(6,1);
+        return Random.rand(6, 1);
     }
 
-    /**
-     * Recursive function to perform movement on the gameboard.
-     * @param player current player who is moving
-     * @param movement List of moves the player takes
-     * @return recursive call
-     */
     public int performMovement(Player player, List<String> movement) {
+        if (movement.isEmpty() || movement.size() > diceRollS) return 0;
 
-        // Prevent cheating by limiting moves to dice roll and check if there are no more moves
-        if (movement.isEmpty()||movement.size() > diceRollS) {
-            return 0;
-        }
+        String move = movement.get(0);
+        if (move.equalsIgnoreCase("X")) return 0;
 
-        String currentMove = movement.get(0);
+        int newX = player.getX(), newY = player.getY();
 
-        // Handle exit command
-        if (currentMove.equalsIgnoreCase("X")) {
-            return 0;
-        }
-
-        int newX = player.getX();
-        int newY = player.getY();
-
-        // Calculate new position based on input
-        switch (currentMove.toUpperCase()) {
+        switch (move.toUpperCase()) {
             case "W" -> newY--;
             case "S" -> newY++;
             case "A" -> newX--;
@@ -216,7 +140,6 @@ public class GameManager {
             }
         }
 
-        // Check for collision with other players
         for (Player p : players) {
             if (p != player && p.getX() == newX && p.getY() == newY) {
                 logger.info("Invalid move - position occupied!");
@@ -224,31 +147,20 @@ public class GameManager {
             }
         }
 
-        // Attempt to move the player
         if (gameBoard.movePlayer(player, newX, newY, false)) {
-            // Move successful, process remaining movements
             return performMovement(player, movement.subList(1, movement.size()));
         } else {
-            // Move failed (likely out of bounds or invalid position)
             logger.info("Invalid move - cannot move to that position!");
             return 0;
         }
     }
 
-    /**
-     * Suggestion happening every round. Player suggest/accuses a character with a weapon in the current room pt gather intel/evidence
-     * @param player current player
-     * @param suspect suspected character
-     * @param weapon suspected weapon
-     */
-    public boolean makeSuggestion(Player player,String suspect, String weapon) {
-
+    public boolean makeSuggestion(Player player, String suspect, String weapon) {
         BasicCard room = getCardByName(gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
         BasicCard suspectCard = getCardByName(suspect);
         BasicCard weaponCard = getCardByName(weapon);
 
-        // Gather evidence
-        for (Player p : this.players) {
+        for (Player p : players) {
             if (p != player) {
                 for (BasicCard card : p.getCards()) {
                     if (card.cardEquals(suspectCard) || card.cardEquals(weaponCard) || card.cardEquals(room)) {
@@ -258,32 +170,22 @@ public class GameManager {
                 }
             }
         }
+
         logger.info("No one could disprove your suggestion!");
         return false;
     }
 
-    /**
-     * returns a BasicCard object based on the corresponding card name if its in the current card list of the game. Otherwise null.
-     * @param cardName
-     * @return
-     */
-    public BasicCard getCardByName(String cardName){
+    public BasicCard getCardByName(String cardName) {
         for (BasicCard card : cards) {
-            if (card.getCardName().equals(cardName)) {
-                return card;
-            }
+            if (card.getCardName().equals(cardName)) return card;
         }
         return null;
     }
 
-    /**
-     * Accusation to solve the SecretFile. If correct player wins the game, otherwise he gets eliminated
-     * @param player current player
-     * @param accusation suspected secret file
-     */
     public boolean makeAccusation(Player player, SecretFile accusation) {
-
-        if (secretFile.room().cardEquals(accusation.room()) && secretFile.character().cardEquals(accusation.character()) && secretFile.weapon().cardEquals(accusation.weapon())) {
+        if (secretFile.room().cardEquals(accusation.room())
+                && secretFile.character().cardEquals(accusation.character())
+                && secretFile.weapon().cardEquals(accusation.weapon())) {
             logger.info("Correct! {} has solved the crime!", player.getName());
             player.setHasWon(true);
             this.winner = player;
@@ -297,61 +199,39 @@ public class GameManager {
     }
 
     public boolean checkGameEnd() {
-        if(state == GameState.ENDED){
-            return true;
-        }
-
-        for (Player p : players) {
-            if (p.hasWon()) {
-                return true;
-            }
-        }
-
-        // Check if only one player remains active
-        long activePlayers = players.stream().filter(Player::isActive).count();
-        return activePlayers == 1;
+        if (state == GameState.ENDED) return true;
+        if (players.stream().anyMatch(Player::hasWon)) return true;
+        return players.stream().filter(Player::isActive).count() == 1;
     }
 
-    /**
-     * Returns True if the current player is in a room, else returns False.
-     * @param player
-     * @return
-     */
     public boolean inRoom(Player player) {
         GameBoardCell cell = gameBoard.getCell(player.getX(), player.getY());
         return cell != null && cell.getCellType() == CellType.ROOM;
     }
 
-    public Player getCurrentPlayer(){
-        return this.players.get(this.currentPlayerIndex);
+    public Player getCurrentPlayer() {
+        return players.get(currentPlayerIndex);
     }
 
-    /**
-     * increments the currentPlayerIndex indicating the next turn
-     */
     public void nextTurn() {
         players.get(currentPlayerIndex).setCurrentPlayer(false);
-
         int attempts = 0;
+
         do {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
             attempts++;
-            
-            // Prevent infinite loop if no active players remain
             if (attempts >= players.size()) {
                 logger.warn("No active players found, game should end");
                 return;
             }
         } while (!players.get(currentPlayerIndex).isActive());
 
-        if (currentPlayerIndex >= players.size())
-            this.currentPlayerIndex = 0;
-        logger.info("Next turn: " + players.get(currentPlayerIndex).getName());
         players.get(currentPlayerIndex).setCurrentPlayer(true);
+        logger.info("Next turn: {}", players.get(currentPlayerIndex).getName());
     }
+
     public void eliminateCurrentPlayer() {
-        Player current = getCurrentPlayer();
-        current.setActive(false);
+        getCurrentPlayer().setActive(false);
     }
 
     public String getCorrectSuspect() {
@@ -370,7 +250,13 @@ public class GameManager {
         return new ArrayList<>(players);
     }
 
-    private final Map<String, Set<String>> cheatingReports = new HashMap<>();
+    public Player getPlayer(String username) {
+        for (Player p : players) {
+            if (p.getName().equals(username)) return p;
+        }
+        return null;
+    }
+
 
     public void reportCheating(String accuser, String suspect) {
         cheatingReports.putIfAbsent(suspect, new HashSet<>());
@@ -380,5 +266,4 @@ public class GameManager {
     public int getCheatingReportsCount(String suspect) {
         return cheatingReports.getOrDefault(suspect, Set.of()).size();
     }
-
 }
