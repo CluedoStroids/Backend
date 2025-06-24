@@ -86,7 +86,7 @@ public class GameManager {
         );
     }
 
-    private void initializeGame() {
+    public void initializeGame() {
         generateSecretFileAndCards();
         distributeCards();
         this.state = GameState.INITIALIZED;

@@ -38,7 +38,7 @@ public class GameManagerTest {
         characters.add(new BasicCard("Red", UUID.randomUUID(), CardType.CHARACTER));
         characters.add(new BasicCard("White", UUID.randomUUID(),  CardType.CHARACTER));
 
-        gameManager.initilizeGame();
+        gameManager.initializeGame();
     }
     @Test
     void testConstructorWithPlayerCount() {
@@ -78,7 +78,7 @@ public class GameManagerTest {
     @Test
     void testStartGameDoesNotCrash() {
         GameManager gm = new GameManager(2);
-        assertDoesNotThrow(gm::initilizeGame);
+        assertDoesNotThrow(gm::initializeGame);
     }
 
     @Test
