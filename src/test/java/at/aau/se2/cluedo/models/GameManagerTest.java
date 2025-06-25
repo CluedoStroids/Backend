@@ -500,6 +500,17 @@ public class GameManagerTest {
         assertFalse(result, "Should return false if player has not left the room");
     }
 
+    @Test
+    void testGetPlayerListReturnsCopyOfPlayers() {
+        List<Player> players = gameManager.getPlayerList();
+
+        assertEquals(gameManager.getPlayers().size(), players.size());
+
+        assertNotSame(gameManager.getPlayers(), players);
+
+        assertEquals(gameManager.getPlayers().get(0).getName(), players.get(0).getName());
+    }
+
 
 
 }
