@@ -7,6 +7,8 @@ import at.aau.se2.cluedo.services.GameService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.startsWith;
 
 import java.util.Map;
 
@@ -46,6 +48,7 @@ class CheatingControllerTest {
         when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
         when(mockGameManager.getPlayer("Professor Plum")).thenReturn(accuserPlayer);
         when(mockGameManager.getPlayer("Colonel Mustard")).thenReturn(suspectPlayer);
+
         when(accuserPlayer.isCanReport()).thenReturn(true);
         when(mockGameManager.inRoom(accuserPlayer)).thenReturn(true);
 
@@ -54,11 +57,12 @@ class CheatingControllerTest {
 
         when(mockGameManager.getLastSuggestion("Colonel Mustard"))
                 .thenReturn(new GameManager.SuggestionRecord("Colonel Mustard", "Kitchen", "Knife"));
+        when(mockGameManager.getCurrentRoom(accuserPlayer)).thenReturn("Kitchen");
         when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Kitchen");
+
         when(suspectPlayer.getSuggestionsInCurrentRoom()).thenReturn(2);
 
         cheatingController.handleCheatingReport(report);
-
 
         verify(messagingTemplate).convertAndSend(
                 eq("/topic/cheating/2131230973"),
@@ -71,6 +75,7 @@ class CheatingControllerTest {
                 ))
         );
     }
+
 
 
 
@@ -157,25 +162,30 @@ class CheatingControllerTest {
         when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
         when(mockGameManager.getPlayer("Accuser")).thenReturn(accuserPlayer);
         when(mockGameManager.getPlayer("Suspect")).thenReturn(suspectPlayer);
+
         when(accuserPlayer.isCanReport()).thenReturn(true);
         when(mockGameManager.inRoom(accuserPlayer)).thenReturn(true);
+        when(mockGameManager.getCurrentRoom(accuserPlayer)).thenReturn("Kitchen");
+        when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Kitchen");
 
         when(accuserPlayer.getName()).thenReturn("Accuser");
         when(suspectPlayer.getName()).thenReturn("Suspect");
 
         when(mockGameManager.getLastSuggestion("Suspect"))
                 .thenReturn(new GameManager.SuggestionRecord("Suspect", "Kitchen", "Knife"));
-        when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Kitchen");
 
         when(suspectPlayer.getSuggestionsInCurrentRoom()).thenReturn(2);
         when(mockGameManager.hasPlayerLeftRoom(suspectPlayer, "Kitchen")).thenReturn(false);
 
         cheatingController.handleCheatingReport(report);
 
-        verify(mockGameManager).resetPlayer(suspectPlayer);
+        verify(mockGameManager).resetPlayer(argThat(player ->
+                player != null && "Suspect".equals(player.getName())
+        ));
+
         verify(messagingTemplate).convertAndSend(
                 startsWith("/topic/playerReset/"),
-                (Object) any()
+                any(Object.class)
         );
     }
 
