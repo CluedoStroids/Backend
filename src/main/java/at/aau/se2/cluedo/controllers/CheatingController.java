@@ -9,6 +9,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 public class CheatingController {
@@ -36,6 +37,9 @@ public class CheatingController {
 
         GameManager game = gameService.getGame(report.getLobbyId());
         if (game == null) return;
+        if (game.getCheatingReports().getOrDefault(report.getSuspect(), Set.of()).contains(report.getAccuser())) {
+            return;
+        }
 
         Player accuser = game.getPlayer(report.getAccuser());
         Player suspect = game.getPlayer(report.getSuspect());
@@ -62,8 +66,31 @@ public class CheatingController {
             return;
         }
 
-        String currentRoom = game.getCurrentRoom(suspect);
-        boolean isCheating = currentRoom != null && game.getSuggestionCount(suspect, currentRoom) > 1;
+        String accuserRoom = game.getCurrentRoom(accuser);
+        String suspectRoom = game.getCurrentRoom(suspect);
+
+        if (accuserRoom == null || suspectRoom == null || !accuserRoom.equals(suspectRoom)) {
+            game.resetPlayer(accuser);
+            accuser.setCanReport(false);
+            messagingTemplate.convertAndSend(
+                    "/topic/playerReset/" + report.getLobbyId(),
+                    Map.of("player", accuser.getName(), "x", accuser.getX(), "y", accuser.getY())
+            );
+            messagingTemplate.convertAndSend(
+                    "/topic/cheating/" + report.getLobbyId(),
+                    Map.of(
+                            "type", "CHEATING_REPORT",
+                            "suspect", suspect.getName(),
+                            "accuser", accuser.getName(),
+                            "valid", false,
+                            "reason", "NOT_IN_SAME_ROOM"
+                    )
+            );
+            return;
+        }
+
+
+        boolean isCheating = suspect.getSuggestionsInCurrentRoom() > 1;
 
 
         if (isCheating) {

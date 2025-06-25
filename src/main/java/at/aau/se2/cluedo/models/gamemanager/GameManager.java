@@ -32,7 +32,6 @@ public class GameManager {
     private int diceRollS;
     private final Map<String, Set<String>> cheatingReports = new HashMap<>();
     private final Map<String, SuggestionRecord> lastSuggestions = new HashMap<>();
-    private final Map<String, Map<String, Integer>> suggestionCounts = new HashMap<>();
 
     public record SuggestionRecord(String suspect, String room, String weapon) {
     }
@@ -47,7 +46,6 @@ public class GameManager {
         }
 
         player.incrementSuggestionsInCurrentRoom();
-        trackSuggestion(player, room);
     }
 
 
@@ -118,6 +116,7 @@ public class GameManager {
         generateSecretFileAndCards();
         distributeCards();
         this.state = GameState.INITIALIZED;
+        resetPlayerReporting();
     }
 
     private void generateSecretFileAndCards() {
@@ -305,7 +304,6 @@ public class GameManager {
      */
     public void nextTurn() {
         players.get(currentPlayerIndex).setCurrentPlayer(false);
-
         int attempts = 0;
 
         do {
@@ -323,6 +321,7 @@ public class GameManager {
             this.currentPlayerIndex = 0;
         logger.info("Next turn: " + players.get(currentPlayerIndex).getName());
         players.get(currentPlayerIndex).setCurrentPlayer(true);
+        players.get(currentPlayerIndex).resetReportAbility();
         logger.info("Next turn: {}", players.get(currentPlayerIndex).getName());
     }
 
@@ -365,15 +364,13 @@ public class GameManager {
         player.move(player.getStartX(), player.getStartY());
     }
 
-    public void trackSuggestion(Player player, String room) {
-        suggestionCounts.putIfAbsent(player.getName(), new HashMap<>());
-        Map<String, Integer> roomCounts = suggestionCounts.get(player.getName());
-        roomCounts.put(room, roomCounts.getOrDefault(room, 0) + 1);
+    public void resetPlayerReporting() {
+        for (Player player : players) {
+            player.resetReportAbility();
+        }
     }
 
-    public int getSuggestionCount(Player player, String room) {
-        return suggestionCounts.getOrDefault(player.getName(), Map.of()).getOrDefault(room, 0);
-    }
+
     public boolean hasPlayerLeftRoom(Player player, String room) {
         SuggestionRecord last = lastSuggestions.get(player.getName());
         String current = getCurrentRoom(player);

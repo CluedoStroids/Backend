@@ -72,4 +72,8 @@ public class Player{
         this.suggestionsInCurrentRoom = 0;
     }
 
+    public void resetReportAbility() {
+        this.canReport = true;
+    }
+
 }
