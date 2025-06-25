@@ -170,6 +170,7 @@ public class GameBoard {
         return null;
     }
 
+
     public boolean movePlayer(Player player, int newX, int newY, boolean teleport) {
         GameBoardCell target = getCell(newX, newY);
         GameBoardCell current = getCell(player.getX(), player.getY());

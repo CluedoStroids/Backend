@@ -148,10 +148,7 @@ public class GameManager {
 
 
     public int performMovement(Player player,String movement){
-        // Handle exit command
-        if (movement.equalsIgnoreCase("X")) {
-            return 0;
-        }
+
 
         int newX = getPlayer(player.getName()).getX();
         int newY = getPlayer(player.getName()).getY();
@@ -185,6 +182,7 @@ public class GameManager {
         if (target.getCellType() == CellType.SECRET_PASSAGE) {
             return useSecretPassage(player);
         }
+
         System.out.println(player.toString());
         getPlayer(player.getName()).setX(newX);
         getPlayer(player.getName()).setY(newY);
