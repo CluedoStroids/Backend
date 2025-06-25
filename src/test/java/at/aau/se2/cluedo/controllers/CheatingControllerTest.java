@@ -55,8 +55,7 @@ class CheatingControllerTest {
         when(mockGameManager.getLastSuggestion("Colonel Mustard"))
                 .thenReturn(new GameManager.SuggestionRecord("Colonel Mustard", "Kitchen", "Knife"));
         when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Kitchen");
-        when(mockGameManager.getSuggestionCount(suspectPlayer, "Kitchen")).thenReturn(2);
-        when(mockGameManager.hasPlayerLeftRoom(suspectPlayer, "Kitchen")).thenReturn(false);
+        when(suspectPlayer.getSuggestionsInCurrentRoom()).thenReturn(2);
 
         cheatingController.handleCheatingReport(report);
 
@@ -168,7 +167,7 @@ class CheatingControllerTest {
                 .thenReturn(new GameManager.SuggestionRecord("Suspect", "Kitchen", "Knife"));
         when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Kitchen");
 
-        when(mockGameManager.getSuggestionCount(suspectPlayer, "Kitchen")).thenReturn(2);
+        when(suspectPlayer.getSuggestionsInCurrentRoom()).thenReturn(2);
         when(mockGameManager.hasPlayerLeftRoom(suspectPlayer, "Kitchen")).thenReturn(false);
 
         cheatingController.handleCheatingReport(report);

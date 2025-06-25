@@ -76,12 +76,4 @@ public class Player{
         this.canReport = true;
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
 }
