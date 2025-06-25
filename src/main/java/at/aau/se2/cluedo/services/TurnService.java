@@ -211,7 +211,7 @@ public class TurnService {
         }
 
         while(!(nextPlayer = game.getNextPlayer(currentPlayer.getName())).getName().equals(currentPlayer.getName())){
-            logger.info("Current player: "+currentPlayer.getName());
+            logger.info(String.format("Current player: %s",currentPlayer.getName()));
             messagingTemplate.convertAndSend("/topic/processSuggestion/"+lobbyId+"/"+nextPlayer.getPlayerID(), Map.of("processSuggestion", true));
 
             try {
@@ -238,8 +238,6 @@ public class TurnService {
         logger.info("Suggestion finished TurnService");
 
         endTurn(lobbyId);
-
-        //logger.info("Player {} made suggestion in lobby {}: {} with {}", playerID, lobbyId, suspect, weapon);
 
         return true;
 
