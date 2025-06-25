@@ -76,6 +76,9 @@ public class GameplayController {
 
             logger.info("Suggestion finished Controller");
 
+            Player player = gameService.getGame(lobbyId).getPlayer(request.getPlayerName());
+            gameService.getGame(lobbyId).recordSuggestion(player, request.getSuspect(), request.getRoom(), request.getWeapon());
+
             return Map.of(
                     "success", successfullSuggestion,
                     "message", "smth",

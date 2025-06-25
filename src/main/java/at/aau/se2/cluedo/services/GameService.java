@@ -49,7 +49,7 @@ public class GameService {
             players = players.subList(0, MAX_PLAYERS);
         }
 
-        GameManager gameManager = new GameManager(players);
+        GameManager gameManager = new GameManager(lobbyId, players);
 
         activeGames.put(lobbyId, gameManager);
 
@@ -105,7 +105,7 @@ public class GameService {
     }
     public void performMovement(Player player, List<String> movement, String lobbId) {
         if(!movement.isEmpty()) {
-            getGame(lobbId).performMovement(player, movement.get(0));
+            getGame(lobbId).performMovement(player, movement);
             movement.clear();
         }
     }

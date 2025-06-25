@@ -16,6 +16,14 @@ public class Player{
     private final List<BasicCard> cards;
     private int x;
     private int y;
+    private final int startX;
+    private final int startY;
+    private boolean canReport = true;
+    private String currentRoom;
+    @Setter
+    private int suggestionsInCurrentRoom;
+    private boolean hasSuggestedInCurrentRoom = false;
+    private String lastRoomName = null;
     private boolean isCurrentPlayer;
     private boolean isActive = true;
 
@@ -34,6 +42,8 @@ public class Player{
         this.name = name;
         this.playerID = UUID.randomUUID();
         this.character = character;
+        this.startX = startX;
+        this.startY = startY;
         this.x = startX;
         this.y = startY;
         this.cards = new ArrayList<>();
@@ -52,4 +62,18 @@ public class Player{
     public boolean hasCard(BasicCard card) {
         return cards.contains(card);
     }
+
+
+    public void incrementSuggestionsInCurrentRoom() {
+        this.suggestionsInCurrentRoom++;
+    }
+
+    public void resetSuggestionsInCurrentRoom() {
+        this.suggestionsInCurrentRoom = 0;
+    }
+
+    public void resetReportAbility() {
+        this.canReport = true;
+    }
+
 }
