@@ -21,7 +21,6 @@ import java.util.concurrent.TimeoutException;
 @Service
 public class TurnService {
     private static final Logger logger = LoggerFactory.getLogger(TurnService.class);
-    private static boolean isDebug = true;
     // turn states for each lobby
     private final Map<String, TurnState> lobbyTurnStates = new HashMap<>();
     @Autowired
@@ -34,6 +33,7 @@ public class TurnService {
 
     private static String successLiteral = "success";
     private static String suspectLiteral = "suspect";
+    private static String weaponLiteral = "weapon";
 
     /**
      * Initialize lobby state when created
@@ -175,7 +175,7 @@ public class TurnService {
      */
     public boolean processSuggestion(String lobbyId, SuggestionRequest request) {
 
-        if(isDebug) logger.info(String.format("SUGGEST: %s %s",lobbyId,request));
+        logger.info(String.format("SUGGEST: %s %s",lobbyId,request));
 
         if (!isPlayerTurn(lobbyId, request.getPlayerName())) {
             logger.error("SUGGEST: Failure");
@@ -187,7 +187,7 @@ public class TurnService {
                 "player", request.getPlayerName(),
                 "playerId", request.getPlayerId(),
                 suspectLiteral, request.getSuspect(),
-                "weapon", request.getWeapon(),
+                weaponLiteral, request.getWeapon(),
                 "room", request.getRoom(),
                 "message", request.getPlayerName() + " suggests " + request.getSuspect() + " with " + request.getWeapon() + " in " + request.getRoom(),
                 "lobbyId", lobbyId
@@ -212,13 +212,13 @@ public class TurnService {
         }
 
         while(!(nextPlayer = game.getNextPlayer(currentPlayer.getName())).getName().equals(currentPlayer.getName())){
-            if(isDebug) logger.info(String.format("Current player: %s",currentPlayer.getName()));
+            logger.info(String.format("Current player: %s",currentPlayer.getName()));
             messagingTemplate.convertAndSend("/topic/processSuggestion/"+lobbyId+"/"+nextPlayer.getPlayerID(), Map.of("processSuggestion", true));
 
             try {
                 String response = future.get(60, TimeUnit.SECONDS);
                 if (response != null && !response.isBlank()) {
-                    if(isDebug) logger.info("Received suggestion response: {}", response);
+                    logger.info("Received suggestion response: {}", response);
                     messagingTemplate.convertAndSend("/topic/resultSuggestion/"+lobbyId+"/"+request.getPlayerId(), Map.of("receivedCard", response,
                                                                                                                                     "sendingPlayer", nextPlayer.getName()));
                     break;
@@ -286,7 +286,7 @@ public class TurnService {
 
             // notify all players about the win
             messagingTemplate.convertAndSend("/topic/accusationMade/" + lobbyId,
-                    Map.of("player", playerName, suspectLiteral, suspect, "weapon", weapon, "room", room,
+                    Map.of("player", playerName, suspectLiteral, suspect, weaponLiteral, weapon, "room", room,
                             "correct", true, "gameWon", true, successLiteral, true));
 
             logger.info("Player {} won the game in lobby {} with correct accusation!", playerName, lobbyId);
@@ -296,7 +296,7 @@ public class TurnService {
             currentPlayer.setActive(false);
             // notify all players about the failed accusation
             messagingTemplate.convertAndSend("/topic/accusationMade/" + lobbyId,
-                    Map.of("player", playerName, suspectLiteral, suspect, "weapon", weapon, "room", room,
+                    Map.of("player", playerName, suspectLiteral, suspect, weaponLiteral, weapon, "room", room,
                             "correct", false, "playerEliminated", true, successLiteral, true));
 
             // check if game should end (only one player left)
