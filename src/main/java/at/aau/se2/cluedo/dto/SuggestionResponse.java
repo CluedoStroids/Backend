@@ -13,9 +13,5 @@ public class SuggestionResponse {
     private String playerId;
     private String cardName;
 
-    public SuggestionResponse(String playerName, String cardName) {
-        this.playerId = playerId;
-        this.cardName = cardName;
-    }
 
 }

@@ -1,7 +1,6 @@
 package at.aau.se2.cluedo.services;
 
 import at.aau.se2.cluedo.dto.SuggestionRequest;
-import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gamemanager.GameState;
 import at.aau.se2.cluedo.models.gameobjects.Player;
@@ -12,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +30,9 @@ public class TurnService {
     private SimpMessagingTemplate messagingTemplate;
 
     private static Map<String, CompletableFuture<String>> pendingResponses = new ConcurrentHashMap<>();
+
+    private static String successLiteral = "success";
+    private static String suspectLiteral = "suspect";
 
     /**
      * Initialize lobby state when created
@@ -182,10 +182,10 @@ public class TurnService {
         }
 
         messagingTemplate.convertAndSend("/topic/suggestionMade/"+lobbyId,Map.of(
-                "success", true,
+                successLiteral, true,
                 "player", request.getPlayerName(),
                 "playerId", request.getPlayerId(),
-                "suspect", request.getSuspect(),
+                suspectLiteral, request.getSuspect(),
                 "weapon", request.getWeapon(),
                 "room", request.getRoom(),
                 "message", request.getPlayerName() + " suggests " + request.getSuspect() + " with " + request.getWeapon() + " in " + request.getRoom(),
@@ -227,7 +227,7 @@ public class TurnService {
             } catch (TimeoutException e) {
                 // No response received
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.info("Error in Process Suggestion", e);
             } finally {
                 pendingResponses.remove(nextPlayer.getPlayerID().toString());
             }
@@ -285,8 +285,8 @@ public class TurnService {
 
             // notify all players about the win
             messagingTemplate.convertAndSend("/topic/accusationMade/" + lobbyId,
-                    Map.of("player", playerName, "suspect", suspect, "weapon", weapon, "room", room,
-                            "correct", true, "gameWon", true, "success", true));
+                    Map.of("player", playerName, suspectLiteral, suspect, "weapon", weapon, "room", room,
+                            "correct", true, "gameWon", true, successLiteral, true));
 
             logger.info("Player {} won the game in lobby {} with correct accusation!", playerName, lobbyId);
         } else {
@@ -295,8 +295,8 @@ public class TurnService {
             currentPlayer.setActive(false);
             // notify all players about the failed accusation
             messagingTemplate.convertAndSend("/topic/accusationMade/" + lobbyId,
-                    Map.of("player", playerName, "suspect", suspect, "weapon", weapon, "room", room,
-                            "correct", false, "playerEliminated", true, "success", true));
+                    Map.of("player", playerName, suspectLiteral, suspect, "weapon", weapon, "room", room,
+                            "correct", false, "playerEliminated", true, successLiteral, true));
 
             // check if game should end (only one player left)
             if (game.checkGameEnd()) {
