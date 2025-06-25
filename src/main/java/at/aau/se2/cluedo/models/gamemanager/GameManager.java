@@ -104,8 +104,7 @@ public class GameManager {
         for (int playerIndex = 0; playerIndex<players.size(); playerIndex++) {
             String playerName = players.get(playerIndex).getName();
             if(playerName.equals(username)){
-                return players.get(playerIndex+1%players.size());
-
+                return players.get((playerIndex+1)%players.size());
             }
         }
 

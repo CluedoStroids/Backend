@@ -210,7 +210,7 @@ public class TurnService {
             pendingResponses.put(String.valueOf(p.getPlayerID()),future);
         }
 
-        while((nextPlayer = game.getNextPlayer(currentPlayer.getName()))!=currentPlayer){
+        while(!(nextPlayer = game.getNextPlayer(currentPlayer.getName())).getName().equals(currentPlayer.getName())){
             logger.info("Current player: "+currentPlayer.getName());
             messagingTemplate.convertAndSend("/topic/processSuggestion/"+lobbyId+"/"+nextPlayer.getPlayerID(), Map.of("processSuggestion", true));
 
