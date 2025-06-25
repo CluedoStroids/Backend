@@ -34,9 +34,20 @@ public class GameManager {
     private final Map<String, SuggestionRecord> lastSuggestions = new HashMap<>();
     private final Map<String, Map<String, Integer>> suggestionCounts = new HashMap<>();
 
-
-
     public record SuggestionRecord(String suspect, String room, String weapon) {}
+
+
+    public void recordSuggestion(Player player, String suspect, String room, String weapon) {
+        lastSuggestions.put(player.getName(), new SuggestionRecord(suspect, room, weapon));
+
+        if (!room.equals(player.getCurrentRoom())) {
+            player.setCurrentRoom(room);
+            player.resetSuggestionsInCurrentRoom();
+        }
+
+        player.incrementSuggestionsInCurrentRoom();
+        trackSuggestion(player, room);
+    }
 
 
     private GameManager(String lobbyId, List<Player> inputPlayers, boolean fromLobby) {
@@ -281,11 +292,6 @@ public class GameManager {
         return cheatingReports.getOrDefault(suspect, Set.of()).size();
     }
 
-    public void recordSuggestion(Player player, String suspect, String room, String weapon) {
-        lastSuggestions.put(player.getName(), new SuggestionRecord(suspect, room, weapon));
-        trackSuggestion(player, room);
-    }
-
     public SuggestionRecord getLastSuggestion(String playerName) {
         return lastSuggestions.get(playerName);
     }
@@ -302,6 +308,12 @@ public class GameManager {
 
     public int getSuggestionCount(Player player, String room) {
         return suggestionCounts.getOrDefault(player.getName(), Map.of()).getOrDefault(room, 0);
+    }
+    public boolean hasPlayerLeftRoom(Player player, String room) {
+        SuggestionRecord last = lastSuggestions.get(player.getName());
+        String current = getCurrentRoom(player);
+        if (last == null || current == null) return false;
+        return !current.equals(room);
     }
 
 }

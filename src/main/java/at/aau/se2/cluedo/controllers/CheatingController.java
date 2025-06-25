@@ -87,7 +87,8 @@ public class CheatingController {
                         "type", "CHEATING_REPORT",
                         "suspect", suspect.getName(),
                         "accuser", accuser.getName(),
-                        "valid", isCheating
+                        "valid", isCheating,
+                        "reason", "SUCCESS"
                 )
         );
     }

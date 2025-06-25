@@ -19,6 +19,9 @@ public class Player{
     private final int startX;
     private final int startY;
     private boolean canReport = true;
+    private String currentRoom;
+    @Setter
+    private int suggestionsInCurrentRoom;
     private boolean hasSuggestedInCurrentRoom = false;
     private String lastRoomName = null;
     private boolean isCurrentPlayer;
@@ -59,4 +62,14 @@ public class Player{
     public boolean hasCard(BasicCard card) {
         return cards.contains(card);
     }
+
+
+    public void incrementSuggestionsInCurrentRoom() {
+        this.suggestionsInCurrentRoom++;
+    }
+
+    public void resetSuggestionsInCurrentRoom() {
+        this.suggestionsInCurrentRoom = 0;
+    }
+
 }
