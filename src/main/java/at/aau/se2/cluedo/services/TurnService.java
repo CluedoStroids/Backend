@@ -35,6 +35,10 @@ public class TurnService {
     private static String suspectLiteral = "suspect";
     private static String weaponLiteral = "weapon";
 
+
+    @Autowired
+
+
     /**
      * Initialize lobby state when created
      *

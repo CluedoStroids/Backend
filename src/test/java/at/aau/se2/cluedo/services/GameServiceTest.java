@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -277,6 +278,19 @@ class GameServiceTest {
         List<String> emptyMovement = List.of();
 
         assertDoesNotThrow(() -> simpleGameService.performMovement(player, emptyMovement, "test-lobby"));
+    }
+    @Test
+    void testPerformMovement_ValidMovement(){
+        GameService simpleGameService = new GameService(new LobbyService(null));
+        Player player = new Player("TestUser", "Scarlet", 0, 24, PlayerColor.RED);
+        GameManager manager = new GameManager(List.of(player));
+
+        simpleGameService.getActiveGames().put("test-lobby", manager);
+        List<String> move = new ArrayList<>();
+
+        move.add("W");
+        simpleGameService.performMovement(player,move,"test-lobby");
+        assertEquals(23,manager.getPlayer(player.getName()).getY());
     }
 
     // Tests for makeAccusation method
