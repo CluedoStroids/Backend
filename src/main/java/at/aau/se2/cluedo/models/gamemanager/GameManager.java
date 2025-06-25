@@ -32,6 +32,9 @@ public class GameManager {
     private int diceRollS;
     private final Map<String, Set<String>> cheatingReports = new HashMap<>();
     private final Map<String, SuggestionRecord> lastSuggestions = new HashMap<>();
+    private final Map<String, Map<String, Integer>> suggestionCounts = new HashMap<>();
+
+
 
     public record SuggestionRecord(String suspect, String room, String weapon) {}
 
@@ -280,6 +283,7 @@ public class GameManager {
 
     public void recordSuggestion(Player player, String suspect, String room, String weapon) {
         lastSuggestions.put(player.getName(), new SuggestionRecord(suspect, room, weapon));
+        trackSuggestion(player, room);
     }
 
     public SuggestionRecord getLastSuggestion(String playerName) {
@@ -289,4 +293,15 @@ public class GameManager {
     public void resetPlayer(Player player) {
         player.move(player.getStartX(), player.getStartY());
     }
+
+    public void trackSuggestion(Player player, String room) {
+        suggestionCounts.putIfAbsent(player.getName(), new HashMap<>());
+        Map<String, Integer> roomCounts = suggestionCounts.get(player.getName());
+        roomCounts.put(room, roomCounts.getOrDefault(room, 0) + 1);
+    }
+
+    public int getSuggestionCount(Player player, String room) {
+        return suggestionCounts.getOrDefault(player.getName(), Map.of()).getOrDefault(room, 0);
+    }
+
 }
