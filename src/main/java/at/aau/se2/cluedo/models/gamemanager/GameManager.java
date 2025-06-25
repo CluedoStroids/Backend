@@ -5,7 +5,6 @@ import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
-import at.aau.se2.cluedo.models.gameboard.Room;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -35,7 +34,8 @@ public class GameManager {
     private final Map<String, SuggestionRecord> lastSuggestions = new HashMap<>();
     private final Map<String, Map<String, Integer>> suggestionCounts = new HashMap<>();
 
-    public record SuggestionRecord(String suspect, String room, String weapon) {}
+    public record SuggestionRecord(String suspect, String room, String weapon) {
+    }
 
 
     public void recordSuggestion(Player player, String suspect, String room, String weapon) {
@@ -67,10 +67,8 @@ public class GameManager {
         }
     }
 
-
-
     public GameManager(int count) {
-        this("LEGACY", initializeDefaultPlayers().subList(0, count), false);
+        this("LEGACY", GameManager.initializeDefaultPlayers().subList(0, count), false);
     }
 
     public GameManager(List<Player> lobbyPlayers) {
@@ -94,6 +92,16 @@ public class GameManager {
         }
         return updatedPlayers;
     }
+
+    public Player getPlayer(String username) {
+        for (Player p : players) {
+            if (p.getName().equals(username)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
 
     private static List<Player> initializeDefaultPlayers() {
         return Arrays.asList(
@@ -143,14 +151,15 @@ public class GameManager {
 
     /**
      * Recursive function to perform movement on the gameboard.
-     * @param player current player who is moving
+     *
+     * @param player   current player who is moving
      * @param movement List of moves the player takes
      * @return recursive call
      */
     public int performMovement(Player player, List<String> movement) {
 
         // Prevent cheating by limiting moves to dice roll and check if there are no more moves
-        if (movement.isEmpty()||movement.size() > diceRollS) {
+        if (movement.isEmpty() || movement.size() > diceRollS) {
             return 0;
         }
 
@@ -160,6 +169,9 @@ public class GameManager {
         if (currentMove.equalsIgnoreCase("X")) {
             return 0;
         }
+
+        String move = movement.get(0);
+        if (move.equalsIgnoreCase("X")) return 0;
 
         int newX = player.getX();
         int newY = player.getY();
@@ -197,18 +209,18 @@ public class GameManager {
 
     /**
      * Suggestion happening every round. Player suggest/accuses a character with a weapon in the current room pt gather intel/evidence
-     * @param player current player
+     *
+     * @param player  current player
      * @param suspect suspected character
-     * @param weapon suspected weapon
+     * @param weapon  suspected weapon
      */
-    public boolean makeSuggestion(Player player,String suspect, String weapon) {
+    public boolean makeSuggestion(Player player, String suspect, String weapon) {
 
         BasicCard room = getCardByName(gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
         BasicCard suspectCard = getCardByName(suspect);
         BasicCard weaponCard = getCardByName(weapon);
 
-        // Gather evidence
-        for (Player p : this.players) {
+        for (Player p : players) {
             if (p != player) {
                 for (BasicCard card : p.getCards()) {
                     if (card.cardEquals(suspectCard) || card.cardEquals(weaponCard) || card.cardEquals(room)) {
@@ -225,10 +237,11 @@ public class GameManager {
 
     /**
      * returns a BasicCard object based on the corresponding card name if its in the current card list of the game. Otherwise null.
+     *
      * @param cardName
      * @return
      */
-    public BasicCard getCardByName(String cardName){
+    public BasicCard getCardByName(String cardName) {
         for (BasicCard card : cards) {
             if (card.getCardName().equals(cardName)) {
                 return card;
@@ -239,7 +252,8 @@ public class GameManager {
 
     /**
      * Accusation to solve the SecretFile. If correct player wins the game, otherwise he gets eliminated
-     * @param player current player
+     *
+     * @param player     current player
      * @param accusation suspected secret file
      */
     public boolean makeAccusation(Player player, SecretFile accusation) {
@@ -258,20 +272,14 @@ public class GameManager {
     }
 
     public boolean checkGameEnd() {
-        if(state == GameState.ENDED){
-            return true;
-        }
+        if (state == GameState.ENDED) return true;
 
-        for (Player p : players) {
-            if (p.hasWon()) {
-                return true;
-            }
-        }
+        if (players.stream().anyMatch(Player::hasWon)) return true;
 
-        // Check if only one player remains active
-        long activePlayers = players.stream().filter(Player::isActive).count();
-        return activePlayers == 1;
-    }
+        return players.stream().filter(Player::isActive).count() == 1;
+
+}
+
 
     /**
      * Returns True if the current player is in a room, else returns False.
@@ -339,13 +347,6 @@ public class GameManager {
         return new ArrayList<>(players);
     }
 
-    public Player getPlayer(String username) {
-        for (Player p : players) {
-            if (p.getName().equals(username)) return p;
-        }
-        return null;
-    }
-
 
     public void reportCheating(String accuser, String suspect) {
         cheatingReports.putIfAbsent(suspect, new HashSet<>());
@@ -402,6 +403,5 @@ public class GameManager {
 
         return players.get(nextIndex);
     }
-
 
 }
