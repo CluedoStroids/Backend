@@ -285,4 +285,19 @@ public class GameManager {
     public int getCheatingReportsCount(String suspect) {
         return cheatingReports.getOrDefault(suspect, Set.of()).size();
     }
+    public Player getNextPlayer(String currentPlayerName) {
+        int index = -1;
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getName().equals(currentPlayerName)) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) return null;
+
+        int nextIndex = (index + 1) % players.size();
+        return players.get(nextIndex);
+    }
+
 }

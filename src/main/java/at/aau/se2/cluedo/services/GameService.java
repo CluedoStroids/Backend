@@ -105,7 +105,7 @@ public class GameService {
     }
     public void performMovement(Player player, List<String> movement, String lobbId) {
         if(!movement.isEmpty()) {
-            getGame(lobbId).performMovement(player, movement.get(0));
+            getGame(lobbId).performMovement(player, movement);
             movement.clear();
         }
     }
