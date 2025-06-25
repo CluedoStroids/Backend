@@ -328,7 +328,7 @@ public class GameManager {
 
         if (currentPlayerIndex >= players.size())
             this.currentPlayerIndex = 0;
-        logger.info("Next turn: " + players.get(currentPlayerIndex).getName());
+        logger.info(String.format("Next turn: %s",players.get(currentPlayerIndex).getName()));
         players.get(currentPlayerIndex).setCurrentPlayer(true);
     }
     public void eliminateCurrentPlayer() {
