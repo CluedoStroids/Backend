@@ -44,7 +44,6 @@ public class CheatingController {
 
         GameManager.SuggestionRecord lastSuggestion = game.getLastSuggestion(suspect.getName());
         boolean isCheating = lastSuggestion != null
-                && lastSuggestion.suspect().equals(suspect.getCharacter())
                 && lastSuggestion.room().equals(game.getCurrentRoom(suspect));
 
         if (isCheating) {

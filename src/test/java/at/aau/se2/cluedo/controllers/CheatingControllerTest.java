@@ -45,21 +45,29 @@ class CheatingControllerTest {
         report.setSuspect("Colonel Mustard");
 
         when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
-        when(mockGameManager.getCheatingReportsCount("Colonel Mustard")).thenReturn(1);
+        when(mockGameManager.getPlayer("Professor Plum")).thenReturn(accuserPlayer);
+        when(mockGameManager.getPlayer("Colonel Mustard")).thenReturn(suspectPlayer);
+        when(accuserPlayer.isCanReport()).thenReturn(true);
+        when(accuserPlayer.getName()).thenReturn("Professor Plum");
+        when(suspectPlayer.getName()).thenReturn("Colonel Mustard");
+
+
+        when(mockGameManager.getLastSuggestion("Colonel Mustard"))
+                .thenReturn(new GameManager.SuggestionRecord("Colonel Mustard", "Kitchen", "Candlestick"));
+        when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Kitchen");
 
         cheatingController.handleCheatingReport(report);
 
-        verify(mockGameManager).reportCheating("Professor Plum", "Colonel Mustard");
         verify(messagingTemplate).convertAndSend(
-                ("/topic/cheating/2131230973"),
-                (Map.of(
+        eq("/topic/cheating/2131230973"),
+                eq(Map.of(
                         "type", "CHEATING_REPORT",
                         "suspect", "Colonel Mustard",
-                        "accuser", "Professor Plum"
+                        "accuser", "Professor Plum",
+                        "valid", true
                 ))
         );
     }
-
 
     @Test
     void testManuallyEliminatePlayer_sendsEliminationMessage_withNumericLobbyId() {
@@ -145,6 +153,8 @@ class CheatingControllerTest {
         when(mockGameManager.getPlayer("Accuser")).thenReturn(accuserPlayer);
         when(mockGameManager.getPlayer("Suspect")).thenReturn(suspectPlayer);
         when(accuserPlayer.isCanReport()).thenReturn(true);
+        when(suspectPlayer.getName()).thenReturn("Suspect");
+        when(accuserPlayer.getName()).thenReturn("Accuser");
 
         when(mockGameManager.getLastSuggestion("Suspect"))
                 .thenReturn(new GameManager.SuggestionRecord("Suspect", "Kitchen", "Knife"));
@@ -166,6 +176,8 @@ class CheatingControllerTest {
         when(mockGameManager.getPlayer("Accuser")).thenReturn(accuserPlayer);
         when(mockGameManager.getPlayer("Suspect")).thenReturn(suspectPlayer);
         when(accuserPlayer.isCanReport()).thenReturn(true);
+        when(suspectPlayer.getName()).thenReturn("Suspect");
+        when(accuserPlayer.getName()).thenReturn("Accuser");
 
         when(mockGameManager.getLastSuggestion("Suspect"))
                 .thenReturn(new GameManager.SuggestionRecord("Miss Scarlet", "Candlestick", "Ballroom"));
