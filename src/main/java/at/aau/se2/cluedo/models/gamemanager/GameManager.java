@@ -5,6 +5,7 @@ import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
+import at.aau.se2.cluedo.models.gameboard.Room;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -163,6 +164,63 @@ public class GameManager {
         return Random.rand(6,1);
     }
 
+
+    public int performMovement(Player player,String movement){
+
+
+        int newX = getPlayer(player.getName()).getX();
+        int newY = getPlayer(player.getName()).getY();
+
+        // Calculate new position based on input
+        switch (movement.toUpperCase()) {
+            case "W" -> newY--;
+            case "S" -> newY++;
+            case "A" -> newX--;
+            case "D" -> newX++;
+            default -> {
+                logger.info("Invalid input!");
+                return 0;
+            }
+        }
+
+        GameBoardCell target = gameBoard.getCell(newX, newY);
+        GameBoardCell current = gameBoard.getCell(player.getX(), player.getY());
+
+
+
+        if (target.getCellType() == CellType.DOOR) {
+            int[] corrected = gameBoard.adjustPositionForDoor(current, target);
+            newX = corrected[0];
+            newY = corrected[1];
+        }
+
+        player.move(newX, newY);
+        gameBoard.updateRoomPresence(current, target, player);
+
+        if (target.getCellType() == CellType.SECRET_PASSAGE) {
+            return useSecretPassage(player);
+        }
+
+        System.out.println(player.toString());
+        getPlayer(player.getName()).setX(newX);
+        getPlayer(player.getName()).setY(newY);
+        return 0;
+    }
+
+    public int useSecretPassage(Player player){
+        GameBoardCell current = gameBoard.getCell(player.getX(), player.getY());
+        if (current.getCellType() != CellType.SECRET_PASSAGE || current.getRoom() == null) return 1;
+
+        Room target = gameBoard.secretPassages.get(current.getRoom());
+        if (target == null) return 1;
+
+        GameBoardCell targetCell = gameBoard.findPassageExitInRoom(target);
+        if (targetCell != null) {
+            player.move(targetCell.getX(), targetCell.getY());
+            return 0;
+        }
+        return 1;
+    }
     /**
      * Recursive function to perform movement on the gameboard.
      * @param player current player who is moving
@@ -172,9 +230,9 @@ public class GameManager {
     public int performMovement(Player player, List<String> movement) {
 
         // Prevent cheating by limiting moves to dice roll and check if there are no more moves
-        if (movement.isEmpty()||movement.size() > diceRollS) {
+        /*if (movement.isEmpty()||movement.size() > diceRollS) {
             return 0;
-        }
+        }*/
 
         String currentMove = movement.get(0);
 

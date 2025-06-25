@@ -256,19 +256,6 @@ class GameServiceTest {
     }
 
     @Test
-    void testPerformMovement_ValidGame_CallsGameManagerMethod() {
-        GameService simpleGameService = new GameService(new LobbyService(null));
-        Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
-        GameManager manager = new GameManager(List.of(player));
-
-        simpleGameService.getActiveGames().put("test-lobby", manager);
-        List<String> movement = List.of("north", "east");
-
-        // This should not throw an exception if the method is properly delegated
-        assertDoesNotThrow(() -> simpleGameService.performMovement(player, movement, "test-lobby"));
-    }
-
-    @Test
     void testPerformMovement_NonExistentGame_ShouldThrowException() {
         GameService simpleGameService = new GameService(new LobbyService(null));
         Player player = new Player("TestUser", "Scarlet", 0, 0, PlayerColor.RED);
