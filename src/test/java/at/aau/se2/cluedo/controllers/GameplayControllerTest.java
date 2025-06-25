@@ -1,7 +1,6 @@
 package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.AccusationRequest;
-import at.aau.se2.cluedo.dto.SuggestionRequest;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
@@ -20,12 +19,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class GameplayControllerTest {
