@@ -438,4 +438,32 @@ public class GameManagerTest {
         assertEquals(player1.getStartY(), player1.getY());
 
     }
+
+    @Test
+    void testHasPlayerLeftRoom() {
+
+        player1.move(1, 1);
+        gameManager.recordSuggestion(player1, "Mr. Green", "Kitchen", "Rope");
+
+        String currentRoomBefore = gameManager.getCurrentRoom(player1);
+        assertEquals("Kitchen", currentRoomBefore);
+
+        player1.move(6, 9);
+
+        boolean hasLeft = gameManager.hasPlayerLeftRoom(player1, "Kitchen");
+        assertTrue(hasLeft);
+    }
+
+
+
+
+
+    @Test
+    void testInRoomTrue() {
+        Player p = gameManager.getPlayers().get(0);
+        p.move(1, 1);
+        assertTrue(gameManager.inRoom(p));
+    }
+
+
 }
