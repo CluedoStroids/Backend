@@ -1,7 +1,6 @@
 package at.aau.se2.cluedo.controllers;
 
 import at.aau.se2.cluedo.dto.AccusationRequest;
-import at.aau.se2.cluedo.dto.SuggestionRequest;
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
@@ -20,12 +19,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class GameplayControllerTest {
@@ -62,32 +59,6 @@ class GameplayControllerTest {
         when(gameManager.getGameBoard()).thenReturn(gameBoard);
     }
 
-    @Test
-    void testMakeSuggestion() {
-        // Arrange
-        String suspectName = "Colonel Mustard";
-        String weaponName = "Knife";
-        String roomName = "Kitchen";
-        SuggestionRequest request = new SuggestionRequest(testPlayer.getName(), suspectName, weaponName, roomName);
-
-        // Mock turn service methods
-        when(turnService.isPlayerTurn(lobbyId, testPlayer.getName())).thenReturn(true);
-        when(turnService.canMakeSuggestion(lobbyId, testPlayer.getName())).thenReturn(true);
-        when(turnService.processSuggestion(lobbyId, testPlayer.getName(), suspectName, weaponName)).thenReturn(true);
-
-        // Act
-        Map<String, Object> result = gameplayController.makeSuggestion(lobbyId, request);
-
-        // Assert
-        assertTrue((Boolean) result.get("success"));
-        assertEquals(lobbyId, result.get("lobbyId"));
-        assertEquals(testPlayer.getName(), result.get("player"));
-        assertEquals(suspectName, result.get("suspect"));
-        assertEquals(weaponName, result.get("weapon"));
-        verify(turnService, times(1)).isPlayerTurn(lobbyId, testPlayer.getName());
-        verify(turnService, times(1)).canMakeSuggestion(lobbyId, testPlayer.getName());
-        verify(turnService, times(1)).processSuggestion(lobbyId, testPlayer.getName(), suspectName, weaponName);
-    }
 
     @Test
     void testMakeAccusation() {

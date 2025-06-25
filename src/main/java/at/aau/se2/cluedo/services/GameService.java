@@ -104,7 +104,10 @@ public class GameService {
         }
     }
     public void performMovement(Player player, List<String> movement, String lobbId) {
-        getGame(lobbId).performMovement(player,movement);
+        if(!movement.isEmpty()) {
+            getGame(lobbId).performMovement(player, movement);
+            movement.clear();
+        }
     }
     public String makeAccusation(Player player, SecretFile accusation,String lobbyId) {
 

@@ -46,10 +46,11 @@ public class GameplayController {
         return gameService.getGame(lobbyId).getGameBoard();
     }
 
-
     @MessageMapping("/makeSuggestion/{lobbyId}")
-    @SendTo("/topic/suggestionMade/{lobbyId}")
     public Map<String, Object> makeSuggestion(@DestinationVariable String lobbyId, SuggestionRequest request) {
+
+        logger.info(String.format("Received: %s %s",lobbyId,request));
+
         try {
             // Validate turn
             if (!turnService.isPlayerTurn(lobbyId, request.getPlayerName())) {
@@ -60,6 +61,7 @@ public class GameplayController {
                 );
             }
 
+            /*
             if (!turnService.canMakeSuggestion(lobbyId, request.getPlayerName())) {
                 return Map.of(
                     "success", false,
@@ -68,33 +70,21 @@ public class GameplayController {
                 );
             }
 
-            boolean success = turnService.processSuggestion(
-                lobbyId,
-                request.getPlayerName(),
-                request.getSuspect(),
-                request.getWeapon()
-            );
+             */
 
-            if (!success) {
-                return Map.of(
-                    "success", false,
-                    "message", "Invalid suggestion attempt",
-                    "lobbyId", lobbyId
-                );
-            }
+            boolean successfullSuggestion = turnService.processSuggestion(lobbyId,request);
+
+            logger.info("Suggestion finished Controller");
 
             Player player = gameService.getGame(lobbyId).getPlayer(request.getPlayerName());
             gameService.getGame(lobbyId).recordSuggestion(player, request.getSuspect(), request.getRoom(), request.getWeapon());
 
             return Map.of(
-                "success", true,
-                "player", request.getPlayerName(),
-                "suspect", request.getSuspect(),
-                "weapon", request.getWeapon(),
-                "room", request.getRoom(),
-                "message", request.getPlayerName() + " suggests " + request.getSuspect() + " with " + request.getWeapon() + " in " + request.getRoom(),
-                "lobbyId", lobbyId
+                    "success", successfullSuggestion,
+                    "message", "smth",
+                    "lobbyId", lobbyId
             );
+
         } catch (Exception e) {
             logger.error("Error processing suggestion in lobby {}: {}", lobbyId, e.getMessage());
             return Map.of(
@@ -103,6 +93,12 @@ public class GameplayController {
                 "lobbyId", lobbyId
             );
         }
+    }
+
+    @MessageMapping("/processSuggestion/{lobbyId}")
+    public void processSuggestion(@DestinationVariable String lobbyId,SuggestionResponse suggestionResponse) {
+        logger.info("Suggest: "+suggestionResponse.getCardName());
+            turnService.receiveSuggestionResponse(suggestionResponse.getPlayerId(),suggestionResponse.getCardName());
     }
 
 

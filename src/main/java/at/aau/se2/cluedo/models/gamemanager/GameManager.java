@@ -5,6 +5,7 @@ import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
+import at.aau.se2.cluedo.models.gameboard.Room;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
@@ -140,16 +141,31 @@ public class GameManager {
         return Random.rand(6, 1);
     }
 
+    /**
+     * Recursive function to perform movement on the gameboard.
+     * @param player current player who is moving
+     * @param movement List of moves the player takes
+     * @return recursive call
+     */
     public int performMovement(Player player, List<String> movement) {
-        if (movement.isEmpty() || movement.size() > diceRollS) return 0;
 
-        String move = movement.get(0);
-        if (move.equalsIgnoreCase("X")) return 0;
+        // Prevent cheating by limiting moves to dice roll and check if there are no more moves
+        if (movement.isEmpty()||movement.size() > diceRollS) {
+            return 0;
+        }
+
+        String currentMove = movement.get(0);
+
+        // Handle exit command
+        if (currentMove.equalsIgnoreCase("X")) {
+            return 0;
+        }
 
         int newX = player.getX();
-        int   newY = player.getY();
+        int newY = player.getY();
 
-        switch (move.toUpperCase()) {
+        // Calculate new position based on input
+        switch (currentMove.toUpperCase()) {
             case "W" -> newY--;
             case "S" -> newY++;
             case "A" -> newX--;
@@ -160,6 +176,7 @@ public class GameManager {
             }
         }
 
+        // Check for collision with other players
         for (Player p : players) {
             if (p != player && p.getX() == newX && p.getY() == newY) {
                 logger.info("Invalid move - position occupied!");
@@ -167,20 +184,31 @@ public class GameManager {
             }
         }
 
+        // Attempt to move the player
         if (gameBoard.movePlayer(player, newX, newY, false)) {
+            // Move successful, process remaining movements
             return performMovement(player, movement.subList(1, movement.size()));
         } else {
+            // Move failed (likely out of bounds or invalid position)
             logger.info("Invalid move - cannot move to that position!");
             return 0;
         }
     }
 
-    public boolean makeSuggestion(Player player, String suspect, String weapon) {
+    /**
+     * Suggestion happening every round. Player suggest/accuses a character with a weapon in the current room pt gather intel/evidence
+     * @param player current player
+     * @param suspect suspected character
+     * @param weapon suspected weapon
+     */
+    public boolean makeSuggestion(Player player,String suspect, String weapon) {
+
         BasicCard room = getCardByName(gameBoard.getCell(player.getX(), player.getY()).getRoom().getName());
         BasicCard suspectCard = getCardByName(suspect);
         BasicCard weaponCard = getCardByName(weapon);
 
-        for (Player p : players) {
+        // Gather evidence
+        for (Player p : this.players) {
             if (p != player) {
                 for (BasicCard card : p.getCards()) {
                     if (card.cardEquals(suspectCard) || card.cardEquals(weaponCard) || card.cardEquals(room)) {
@@ -195,17 +223,28 @@ public class GameManager {
         return false;
     }
 
-    public BasicCard getCardByName(String cardName) {
+    /**
+     * returns a BasicCard object based on the corresponding card name if its in the current card list of the game. Otherwise null.
+     * @param cardName
+     * @return
+     */
+    public BasicCard getCardByName(String cardName){
         for (BasicCard card : cards) {
-            if (card.getCardName().equals(cardName)) return card;
+            if (card.getCardName().equals(cardName)) {
+                return card;
+            }
         }
         return null;
     }
 
+    /**
+     * Accusation to solve the SecretFile. If correct player wins the game, otherwise he gets eliminated
+     * @param player current player
+     * @param accusation suspected secret file
+     */
     public boolean makeAccusation(Player player, SecretFile accusation) {
-        if (secretFile.room().cardEquals(accusation.room())
-                && secretFile.character().cardEquals(accusation.character())
-                && secretFile.weapon().cardEquals(accusation.weapon())) {
+
+        if (secretFile.room().cardEquals(accusation.room()) && secretFile.character().cardEquals(accusation.character()) && secretFile.weapon().cardEquals(accusation.weapon())) {
             logger.info("Correct! {} has solved the crime!", player.getName());
             player.setHasWon(true);
             this.winner = player;
@@ -219,11 +258,26 @@ public class GameManager {
     }
 
     public boolean checkGameEnd() {
-        if (state == GameState.ENDED) return true;
-        if (players.stream().anyMatch(Player::hasWon)) return true;
-        return players.stream().filter(Player::isActive).count() == 1;
+        if(state == GameState.ENDED){
+            return true;
+        }
+
+        for (Player p : players) {
+            if (p.hasWon()) {
+                return true;
+            }
+        }
+
+        // Check if only one player remains active
+        long activePlayers = players.stream().filter(Player::isActive).count();
+        return activePlayers == 1;
     }
 
+    /**
+     * Returns True if the current player is in a room, else returns False.
+     * @param player
+     * @return
+     */
     public boolean inRoom(Player player) {
         GameBoardCell cell = gameBoard.getCell(player.getX(), player.getY());
         return cell != null && cell.getCellType() == CellType.ROOM;
@@ -238,25 +292,35 @@ public class GameManager {
         return players.get(currentPlayerIndex);
     }
 
+    /**
+     * increments the currentPlayerIndex indicating the next turn
+     */
     public void nextTurn() {
         players.get(currentPlayerIndex).setCurrentPlayer(false);
+
         int attempts = 0;
 
         do {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
             attempts++;
+            
+            // Prevent infinite loop if no active players remain
             if (attempts >= players.size()) {
                 logger.warn("No active players found, game should end");
                 return;
             }
         } while (!players.get(currentPlayerIndex).isActive());
 
+        if (currentPlayerIndex >= players.size())
+            this.currentPlayerIndex = 0;
+        logger.info("Next turn: " + players.get(currentPlayerIndex).getName());
         players.get(currentPlayerIndex).setCurrentPlayer(true);
         logger.info("Next turn: {}", players.get(currentPlayerIndex).getName());
     }
 
     public void eliminateCurrentPlayer() {
-        getCurrentPlayer().setActive(false);
+        Player current = getCurrentPlayer();
+        current.setActive(false);
     }
 
     public String getCorrectSuspect() {
@@ -315,5 +379,29 @@ public class GameManager {
         if (last == null || current == null) return false;
         return !current.equals(room);
     }
+
+    public Player getNextPlayer(String currentPlayerName) {
+        int index = -1;
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getName().equals(currentPlayerName)) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) return null;
+
+        int nextIndex = (index + 1) % players.size();
+
+        for (int i = 0; i < players.size(); i++) {
+            Player next = players.get((index + 1 + i) % players.size());
+            if (next.isActive()) {
+                return next;
+            }
+        }
+
+        return players.get(nextIndex);
+    }
+
 
 }
