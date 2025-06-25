@@ -336,21 +336,19 @@ public class GameManagerTest {
         assertFalse(gameManager.getPlayer(player1.getName()).isActive());
     }
     @Test
-    void testMakeSuggestion(){
+    void testMakeSuggestion() {
         Player player = gameManager.getPlayers().get(1);
-        // Move player to a room (Kitchen is at position 1,1)
-        player.move(1,1);
+        player.move(1, 1);
 
-        // Ensure another player has one of the cards we're suggesting
         Player otherPlayer = gameManager.getPlayers().get(0);
-        BasicCard weaponCard = gameManager.getCardByName("Knife");
-        if (weaponCard != null) {
-            otherPlayer.addCard(weaponCard);
-        }
 
-        // Now the suggestion should be disproved (return true)
-        assertTrue(gameManager.makeSuggestion(player,"Mrs. White","Knife"));
+        BasicCard testWeapon = BasicCard.getWeapons().get(0); // always valid
+        otherPlayer.addCard(testWeapon);
+
+        assertTrue(gameManager.makeSuggestion(player, "Mrs. White", testWeapon.getCardName()));
     }
+
+
 
     @Test
     void testGetCorrectSuspect(){
