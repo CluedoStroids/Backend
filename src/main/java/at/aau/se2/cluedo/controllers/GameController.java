@@ -159,12 +159,6 @@ public class GameController {
         };
     }
 
-
-    @MessageMapping("/suggestion")
-    public void handleSuggestion(SuggestionRequest request) {
-        gameService.processSuggestion(request);
-    }
-
 }
 
 
