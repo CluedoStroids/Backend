@@ -454,16 +454,52 @@ public class GameManagerTest {
         assertTrue(hasLeft);
     }
 
-
-
-
-
     @Test
     void testInRoomTrue() {
         Player p = gameManager.getPlayers().get(0);
         p.move(1, 1);
         assertTrue(gameManager.inRoom(p));
     }
+
+    @Test
+    void testGetNextPlayerReturnsNullIfNameNotFound() {
+        Player result = gameManager.getNextPlayer("NonexistentPlayer");
+        assertNull(result, "Should return null when player name is not found in the list");
+    }
+
+    @Test
+    void testGetNextPlayerFallbackIfAllInactive() {
+        List<Player> players = gameManager.getPlayers();
+        for (Player player : players) {
+            player.setActive(false);
+        }
+
+        String currentName = players.get(0).getName();
+        Player fallback = gameManager.getNextPlayer(currentName);
+
+        assertEquals(players.get(1), fallback, "Should return fallback next player even if all are inactive");
+
+    }
+
+    @Test
+    void testHasPlayerLeftRoomReturnsFalseIfNoSuggestionRecorded() {
+        player1.move(6, 9);
+
+        boolean result = gameManager.hasPlayerLeftRoom(player1, "Kitchen");
+
+        assertFalse(result, "Should return false if no last suggestion was recorded");
+    }
+
+    @Test
+    void testHasPlayerLeftRoomReturnsFalseIfStillInSameRoom() {
+        player1.move(1, 1);
+        gameManager.recordSuggestion(player1, "Mr. Green", "Kitchen", "Rope");
+
+        boolean result = gameManager.hasPlayerLeftRoom(player1, "Kitchen");
+
+        assertFalse(result, "Should return false if player has not left the room");
+    }
+
 
 
 }
