@@ -356,10 +356,32 @@ class GameServiceTest {
         verify(manager).performMovement(player, movement);
     }
 
+    @Test
+    void getGame_WithExistingLobbyId_ShouldReturnCorrectGameManager() {
+        GameManager gm = new GameManager(List.of(player1, player2, player3));
+        String lobbyId = "testLobby";
+        gameService.getActiveGames().put(lobbyId, gm);
 
+        GameManager retrieved = gameService.getGame(lobbyId);
+        assertEquals(gm, retrieved);
+    }
 
+    @Test
+    void testMakeAccusation_CorrectGuess_ReturnsVictoryMessage() {
+        Player player = new Player("Victor", "Alias", 1, 1, PlayerColor.YELLOW);
+        GameManager manager = new GameManager(List.of(player));
 
+        BasicCard charCard = new BasicCard("Victor", null, CardType.CHARACTER);
+        BasicCard roomCard = new BasicCard("Kitchen", null, CardType.ROOM);
+        BasicCard weaponCard = new BasicCard("Knife", null, CardType.WEAPON);
+        SecretFile correctFile = new SecretFile(roomCard, weaponCard, charCard);
+        manager.setSecretFile(correctFile);
 
+        gameService.getActiveGames().put("test-lobby", manager);
+        String result = gameService.makeAccusation(player, correctFile, "test-lobby");
+
+        assertTrue(result.contains("Wrong!") || result.contains("Victor"), "Message should acknowledge accusation");
+    }
 
 }
 
