@@ -18,7 +18,7 @@ import java.util.Map;
 @Service
 public class GameService {
     private static final Logger logger = LoggerFactory.getLogger(GameService.class);
-    private static final int MIN_PLAYERS = 2;
+    private static final int MIN_PLAYERS = 3;
     private static final int MAX_PLAYERS = 6;
 
     private final LobbyService lobbyService;
