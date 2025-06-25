@@ -54,15 +54,14 @@ public class GameBoardController {
     @MessageMapping("/performMovement/{lobbyId}")
     @SendTo("/topic/performMovement/{lobbyId}")
     public GameDataResponse performMovement( @DestinationVariable String lobbyId, PerformMoveRequest request){
-
         gameService.performMovement(request.getPlayer(),request.getMoves(),lobbyId);
         System.out.printf("Hovin %d %d",gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()).getX(),gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()).getY());
-        //gameService.getGame(lobbyId).nextTurn();
-        StartGameRequest response = new StartGameRequest();
 
+        //System.out.printf("moves %s",request.getMoves().get(0));
+        // 2. **PROBLEM**: Falsches DTO und Verkettung
+        StartGameRequest response = new StartGameRequest(); // WARNUNG: Semantisch falsches DTO
         response.setPlayer(gameService.getGame(lobbyId).getPlayer(request.getPlayer().getName()));
-
-        return gameData(lobbyId,response);
+        return gameData(lobbyId,response); // Ruft gameData auf, das seinerseits mit @SendTo annotiert ist
     }
 
 
