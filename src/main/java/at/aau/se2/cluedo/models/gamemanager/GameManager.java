@@ -50,7 +50,7 @@ public class GameManager {
     }
 
     public GameManager(int count) {
-        this("LEGACY", initializeDefaultPlayers().subList(0, count), false);
+        this("LEGACY", GameManager.initializeDefaultPlayers().subList(0, count), false);
     }
 
     public GameManager(List<Player> lobbyPlayers) {
@@ -74,6 +74,16 @@ public class GameManager {
         }
         return updatedPlayers;
     }
+
+    public Player getPlayer(String username){
+        for (Player p: players) {
+            if(p.getName().equals(username)){
+                return p;
+            }
+        }
+        return null;
+    }
+
 
     private static List<Player> initializeDefaultPlayers() {
         return Arrays.asList(
@@ -121,8 +131,18 @@ public class GameManager {
         return Random.rand(6, 1);
     }
 
+    /**
+     * Recursive function to perform movement on the gameboard.
+     * @param player current player who is moving
+     * @param movement List of moves the player takes
+     * @return recursive call
+     */
     public int performMovement(Player player, List<String> movement) {
-        if (movement.isEmpty() || movement.size() > diceRollS) return 0;
+
+        // Prevent cheating by limiting moves to dice roll and check if there are no more moves
+        if (movement.isEmpty()||movement.size() > diceRollS) {
+            return 0;
+        }
 
         String move = movement.get(0);
         if (move.equalsIgnoreCase("X")) return 0;
@@ -227,12 +247,16 @@ public class GameManager {
             }
         } while (!players.get(currentPlayerIndex).isActive());
 
+        if (currentPlayerIndex >= players.size())
+            this.currentPlayerIndex = 0;
+        logger.info(String.format("Next turn: %s",players.get(currentPlayerIndex).getName()));
         players.get(currentPlayerIndex).setCurrentPlayer(true);
         logger.info("Next turn: {}", players.get(currentPlayerIndex).getName());
     }
 
     public void eliminateCurrentPlayer() {
-        getCurrentPlayer().setActive(false);
+        Player current = getCurrentPlayer();
+        current.setActive(false);
     }
 
     public String getCorrectSuspect() {
@@ -251,12 +275,6 @@ public class GameManager {
         return new ArrayList<>(players);
     }
 
-    public Player getPlayer(String username) {
-        for (Player p : players) {
-            if (p.getName().equals(username)) return p;
-        }
-        return null;
-    }
 
 
     public void reportCheating(String accuser, String suspect) {

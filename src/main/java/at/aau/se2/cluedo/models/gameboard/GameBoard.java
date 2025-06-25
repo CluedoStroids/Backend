@@ -1,6 +1,7 @@
 package at.aau.se2.cluedo.models.gameboard;
 
 import at.aau.se2.cluedo.models.gameobjects.Player;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +23,10 @@ public class GameBoard {
     public static final String RESET = "\u001B[0m";
     public static final int WIDTH = 25;
     public static final int HEIGHT = 25;
+    @Getter
     private final GameBoardCell[][] grid;
     private final Map<String, Room> rooms;
-    private final Map<Room, Room> secretPassages;
+    public final Map<Room, Room> secretPassages;
 
     public GameBoard() {
         this.grid = new GameBoardCell[WIDTH][HEIGHT];
@@ -168,6 +170,7 @@ public class GameBoard {
         return null;
     }
 
+
     public boolean movePlayer(Player player, int newX, int newY, boolean teleport) {
         GameBoardCell target = getCell(newX, newY);
         GameBoardCell current = getCell(player.getX(), player.getY());
@@ -201,7 +204,7 @@ public class GameBoard {
         );
     }
 
-    private int[] adjustPositionForDoor(GameBoardCell from, GameBoardCell door) {
+    public int[] adjustPositionForDoor(GameBoardCell from, GameBoardCell door) {
         int[][] directions = {{0,1}, {0,-1}, {1,0}, {-1,0}};
         for (int[] dir : directions) {
             GameBoardCell neighbor = getCell(door.getX() + dir[0], door.getY() + dir[1]);
@@ -213,7 +216,7 @@ public class GameBoard {
         return new int[]{from.getX(), from.getY()};
     }
 
-    private void updateRoomPresence(GameBoardCell from, GameBoardCell to, Player player) {
+    public void updateRoomPresence(GameBoardCell from, GameBoardCell to, Player player) {
         if (from.getCellType() == CellType.ROOM) from.getRoom().playerLeavesRoom(player);
         if (to.getCellType() == CellType.ROOM) to.getRoom().playerEntersRoom(player);
     }
@@ -233,7 +236,7 @@ public class GameBoard {
         return false;
     }
 
-    private GameBoardCell findPassageExitInRoom(Room room) {
+    public GameBoardCell findPassageExitInRoom(Room room) {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 GameBoardCell cell = grid[x][y];

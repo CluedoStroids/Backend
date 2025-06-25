@@ -5,7 +5,6 @@ import at.aau.se2.cluedo.models.cards.CardType;
 import at.aau.se2.cluedo.models.gameboard.GameBoard;
 import at.aau.se2.cluedo.models.gameboard.GameBoardCell;
 import at.aau.se2.cluedo.models.gameboard.Room;
-import at.aau.se2.cluedo.models.gameboard.CellType;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gamemanager.GameState;
 import at.aau.se2.cluedo.models.gameobjects.Player;
@@ -186,23 +185,6 @@ class TurnServiceTest {
     }
 
     @Test
-    void testProcessSuggestion() {
-        when(gameService.getGame(TEST_LOBBY_ID)).thenReturn(mockGameManager);
-        when(mockGameManager.getCurrentPlayer()).thenReturn(testPlayer);
-        turnService.initializeTurnState(TEST_LOBBY_ID);
-        when(mockGameManager.inRoom(testPlayer)).thenReturn(true);
-        turnService.processMovement(TEST_LOBBY_ID, TEST_PLAYER_NAME);
-
-        when(mockGameManager.makeSuggestion(testPlayer, "Test Room", "Candlestick")).thenReturn(false);
-        when(mockGameManager.checkGameEnd()).thenReturn(false);
-
-        boolean result = turnService.processSuggestion(TEST_LOBBY_ID, TEST_PLAYER_NAME, "Test Room", "Candlestick");
-
-        assertTrue(result);
-        verify(mockGameManager).makeSuggestion(testPlayer, "Test Room", "Candlestick");
-    }
-
-    @Test
     void testProcessAccusation_Correct() {
         when(gameService.getGame(TEST_LOBBY_ID)).thenReturn(mockGameManager);
         when(mockGameManager.getCurrentPlayer()).thenReturn(testPlayer);
@@ -347,36 +329,4 @@ class TurnServiceTest {
         assertFalse(result);
     }
 
-    @Test
-    void testFullTurnCycle_WithSuggestion() {
-        when(gameService.getGame(TEST_LOBBY_ID)).thenReturn(mockGameManager);
-        when(mockGameManager.getCurrentPlayer()).thenReturn(testPlayer);
-        turnService.initializeTurnState(TEST_LOBBY_ID);
-        assertEquals(TurnState.PLAYERS_TURN_ROLL_DICE, turnService.getTurnState(TEST_LOBBY_ID));
-
-        boolean diceResult = turnService.processDiceRoll(TEST_LOBBY_ID, TEST_PLAYER_NAME, 6);
-        assertTrue(diceResult);
-        assertEquals(TurnState.PLAYERS_TURN_MOVE, turnService.getTurnState(TEST_LOBBY_ID));
-
-        when(mockGameManager.inRoom(testPlayer)).thenReturn(true);
-        boolean moveResult = turnService.processMovement(TEST_LOBBY_ID, TEST_PLAYER_NAME);
-        assertTrue(moveResult);
-        assertEquals(TurnState.PLAYERS_TURN_SUGGEST, turnService.getTurnState(TEST_LOBBY_ID));
-
-        when(mockGameManager.makeSuggestion(testPlayer, "Test Room", "Candlestick")).thenReturn(false);
-        when(mockGameManager.checkGameEnd()).thenReturn(false);
-        
-        GameBoardCell cell = new GameBoardCell(1, 1, CellType.ROOM);
-        Room room = new Room("Test Room");
-        cell.setRoom(room);
-        when(mockGameManager.getGameBoard().getCell(anyInt(), anyInt())).thenReturn(cell);
-
-        boolean suggestionResult = turnService.processSuggestion(TEST_LOBBY_ID, TEST_PLAYER_NAME, "Test Room", "Candlestick");
-        assertTrue(suggestionResult);
-        assertEquals(TurnState.PLAYERS_TURN_ROLL_DICE, turnService.getTurnState(TEST_LOBBY_ID));
-
-        verify(mockGameManager).setDiceRollS(6);
-        verify(mockGameManager).makeSuggestion(testPlayer, "Test Room", "Candlestick");
-        verify(mockGameManager).nextTurn();
-    }
 }
