@@ -21,6 +21,7 @@ import java.util.concurrent.TimeoutException;
 @Service
 public class TurnService {
     private static final Logger logger = LoggerFactory.getLogger(TurnService.class);
+    private static boolean isDebug = true;
     // turn states for each lobby
     private final Map<String, TurnState> lobbyTurnStates = new HashMap<>();
     @Autowired
@@ -174,10 +175,10 @@ public class TurnService {
      */
     public boolean processSuggestion(String lobbyId, SuggestionRequest request) {
 
-        logger.info(String.format("SUGGEST: %s %s",lobbyId,request));
+        if(isDebug) logger.info(String.format("SUGGEST: %s %s",lobbyId,request));
 
         if (!isPlayerTurn(lobbyId, request.getPlayerName())) {
-            logger.info(String.format("SUGGEST: Failure"));
+            logger.error("SUGGEST: Failure");
             return false;
         }
 
@@ -211,13 +212,13 @@ public class TurnService {
         }
 
         while(!(nextPlayer = game.getNextPlayer(currentPlayer.getName())).getName().equals(currentPlayer.getName())){
-            logger.info(String.format("Current player: %s",currentPlayer.getName()));
+            if(isDebug) logger.info(String.format("Current player: %s",currentPlayer.getName()));
             messagingTemplate.convertAndSend("/topic/processSuggestion/"+lobbyId+"/"+nextPlayer.getPlayerID(), Map.of("processSuggestion", true));
 
             try {
                 String response = future.get(60, TimeUnit.SECONDS);
                 if (response != null && !response.isBlank()) {
-                    logger.info("Received suggestion response: {}", response);
+                    if(isDebug) logger.info("Received suggestion response: {}", response);
                     messagingTemplate.convertAndSend("/topic/resultSuggestion/"+lobbyId+"/"+request.getPlayerId(), Map.of("receivedCard", response,
                                                                                                                                     "sendingPlayer", nextPlayer.getName()));
                     break;
@@ -226,8 +227,10 @@ public class TurnService {
                 }
             } catch (TimeoutException e) {
                 // No response received
-            } catch (Exception e) {
-                logger.info("Error in Process Suggestion", e);
+            } catch (InterruptedException e) {
+                logger.error("Interrupted Error in Process Suggestion:", e);
+            }catch (Exception e) {
+                    logger.error("Error in Process Suggestion", e);
             } finally {
                 pendingResponses.remove(nextPlayer.getPlayerID().toString());
             }
