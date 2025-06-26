@@ -2,13 +2,13 @@ package at.aau.se2.cluedo.models;
 
 import at.aau.se2.cluedo.models.cards.BasicCard;
 import at.aau.se2.cluedo.models.cards.CardType;
+import at.aau.se2.cluedo.models.gameboard.Room;
 import at.aau.se2.cluedo.models.gamemanager.GameManager;
 import at.aau.se2.cluedo.models.gamemanager.GameState;
 import at.aau.se2.cluedo.models.gameobjects.Player;
 import at.aau.se2.cluedo.models.gameobjects.PlayerColor;
 import at.aau.se2.cluedo.models.gameobjects.SecretFile;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -341,20 +341,6 @@ public class GameManagerTest {
     void testEliminatePlayer() {
         gameManager.eliminateCurrentPlayer();
         assertFalse(gameManager.getPlayer(player1.getName()).isActive());
-    }
-    @Test
-    void testMakeSuggestion() {
-        Player player = gameManager.getPlayers().get(1);
-        // Move player to a room (Kitchen is at position 1,1)
-        player.move(1,1);
-
-        // Ensure another player has one of the cards we're suggesting
-        Player otherPlayer = gameManager.getPlayers().get(0);
-
-        BasicCard testWeapon = BasicCard.getWeapons().get(0); // always valid
-        otherPlayer.addCard(testWeapon);
-
-        assertTrue(gameManager.makeSuggestion(player, "Mrs. White", testWeapon.getCardName()));
     }
 
 

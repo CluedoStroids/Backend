@@ -25,6 +25,7 @@ public class GameBoard {
     public static final int HEIGHT = 25;
     @Getter
     private final GameBoardCell[][] grid;
+    @Getter
     private final Map<String, Room> rooms;
     public final Map<Room, Room> secretPassages;
 
