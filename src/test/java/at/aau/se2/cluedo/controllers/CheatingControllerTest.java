@@ -189,24 +189,72 @@ class CheatingControllerTest {
         );
     }
 
-
     @Test
     void testFalseCheatingReport_ResetsAccuser() {
         when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
         when(mockGameManager.getPlayer("Accuser")).thenReturn(accuserPlayer);
         when(mockGameManager.getPlayer("Suspect")).thenReturn(suspectPlayer);
+
         when(accuserPlayer.isCanReport()).thenReturn(true);
         when(mockGameManager.inRoom(accuserPlayer)).thenReturn(true);
+
         when(accuserPlayer.getName()).thenReturn("Accuser");
+        when(accuserPlayer.getX()).thenReturn(5); // important!
+        when(accuserPlayer.getY()).thenReturn(6); // important!
         when(suspectPlayer.getName()).thenReturn("Suspect");
 
-        when(mockGameManager.getLastSuggestion("Suspect"))
-                .thenReturn(new GameManager.SuggestionRecord("Miss Scarlet", "Candlestick", "Ballroom"));
+        when(mockGameManager.getCurrentRoom(accuserPlayer)).thenReturn("Kitchen");
         when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Kitchen");
+        when(suspectPlayer.getSuggestionsInCurrentRoom()).thenReturn(1); // not cheating
 
         cheatingController.handleCheatingReport(report);
 
         verify(mockGameManager).resetPlayer(accuserPlayer);
         verify(accuserPlayer).setCanReport(false);
+
+        verify(messagingTemplate).convertAndSend(
+                eq("/topic/playerReset/2131230973"),
+                eq(Map.of("player", "Accuser", "x", 5, "y", 6))
+        );
     }
+
+
+    @Test
+    void testCheatingReport_NotSameRoom_ResetsAccuser() {
+        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
+        when(mockGameManager.getPlayer("Accuser")).thenReturn(accuserPlayer);
+        when(mockGameManager.getPlayer("Suspect")).thenReturn(suspectPlayer);
+
+        when(accuserPlayer.isCanReport()).thenReturn(true);
+        when(mockGameManager.inRoom(accuserPlayer)).thenReturn(true);
+        when(mockGameManager.getCurrentRoom(accuserPlayer)).thenReturn("Kitchen");
+        when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Library");
+
+        when(accuserPlayer.getName()).thenReturn("Accuser");
+        when(accuserPlayer.getX()).thenReturn(2);
+        when(accuserPlayer.getY()).thenReturn(3);
+        when(suspectPlayer.getName()).thenReturn("Suspect");
+
+        cheatingController.handleCheatingReport(report);
+
+        verify(mockGameManager).resetPlayer(accuserPlayer);
+        verify(accuserPlayer).setCanReport(false);
+
+        verify(messagingTemplate).convertAndSend(
+                eq("/topic/playerReset/2131230973"),
+                eq(Map.of("player", "Accuser", "x", 2, "y", 3))
+        );
+
+        verify(messagingTemplate).convertAndSend(
+                eq("/topic/cheating/2131230973"),
+                eq(Map.of(
+                        "type", "CHEATING_REPORT",
+                        "suspect", "Suspect",
+                        "accuser", "Accuser",
+                        "valid", false,
+                        "reason", "NOT_IN_SAME_ROOM"
+                ))
+        );
+    }
+
 }
