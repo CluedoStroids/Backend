@@ -65,14 +65,14 @@ class CheatingControllerTest {
         cheatingController.handleCheatingReport(report);
 
         verify(messagingTemplate).convertAndSend(
-                eq("/topic/cheating/2131230973"),
-                eq(Map.of(
+                ("/topic/cheating/2131230973"),
+                Map.of(
                         "type", "CHEATING_REPORT",
                         "suspect", "Colonel Mustard",
                         "accuser", "Professor Plum",
                         "valid", true,
                         "reason", "SUCCESS"
-                ))
+                )
         );
     }
 
@@ -213,8 +213,8 @@ class CheatingControllerTest {
         verify(accuserPlayer).setCanReport(false);
 
         verify(messagingTemplate).convertAndSend(
-                eq("/topic/playerReset/2131230973"),
-                eq(Map.of("player", "Accuser", "x", 5, "y", 6))
+                "/topic/playerReset/2131230973",
+                Map.of("player", "Accuser", "x", 5, "y", 6)
         );
     }
 
@@ -241,19 +241,19 @@ class CheatingControllerTest {
         verify(accuserPlayer).setCanReport(false);
 
         verify(messagingTemplate).convertAndSend(
-                eq("/topic/playerReset/2131230973"),
-                eq(Map.of("player", "Accuser", "x", 2, "y", 3))
+                "/topic/playerReset/2131230973",
+                Map.of("player", "Accuser", "x", 2, "y", 3)
         );
 
         verify(messagingTemplate).convertAndSend(
-                eq("/topic/cheating/2131230973"),
-                eq(Map.of(
+                "/topic/cheating/2131230973",
+                Map.of(
                         "type", "CHEATING_REPORT",
                         "suspect", "Suspect",
                         "accuser", "Accuser",
                         "valid", false,
                         "reason", "NOT_IN_SAME_ROOM"
-                ))
+                )
         );
     }
 
