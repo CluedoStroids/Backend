@@ -33,10 +33,12 @@ public class GameManager {
     private final Map<String, Set<String>> cheatingReports = new HashMap<>();
     private final Map<String, SuggestionRecord> lastSuggestions = new HashMap<>();
 
+
     public record SuggestionRecord(String suspect, String room, String weapon) {
     }
 
-
+    //This logic ensures suggestions are only counted per room.
+    // If the player leaves the room, the count resets.
     public void recordSuggestion(Player player, String suspect, String room, String weapon) {
         lastSuggestions.put(player.getName(), new SuggestionRecord(suspect, room, weapon));
 
