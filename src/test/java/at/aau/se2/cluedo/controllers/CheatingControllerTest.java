@@ -65,41 +65,17 @@ class CheatingControllerTest {
         cheatingController.handleCheatingReport(report);
 
         verify(messagingTemplate).convertAndSend(
-                eq("/topic/cheating/2131230973"),
-                eq(Map.of(
+                ("/topic/cheating/2131230973"),
+                Map.of(
                         "type", "CHEATING_REPORT",
                         "suspect", "Colonel Mustard",
                         "accuser", "Professor Plum",
                         "valid", true,
                         "reason", "SUCCESS"
-                ))
+                )
         );
     }
 
-
-
-
-    @Test
-    void testManuallyEliminatePlayer_sendsEliminationMessage_withNumericLobbyId() {
-        CheatingReport report = new CheatingReport();
-        report.setLobbyId("2131230973");
-        report.setSuspect("Red");
-
-        Player mockPlayer = mock(Player.class);
-        when(mockPlayer.isActive()).thenReturn(true);
-
-        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
-        when(mockGameManager.getPlayer("Red")).thenReturn(mockPlayer);
-        when(mockGameManager.getLobbyId()).thenReturn("2131230973");
-
-        cheatingController.manuallyEliminatePlayer(report);
-
-        verify(mockPlayer).setActive(false);
-        verify(messagingTemplate).convertAndSend(
-                ("/topic/elimination/2131230973"),
-                (Map.of("player", "Red", "reason", "CHEATING"))
-        );
-    }
 
     @Test
     void testHandleCheatingReport_invalidReport_doesNothing() {
@@ -122,38 +98,6 @@ class CheatingControllerTest {
 
         cheatingController.handleCheatingReport(report);
 
-        verifyNoInteractions(messagingTemplate);
-    }
-
-    @Test
-    void testManuallyEliminatePlayer_playerNotFound_doesNothing() {
-        CheatingReport report = new CheatingReport();
-        report.setLobbyId("2131230973");
-        report.setSuspect("Green");
-
-        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
-        when(mockGameManager.getPlayer("Green")).thenReturn(null);
-
-        cheatingController.manuallyEliminatePlayer(report);
-
-        verifyNoInteractions(messagingTemplate);
-    }
-
-    @Test
-    void testManuallyEliminatePlayer_playerAlreadyInactive_doesNothing() {
-        CheatingReport report = new CheatingReport();
-        report.setLobbyId("2131230973");
-        report.setSuspect("Peacock");
-
-        Player mockPlayer = mock(Player.class);
-        when(mockPlayer.isActive()).thenReturn(false);
-
-        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
-        when(mockGameManager.getPlayer("Peacock")).thenReturn(mockPlayer);
-
-        cheatingController.manuallyEliminatePlayer(report);
-
-        verify(mockPlayer, never()).setActive(false);
         verifyNoInteractions(messagingTemplate);
     }
 
@@ -189,24 +133,72 @@ class CheatingControllerTest {
         );
     }
 
-
     @Test
     void testFalseCheatingReport_ResetsAccuser() {
         when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
         when(mockGameManager.getPlayer("Accuser")).thenReturn(accuserPlayer);
         when(mockGameManager.getPlayer("Suspect")).thenReturn(suspectPlayer);
+
         when(accuserPlayer.isCanReport()).thenReturn(true);
         when(mockGameManager.inRoom(accuserPlayer)).thenReturn(true);
+
         when(accuserPlayer.getName()).thenReturn("Accuser");
+        when(accuserPlayer.getX()).thenReturn(5);
+        when(accuserPlayer.getY()).thenReturn(6);
         when(suspectPlayer.getName()).thenReturn("Suspect");
 
-        when(mockGameManager.getLastSuggestion("Suspect"))
-                .thenReturn(new GameManager.SuggestionRecord("Miss Scarlet", "Candlestick", "Ballroom"));
+        when(mockGameManager.getCurrentRoom(accuserPlayer)).thenReturn("Kitchen");
         when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Kitchen");
+        when(suspectPlayer.getSuggestionsInCurrentRoom()).thenReturn(1);
 
         cheatingController.handleCheatingReport(report);
 
         verify(mockGameManager).resetPlayer(accuserPlayer);
         verify(accuserPlayer).setCanReport(false);
+
+        verify(messagingTemplate).convertAndSend(
+                "/topic/playerReset/2131230973",
+                Map.of("player", "Accuser", "x", 5, "y", 6)
+        );
     }
+
+
+    @Test
+    void testCheatingReport_NotSameRoom_ResetsAccuser() {
+        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
+        when(mockGameManager.getPlayer("Accuser")).thenReturn(accuserPlayer);
+        when(mockGameManager.getPlayer("Suspect")).thenReturn(suspectPlayer);
+
+        when(accuserPlayer.isCanReport()).thenReturn(true);
+        when(mockGameManager.inRoom(accuserPlayer)).thenReturn(true);
+        when(mockGameManager.getCurrentRoom(accuserPlayer)).thenReturn("Kitchen");
+        when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Library");
+
+        when(accuserPlayer.getName()).thenReturn("Accuser");
+        when(accuserPlayer.getX()).thenReturn(2);
+        when(accuserPlayer.getY()).thenReturn(3);
+        when(suspectPlayer.getName()).thenReturn("Suspect");
+
+        cheatingController.handleCheatingReport(report);
+
+        verify(mockGameManager).resetPlayer(accuserPlayer);
+        verify(accuserPlayer).setCanReport(false);
+
+        verify(messagingTemplate).convertAndSend(
+                "/topic/playerReset/2131230973",
+                Map.of("player", "Accuser", "x", 2, "y", 3)
+        );
+
+        verify(messagingTemplate).convertAndSend(
+                "/topic/cheating/2131230973",
+                Map.of(
+                        "type", "CHEATING_REPORT",
+                        "suspect", "Suspect",
+                        "accuser", "Accuser",
+                        "valid", false,
+                        "reason", "NOT_IN_SAME_ROOM"
+                )
+        );
+    }
+
 }

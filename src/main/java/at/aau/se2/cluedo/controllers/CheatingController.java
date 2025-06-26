@@ -8,6 +8,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,8 +38,10 @@ public class CheatingController {
 
         GameManager game = gameService.getGame(report.getLobbyId());
         if (game == null) return;
-        if (game.getCheatingReports().getOrDefault(report.getSuspect(), Set.of()).contains(report.getAccuser())) {
-            return;
+        Set<String> alreadyAccused = game.getCheatingReports()
+                .getOrDefault(report.getAccuser(), new HashSet<>());
+
+        if (alreadyAccused.contains(report.getSuspect())) {            return;
         }
 
         Player accuser = game.getPlayer(report.getAccuser());
@@ -53,6 +56,7 @@ public class CheatingController {
                     "/topic/playerReset/" + report.getLobbyId(),
                     Map.of("player", accuser.getName(), "x", accuser.getX(), "y", accuser.getY())
             );
+            game.getCheatingReports().computeIfAbsent(report.getAccuser(), k -> new HashSet<>()).add(report.getSuspect());
             messagingTemplate.convertAndSend(
                     "/topic/cheating/" + report.getLobbyId(),
                     Map.of(
@@ -76,6 +80,7 @@ public class CheatingController {
                     "/topic/playerReset/" + report.getLobbyId(),
                     Map.of("player", accuser.getName(), "x", accuser.getX(), "y", accuser.getY())
             );
+            game.getCheatingReports().computeIfAbsent(report.getAccuser(), k -> new HashSet<>()).add(report.getSuspect());
             messagingTemplate.convertAndSend(
                     "/topic/cheating/" + report.getLobbyId(),
                     Map.of(
@@ -107,7 +112,7 @@ public class CheatingController {
                     Map.of("player", accuser.getName(), "x", accuser.getX(), "y", accuser.getY())
             );
         }
-
+        game.getCheatingReports().computeIfAbsent(report.getAccuser(), k -> new HashSet<>()).add(report.getSuspect());
         messagingTemplate.convertAndSend(
                 "/topic/cheating/" + report.getLobbyId(),
                 Map.of(
@@ -119,28 +124,6 @@ public class CheatingController {
                 )
         );
     }
-
-
-    @MessageMapping("/cheating/eliminate")
-    public void manuallyEliminatePlayer(CheatingReport report) {
-        GameManager gameManager = gameService.getGame(report.getLobbyId());
-        if (gameManager != null) {
-            eliminatePlayer(gameManager, report.getSuspect());
-        }
     }
-
-    private void eliminatePlayer(GameManager gameManager, String suspect) {
-        Player player = gameManager.getPlayer(suspect);
-        if (player != null && player.isActive()) {
-            player.setActive(false);
-            logger.info("Player {} has been eliminated for cheating", suspect);
-            messagingTemplate.convertAndSend(
-                    "/topic/elimination/" + gameManager.getLobbyId(),
-                    Map.of("player", suspect, "reason", "CHEATING")
-            );
-        }
-    }
-}
-
 
 
