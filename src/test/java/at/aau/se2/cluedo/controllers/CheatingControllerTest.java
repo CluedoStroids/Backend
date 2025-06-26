@@ -199,13 +199,13 @@ class CheatingControllerTest {
         when(mockGameManager.inRoom(accuserPlayer)).thenReturn(true);
 
         when(accuserPlayer.getName()).thenReturn("Accuser");
-        when(accuserPlayer.getX()).thenReturn(5); // important!
-        when(accuserPlayer.getY()).thenReturn(6); // important!
+        when(accuserPlayer.getX()).thenReturn(5);
+        when(accuserPlayer.getY()).thenReturn(6);
         when(suspectPlayer.getName()).thenReturn("Suspect");
 
         when(mockGameManager.getCurrentRoom(accuserPlayer)).thenReturn("Kitchen");
         when(mockGameManager.getCurrentRoom(suspectPlayer)).thenReturn("Kitchen");
-        when(suspectPlayer.getSuggestionsInCurrentRoom()).thenReturn(1); // not cheating
+        when(suspectPlayer.getSuggestionsInCurrentRoom()).thenReturn(1);
 
         cheatingController.handleCheatingReport(report);
 
