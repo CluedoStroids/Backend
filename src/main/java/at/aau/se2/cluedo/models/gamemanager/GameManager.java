@@ -30,6 +30,7 @@ public class GameManager {
     private GameState state;
     private int currentPlayerIndex;
     private int diceRollS;
+    @Getter
     private final Map<String, Set<String>> cheatingReports = new HashMap<>();
     private final Map<String, SuggestionRecord> lastSuggestions = new HashMap<>();
 
@@ -325,6 +326,7 @@ public class GameManager {
         players.get(currentPlayerIndex).setCurrentPlayer(true);
         players.get(currentPlayerIndex).resetReportAbility();
         logger.info("Next turn: {}", players.get(currentPlayerIndex).getName());
+        cheatingReports.clear();
     }
 
     public void eliminateCurrentPlayer() {
@@ -348,15 +350,6 @@ public class GameManager {
         return new ArrayList<>(players);
     }
 
-
-    public void reportCheating(String accuser, String suspect) {
-        cheatingReports.putIfAbsent(suspect, new HashSet<>());
-        cheatingReports.get(suspect).add(accuser);
-    }
-
-    public int getCheatingReportsCount(String suspect) {
-        return cheatingReports.getOrDefault(suspect, Set.of()).size();
-    }
 
     public SuggestionRecord getLastSuggestion(String playerName) {
         return lastSuggestions.get(playerName);

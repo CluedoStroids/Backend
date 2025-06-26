@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -379,21 +380,19 @@ public class GameManagerTest {
     }
 
     @Test
-    void testReportCheatingAddsAndCountsCorrectly() {
-        gameManager.reportCheating("Ela", "Colonel Mustard");
-        assertEquals(1, gameManager.getCheatingReportsCount("Colonel Mustard"));
+    void testCheatingReportsTrackAccuserSuspectOncePerRound() {
+        gameManager.getCheatingReports().putIfAbsent("Ela", new HashSet<>());
+        gameManager.getCheatingReports().get("Ela").add("Colonel Mustard");
 
-        gameManager.reportCheating("Tim", "Colonel Mustard");
-        assertEquals(2, gameManager.getCheatingReportsCount("Colonel Mustard"));
+        assertTrue(gameManager.getCheatingReports().get("Ela").contains("Colonel Mustard"));
 
-        gameManager.reportCheating("Ela", "Colonel Mustard");
-        assertEquals(2, gameManager.getCheatingReportsCount("Colonel Mustard"));
+        int sizeBefore = gameManager.getCheatingReports().get("Ela").size();
+        gameManager.getCheatingReports().get("Ela").add("Colonel Mustard");
+        int sizeAfter = gameManager.getCheatingReports().get("Ela").size();
+
+        assertEquals(sizeBefore, sizeAfter);
     }
 
-    @Test
-    void testGetCheatingReportsCountReturnsZeroIfNone() {
-        assertEquals(0, gameManager.getCheatingReportsCount("UnknownPlayer"));
-    }
 
     @Test
     void testRecordAndGetLastSuggestion() {
