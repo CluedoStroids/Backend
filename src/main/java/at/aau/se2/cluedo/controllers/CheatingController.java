@@ -119,28 +119,6 @@ public class CheatingController {
                 )
         );
     }
-
-
-    @MessageMapping("/cheating/eliminate")
-    public void manuallyEliminatePlayer(CheatingReport report) {
-        GameManager gameManager = gameService.getGame(report.getLobbyId());
-        if (gameManager != null) {
-            eliminatePlayer(gameManager, report.getSuspect());
-        }
     }
-
-    private void eliminatePlayer(GameManager gameManager, String suspect) {
-        Player player = gameManager.getPlayer(suspect);
-        if (player != null && player.isActive()) {
-            player.setActive(false);
-            logger.info("Player {} has been eliminated for cheating", suspect);
-            messagingTemplate.convertAndSend(
-                    "/topic/elimination/" + gameManager.getLobbyId(),
-                    Map.of("player", suspect, "reason", "CHEATING")
-            );
-        }
-    }
-}
-
 
 

@@ -77,30 +77,6 @@ class CheatingControllerTest {
     }
 
 
-
-
-    @Test
-    void testManuallyEliminatePlayer_sendsEliminationMessage_withNumericLobbyId() {
-        CheatingReport report = new CheatingReport();
-        report.setLobbyId("2131230973");
-        report.setSuspect("Red");
-
-        Player mockPlayer = mock(Player.class);
-        when(mockPlayer.isActive()).thenReturn(true);
-
-        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
-        when(mockGameManager.getPlayer("Red")).thenReturn(mockPlayer);
-        when(mockGameManager.getLobbyId()).thenReturn("2131230973");
-
-        cheatingController.manuallyEliminatePlayer(report);
-
-        verify(mockPlayer).setActive(false);
-        verify(messagingTemplate).convertAndSend(
-                ("/topic/elimination/2131230973"),
-                (Map.of("player", "Red", "reason", "CHEATING"))
-        );
-    }
-
     @Test
     void testHandleCheatingReport_invalidReport_doesNothing() {
         CheatingReport report = new CheatingReport();
@@ -122,38 +98,6 @@ class CheatingControllerTest {
 
         cheatingController.handleCheatingReport(report);
 
-        verifyNoInteractions(messagingTemplate);
-    }
-
-    @Test
-    void testManuallyEliminatePlayer_playerNotFound_doesNothing() {
-        CheatingReport report = new CheatingReport();
-        report.setLobbyId("2131230973");
-        report.setSuspect("Green");
-
-        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
-        when(mockGameManager.getPlayer("Green")).thenReturn(null);
-
-        cheatingController.manuallyEliminatePlayer(report);
-
-        verifyNoInteractions(messagingTemplate);
-    }
-
-    @Test
-    void testManuallyEliminatePlayer_playerAlreadyInactive_doesNothing() {
-        CheatingReport report = new CheatingReport();
-        report.setLobbyId("2131230973");
-        report.setSuspect("Peacock");
-
-        Player mockPlayer = mock(Player.class);
-        when(mockPlayer.isActive()).thenReturn(false);
-
-        when(gameService.getGame("2131230973")).thenReturn(mockGameManager);
-        when(mockGameManager.getPlayer("Peacock")).thenReturn(mockPlayer);
-
-        cheatingController.manuallyEliminatePlayer(report);
-
-        verify(mockPlayer, never()).setActive(false);
         verifyNoInteractions(messagingTemplate);
     }
 
