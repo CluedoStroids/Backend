@@ -116,8 +116,6 @@ public class GameBoardController {
     @MessageMapping("/getGameData/{lobbyId}")
     @SendTo("/topic/gameData/{lobbyId}")
     public GameDataResponse gameData(@DestinationVariable String lobbyId, StartGameRequest request) {
-
-
         try {
             GameManager gameManager = gameService.getGame(lobbyId);
 
